@@ -1,0 +1,12 @@
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
+
+.worktrees/
+node_modules/
+hooks/pretooluse.js
+dist/
+CLAUDE.md
+docs/superpowers/
+.claude/

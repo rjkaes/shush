@@ -1,0 +1,17 @@
+{
+  "description": "Shush safety guard — classifies tool calls before execution",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Write|Edit|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/pretooluse.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

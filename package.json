@@ -1,0 +1,20 @@
+{
+  "name": "shush",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "bun build hooks/pretooluse.ts --outdir=hooks --target=node --format=esm",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "bash-parser": "^0.5.0",
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.7"
+  }
+}

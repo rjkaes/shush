@@ -1,0 +1,13 @@
+output:
+  - failure
+  - execution_info
+
+post-commit:
+  parallel: false
+  commands:
+    typecheck:
+      run: bun run typecheck
+    test:
+      run: bun test
+    build:
+      run: bun run build
