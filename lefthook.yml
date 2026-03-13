@@ -2,12 +2,6 @@ output:
   - failure
   - execution_info
 
-pre-commit:
-  commands:
-    generate-classifiers:
-      glob: "data/classify_full/*.json"
-      run: bun run scripts/generate-classifiers.ts && git add data/classify-full.ts
-
 post-commit:
   parallel: false
   commands:

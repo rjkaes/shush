@@ -185,7 +185,7 @@ src/path-guard.ts       Path sensitivity checks for file tools
 src/content-guard.ts    Content pattern scanning for Write/Edit
 src/config.ts           YAML config loading, validation, merging
 src/types.ts            Shared types (Decision, Stage, HookInput, etc.)
-data/classify-full.ts   Embedded prefix table (~1,200 entries)
+data/classify_full/     Per-type JSON prefix tables (~1,200 entries)
 ```
 
 ### Design decisions

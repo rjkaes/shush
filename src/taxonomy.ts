@@ -1,5 +1,7 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { basename, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { type Decision, type ShushConfig, stricter } from "./types.js";
-import { type PrefixEntry, CLASSIFY_FULL_TABLE } from "../data/classify-full.js";
 
 // Action type constants
 export const FILESYSTEM_READ = "filesystem_read";
@@ -23,33 +25,48 @@ export const DB_WRITE = "db_write";
 export const OBFUSCATED = "obfuscated";
 export const UNKNOWN = "unknown";
 
-// Default policies per action type
-export const DEFAULT_POLICIES: Record<string, Decision> = {
-  filesystem_read: "allow",
-  filesystem_write: "context",
-  filesystem_delete: "context",
-  git_safe: "allow",
-  git_write: "allow",
-  git_discard: "ask",
-  git_history_rewrite: "ask",
-  network_outbound: "context",
-  network_write: "context",
-  network_diagnostic: "allow",
-  package_install: "allow",
-  package_run: "allow",
-  package_uninstall: "ask",
-  lang_exec: "ask",
-  process_signal: "ask",
-  container_destructive: "ask",
-  db_read: "allow",
-  db_write: "ask",
-  obfuscated: "block",
-  unknown: "ask",
-};
+// Default policies loaded from data/policies.json
+const DATA_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..", "data");
+export const DEFAULT_POLICIES: Record<string, Decision> = JSON.parse(
+  readFileSync(resolve(DATA_DIR, "policies.json"), "utf-8"),
+);
+
+// Prefix table loaded from data/classify_full/*.json at module init.
+export interface PrefixEntry {
+  prefix: string[];
+  actionType: string;
+}
+
+const CLASSIFY_FULL_DIR = resolve(DATA_DIR, "classify_full");
+
+export const CLASSIFY_FULL_TABLE: PrefixEntry[] = (() => {
+  const files = readdirSync(CLASSIFY_FULL_DIR)
+    .filter((f) => f.endsWith(".json"))
+    .sort();
+  const entries: PrefixEntry[] = [];
+  for (const file of files) {
+    const actionType = basename(file, ".json");
+    const raw = JSON.parse(
+      readFileSync(resolve(CLASSIFY_FULL_DIR, file), "utf-8"),
+    ) as string[][];
+    for (const prefix of raw) {
+      entries.push({ prefix, actionType });
+    }
+  }
+  // Sort: longest prefix first, then alphabetically by joined prefix.
+  entries.sort((a, b) => {
+    const lenDiff = b.prefix.length - a.prefix.length;
+    if (lenDiff !== 0) return lenDiff;
+    const aKey = a.prefix.join(" ");
+    const bKey = b.prefix.join(" ");
+    return aKey < bKey ? -1 : aKey > bKey ? 1 : 0;
+  });
+  return entries;
+})();
 
 // First-token index: maps the first token of each prefix entry to the
 // subset of entries sharing that token. Built once at module load so
-// prefixMatch only scans the relevant bucket instead of all ~580 entries.
+// prefixMatch only scans the relevant bucket instead of all entries.
 const firstTokenIndex: Map<string, PrefixEntry[]> = (() => {
   const index = new Map<string, PrefixEntry[]>();
   for (const entry of CLASSIFY_FULL_TABLE) {
