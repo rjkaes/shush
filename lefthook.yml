@@ -8,7 +8,6 @@ pre-commit:
       glob: "data/classify_full/*.json"
       run: bun run scripts/build-trie.ts && git add data/classifier-trie.json
     build:
-      glob: "{src/**/*.ts,hooks/pretooluse.ts,data/*.json}"
       run: bun run build && git add hooks/pretooluse.js
     typecheck:
       run: bun run typecheck
