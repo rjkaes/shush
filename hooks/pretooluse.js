@@ -22586,8 +22586,8 @@ function loadConfigFile(filePath) {
   }
 }
 var DEFAULT_GLOBAL_PATH = (() => {
-  const home = process.env.HOME ?? "";
-  return path2.join(home, ".config", "shush", "config.yaml");
+  const { homedir: homedir2 } = __require("node:os");
+  return path2.join(homedir2(), ".config", "shush", "config.yaml");
 })();
 function loadConfig(projectRoot, globalPath = DEFAULT_GLOBAL_PATH) {
   const globalConfig = loadConfigFile(globalPath) ?? EMPTY_CONFIG;

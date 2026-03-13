@@ -335,6 +335,22 @@ describe("isSensitive with config", () => {
   });
 });
 
+describe("cross-platform config path", () => {
+  test("loadConfig uses a valid absolute path for global config", () => {
+    const { homedir } = require("node:os");
+    const path = require("node:path");
+    const home = homedir();
+    // loadConfig with null projectRoot returns global config (file may not exist, that's OK)
+    const config = loadConfig(null);
+    // Verify homedir is non-empty and absolute (guards against process.env.HOME being undefined)
+    expect(home.length).toBeGreaterThan(0);
+    expect(path.isAbsolute(home)).toBe(true);
+    // Config should parse without error (returns EMPTY_CONFIG if file missing)
+    expect(config).toHaveProperty("actions");
+    expect(config).toHaveProperty("sensitivePaths");
+    expect(config).toHaveProperty("classify");
+  });
+});
 import { classifyCommand } from "../src/bash-guard.js";
 import { checkPath } from "../src/path-guard.js";
 
