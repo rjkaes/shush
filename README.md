@@ -26,14 +26,11 @@ shush classifies every tool call by what it *actually does* using structural ana
 
 ### As a Claude Code plugin
 
-```bash
-claude plugin add /path/to/shush
+In Claude Code, add the marketplace and install:
+
 ```
-
-Or add the GitHub repo directly:
-
-```bash
-claude plugin add github:rjkaes/shush
+/plugin marketplace add rjkaes/shush
+/plugin install shush
 ```
 
 Then restart Claude Code. shush runs as a PreToolUse hook; no configuration required.
@@ -47,10 +44,14 @@ git clone https://github.com/rjkaes/shush.git
 cd shush
 bun install
 bun run build
-claude plugin add .
 ```
 
-This produces `hooks/pretooluse.js`, a single bundled file.
+This produces `hooks/pretooluse.js`, a single bundled file. To install from a local checkout:
+
+```
+/plugin marketplace add ./path/to/shush
+/plugin install shush
+```
 
 > **Don't use `--dangerously-skip-permissions`.** In bypass mode, hooks
 > [fire asynchronously](https://github.com/anthropics/claude-code/issues/20946);
