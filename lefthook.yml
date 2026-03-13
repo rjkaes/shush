@@ -4,16 +4,13 @@ output:
 
 pre-commit:
   commands:
-    build-trie:
+    generate-classifiers:
       glob: "data/classify_full/*.json"
       run: bun run scripts/build-trie.ts && git add data/classifier-trie.json
-
-post-commit:
-  parallel: false
-  commands:
+    build:
+      glob: "{src/**/*.ts,hooks/pretooluse.ts,data/*.json}"
+      run: bun run build && git add hooks/pretooluse.js
     typecheck:
       run: bun run typecheck
     test:
       run: bun test
-    build:
-      run: bun run build

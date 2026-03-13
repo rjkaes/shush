@@ -5,7 +5,6 @@
 
 .worktrees/
 node_modules/
-hooks/pretooluse.js
 dist/
 CLAUDE.md
 docs/superpowers/
