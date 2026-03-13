@@ -41,66 +41,80 @@ export const DEFAULT_POLICIES: Record<string, Decision> = JSON.parse(
   readFileSync(resolve(DATA_DIR, "policies.json"), "utf-8"),
 );
 
-// Prefix table loaded from data/classify_full/*.json at module init.
+// ==============================================================================
+// Prefix Trie
+// ==============================================================================
+
+// PrefixEntry is the on-disk format (per-type JSON files). Kept as an export
+// for tests that pass ad-hoc tables to prefixMatch.
 export interface PrefixEntry {
   prefix: string[];
   actionType: string;
 }
 
+interface TrieNode {
+  action?: string;
+  children: Map<string, TrieNode>;
+}
+
+function trieInsert(root: TrieNode, prefix: string[], actionType: string): void {
+  let node = root;
+  for (const token of prefix) {
+    let child = node.children.get(token);
+    if (!child) {
+      child = { children: new Map() };
+      node.children.set(token, child);
+    }
+    node = child;
+  }
+  node.action = actionType;
+}
+
+/** Walk the trie, returning the deepest (longest-prefix) action found. */
+function trieLookup(root: TrieNode, tokens: string[]): string {
+  let node = root;
+  let bestAction = UNKNOWN;
+  for (const token of tokens) {
+    const child = node.children.get(token);
+    if (!child) break;
+    if (child.action !== undefined) bestAction = child.action;
+    node = child;
+  }
+  return bestAction;
+}
+
+// Build the trie from data/classify_full/*.json at module load.
 const CLASSIFY_FULL_DIR = resolve(DATA_DIR, "classify_full");
 
-export const CLASSIFY_FULL_TABLE: PrefixEntry[] = (() => {
+const classifyTrie: TrieNode = (() => {
+  const root: TrieNode = { children: new Map() };
   const files = readdirSync(CLASSIFY_FULL_DIR)
     .filter((f) => f.endsWith(".json"))
     .sort();
-  const entries: PrefixEntry[] = [];
   for (const file of files) {
     const actionType = basename(file, ".json");
     const raw = JSON.parse(
       readFileSync(resolve(CLASSIFY_FULL_DIR, file), "utf-8"),
     ) as string[][];
     for (const prefix of raw) {
-      entries.push({ prefix, actionType });
+      trieInsert(root, prefix, actionType);
     }
   }
-  // Sort: longest prefix first, then alphabetically by joined prefix.
-  entries.sort((a, b) => {
-    const lenDiff = b.prefix.length - a.prefix.length;
-    if (lenDiff !== 0) return lenDiff;
-    const aKey = a.prefix.join(" ");
-    const bKey = b.prefix.join(" ");
-    return aKey < bKey ? -1 : aKey > bKey ? 1 : 0;
-  });
-  return entries;
+  return root;
 })();
 
-// First-token index: maps the first token of each prefix entry to the
-// subset of entries sharing that token. Built once at module load so
-// prefixMatch only scans the relevant bucket instead of all entries.
-const firstTokenIndex: Map<string, PrefixEntry[]> = (() => {
-  const index = new Map<string, PrefixEntry[]>();
-  for (const entry of CLASSIFY_FULL_TABLE) {
-    const key = entry.prefix[0];
-    let bucket = index.get(key);
-    if (!bucket) {
-      bucket = [];
-      index.set(key, bucket);
-    }
-    bucket.push(entry);
-  }
-  return index;
-})();
-
-/** Longest-prefix-first match against a sorted table. */
+/** Longest-prefix match. Uses the trie for the built-in table; falls back to
+ *  linear scan for ad-hoc tables passed from tests. */
 export function prefixMatch(
   tokens: string[],
-  table: PrefixEntry[],
+  table?: PrefixEntry[],
 ): string {
-  // Use first-token index when called with the default table
-  const bucket = table === CLASSIFY_FULL_TABLE ? firstTokenIndex.get(tokens[0]) : undefined;
-  const entries = bucket ?? table;
+  // Fast path: built-in trie lookup, O(prefix depth).
+  if (!table) return trieLookup(classifyTrie, tokens);
 
-  for (const entry of entries) {
+  // Slow path: ad-hoc table from tests.
+  const sorted = [...table].sort((a, b) => b.prefix.length - a.prefix.length);
+  for (const entry of sorted) {
     if (tokens.length >= entry.prefix.length) {
       let match = true;
       for (let i = 0; i < entry.prefix.length; i++) {
@@ -139,7 +153,7 @@ export const DECODE_COMMANDS: Array<[string, string | null]> = [
   ["uudecode", null],
 ];
 
-/** Normalize /usr/bin/rm → rm, then prefix-match against built-in table. */
+/** Normalize /usr/bin/rm -> rm, then prefix-match against built-in trie. */
 export function classifyTokens(tokens: string[], config?: ShushConfig): string {
   if (tokens.length === 0) return UNKNOWN;
 
@@ -168,5 +182,5 @@ export function classifyTokens(tokens: string[], config?: ShushConfig): string {
     }
   }
 
-  return prefixMatch(normalized, CLASSIFY_FULL_TABLE);
+  return prefixMatch(normalized);
 }
