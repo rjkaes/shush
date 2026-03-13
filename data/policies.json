@@ -15,6 +15,7 @@
   "lang_exec": "ask",
   "process_signal": "ask",
   "container_destructive": "ask",
+  "disk_destructive": "ask",
   "db_read": "allow",
   "db_write": "ask",
   "obfuscated": "block",

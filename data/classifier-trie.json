@@ -21,12 +21,6 @@
       }
     }
   },
-  "cfdisk": {
-    "_": "container_destructive"
-  },
-  "dd": {
-    "_": "container_destructive"
-  },
   "az": {
     "group": {
       "delete": {
@@ -91,9 +85,6 @@
       "_": "package_install"
     }
   },
-  "fdisk": {
-    "_": "container_destructive"
-  },
   "gcloud": {
     "compute": {
       "instances": {
@@ -109,21 +100,6 @@
         }
       }
     }
-  },
-  "mkfs": {
-    "_": "container_destructive"
-  },
-  "mkfs.btrfs": {
-    "_": "container_destructive"
-  },
-  "mkfs.ext4": {
-    "_": "container_destructive"
-  },
-  "mkfs.xfs": {
-    "_": "container_destructive"
-  },
-  "mount": {
-    "_": "container_destructive"
   },
   "helm": {
     "delete": {
@@ -198,9 +174,6 @@
       "_": "package_install"
     }
   },
-  "umount": {
-    "_": "container_destructive"
-  },
   "mongosh": {
     "_": "db_write"
   },
@@ -265,6 +238,33 @@
   },
   "sqlite3": {
     "_": "db_write"
+  },
+  "cfdisk": {
+    "_": "disk_destructive"
+  },
+  "dd": {
+    "_": "disk_destructive"
+  },
+  "fdisk": {
+    "_": "disk_destructive"
+  },
+  "mkfs": {
+    "_": "disk_destructive"
+  },
+  "mkfs.btrfs": {
+    "_": "disk_destructive"
+  },
+  "mkfs.ext4": {
+    "_": "disk_destructive"
+  },
+  "mkfs.xfs": {
+    "_": "disk_destructive"
+  },
+  "mount": {
+    "_": "disk_destructive"
+  },
+  "umount": {
+    "_": "disk_destructive"
   },
   "rm": {
     "_": "filesystem_delete"

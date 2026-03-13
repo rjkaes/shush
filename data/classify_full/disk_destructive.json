@@ -1,0 +1,29 @@
+[
+  [
+    "cfdisk"
+  ],
+  [
+    "dd"
+  ],
+  [
+    "fdisk"
+  ],
+  [
+    "mkfs"
+  ],
+  [
+    "mkfs.btrfs"
+  ],
+  [
+    "mkfs.ext4"
+  ],
+  [
+    "mkfs.xfs"
+  ],
+  [
+    "mount"
+  ],
+  [
+    "umount"
+  ]
+]
