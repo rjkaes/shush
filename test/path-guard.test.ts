@@ -33,8 +33,9 @@ describe("checkPath", () => {
 
 describe("isHookPath", () => {
   test("detects ~/.claude/hooks paths", () => {
+    const { join } = require("node:path");
     const home = require("node:os").homedir();
-    expect(isHookPath(`${home}/.claude/hooks/test.sh`)).toBe(true);
+    expect(isHookPath(join(home, ".claude", "hooks", "test.sh"))).toBe(true);
   });
 
   test("rejects other paths", () => {
