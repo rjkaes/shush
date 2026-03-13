@@ -192,7 +192,7 @@ bun run typecheck     # type-check without emitting
 bun run build         # bundle hook entry point
 ```
 
-### Design decisions
+## Design decisions
 
 - **AST over tokenization** -- bash-parser gives a real parse tree, so pipes, subshells, logical operators, and redirects are handled correctly rather than splitting on whitespace.
 - **Pre-built trie** -- Classification tables compile to a prefix trie at build time, giving O(1) lookup with no runtime I/O in the hot path.
