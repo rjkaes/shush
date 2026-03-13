@@ -122,8 +122,8 @@ export function loadConfigFile(filePath: string): ShushConfig | null {
 }
 
 const DEFAULT_GLOBAL_PATH = (() => {
-  const home = process.env.HOME ?? "";
-  return path.join(home, ".config", "shush", "config.yaml");
+  const { homedir } = require("node:os");
+  return path.join(homedir(), ".config", "shush", "config.yaml");
 })();
 
 /**
