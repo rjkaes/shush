@@ -192,10 +192,39 @@ function fallbackSplit(command: string): Stage[] {
   for (const { text, operator } of segments) {
     const trimmed = text.trim();
     if (trimmed) {
-      stages.push({ tokens: trimmed.split(/\s+/), operator });
+      const allTokens = trimmed.split(/\s+/);
+      const { tokens, redirectTarget, redirectAppend } = extractRedirectFromTokens(allTokens);
+      stages.push({ tokens, operator, redirectTarget, redirectAppend });
     }
   }
   return stages;
+}
+
+/** Pull > / >> and their target out of a raw token list. */
+function extractRedirectFromTokens(tokens: string[]): {
+  tokens: string[];
+  redirectTarget?: string;
+  redirectAppend?: boolean;
+} {
+  const clean: string[] = [];
+  let redirectTarget: string | undefined;
+  let redirectAppend: boolean | undefined;
+
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i] === ">>" && i + 1 < tokens.length) {
+      redirectTarget = tokens[i + 1];
+      redirectAppend = true;
+      i++; // skip target
+    } else if (tokens[i] === ">" && i + 1 < tokens.length) {
+      redirectTarget = tokens[i + 1];
+      redirectAppend = false;
+      i++; // skip target
+    } else {
+      clean.push(tokens[i]);
+    }
+  }
+
+  return { tokens: clean, redirectTarget, redirectAppend };
 }
 
 /** Split command on |, &&, ||, ; that are outside quotes. */

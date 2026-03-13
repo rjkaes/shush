@@ -66,6 +66,18 @@ describe("extractStages", () => {
     expect(stages).toHaveLength(0);
   });
 
+  test("fallback split detects redirect", () => {
+    // [[ ]] forces fallback; redirect should still be extracted
+    const stages = extractStages("[[ -f file ]] && echo hello > out.txt");
+    const echoStage = stages.find((s) => s.tokens[0] === "echo");
+    expect(echoStage).toBeDefined();
+    expect(echoStage!.redirectTarget).toBe("out.txt");
+    expect(echoStage!.redirectAppend).toBe(false);
+    // > and out.txt should NOT appear in tokens
+    expect(echoStage!.tokens).not.toContain(">");
+    expect(echoStage!.tokens).not.toContain("out.txt");
+  });
+
   test("parse failure falls back to shlex-like split", () => {
     // bash-parser can't handle [[ ]] — should fall back gracefully
     const stages = extractStages("[[ -f file ]]");

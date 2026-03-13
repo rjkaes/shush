@@ -4,9 +4,10 @@
 // extractStages -> classify each stage -> check composition -> aggregate.
 
 import { extractStages } from "./ast-walk.js";
-import { classifyTokens, SHELL_WRAPPERS, getPolicy } from "./taxonomy.js";
+import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_WRITE } from "./taxonomy.js";
 import { classifyWithFlags } from "./classify.js";
 import { checkComposition } from "./composition.js";
+import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
 import { stricter } from "./types.js";
 
@@ -64,13 +65,34 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     const tokens = (stage.tokens[0] === "xargs" && stage.tokens.length >= 2)
       ? unwrapXargs(stage.tokens)
       : stage.tokens;
-    const { actionType, decision } = classifyStage(tokens, config);
+    let { actionType, decision } = classifyStage(tokens, config);
+    let reason = decision !== "allow" ? `${tokens[0]}: ${actionType}` : "";
+
+    // A redirect means this stage writes to a file, regardless of what
+    // the command itself would normally be classified as.
+    if (stage.redirectTarget) {
+      const writePolicy = getPolicy(FILESYSTEM_WRITE, config);
+      const combined = stricter(decision, writePolicy);
+      if (combined !== decision) {
+        actionType = FILESYSTEM_WRITE;
+        decision = combined;
+        reason = `${tokens[0]} redirects to ${stage.redirectTarget}: ${FILESYSTEM_WRITE}`;
+      }
+
+      // Check redirect target against sensitive/hook paths
+      const pathResult = checkPath("Bash", stage.redirectTarget, config);
+      if (pathResult) {
+        decision = stricter(decision, pathResult.decision);
+        reason = pathResult.reason;
+      }
+    }
+
     return {
       tokens: stage.tokens,
       actionType,
       defaultPolicy: decision,
       decision,
-      reason: decision !== "allow" ? `${tokens[0]}: ${actionType}` : "",
+      reason,
     };
   });
 

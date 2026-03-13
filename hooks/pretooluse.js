@@ -17651,10 +17651,31 @@ function fallbackSplit(command) {
   for (const { text, operator } of segments) {
     const trimmed = text.trim();
     if (trimmed) {
-      stages.push({ tokens: trimmed.split(/\s+/), operator });
+      const allTokens = trimmed.split(/\s+/);
+      const { tokens, redirectTarget, redirectAppend } = extractRedirectFromTokens(allTokens);
+      stages.push({ tokens, operator, redirectTarget, redirectAppend });
     }
   }
   return stages;
+}
+function extractRedirectFromTokens(tokens) {
+  const clean = [];
+  let redirectTarget;
+  let redirectAppend;
+  for (let i = 0;i < tokens.length; i++) {
+    if (tokens[i] === ">>" && i + 1 < tokens.length) {
+      redirectTarget = tokens[i + 1];
+      redirectAppend = true;
+      i++;
+    } else if (tokens[i] === ">" && i + 1 < tokens.length) {
+      redirectTarget = tokens[i + 1];
+      redirectAppend = false;
+      i++;
+    } else {
+      clean.push(tokens[i]);
+    }
+  }
+  return { tokens: clean, redirectTarget, redirectAppend };
 }
 function splitOnUnquotedOperators(command) {
   const results = [];
@@ -22317,13 +22338,28 @@ function classifyCommand(command, depth = 0, config) {
   }
   const stageResults = stages.map((stage) => {
     const tokens = stage.tokens[0] === "xargs" && stage.tokens.length >= 2 ? unwrapXargs(stage.tokens) : stage.tokens;
-    const { actionType, decision } = classifyStage(tokens, config);
+    let { actionType, decision } = classifyStage(tokens, config);
+    let reason2 = decision !== "allow" ? `${tokens[0]}: ${actionType}` : "";
+    if (stage.redirectTarget) {
+      const writePolicy = getPolicy(FILESYSTEM_WRITE, config);
+      const combined = stricter(decision, writePolicy);
+      if (combined !== decision) {
+        actionType = FILESYSTEM_WRITE;
+        decision = combined;
+        reason2 = `${tokens[0]} redirects to ${stage.redirectTarget}: ${FILESYSTEM_WRITE}`;
+      }
+      const pathResult = checkPath("Bash", stage.redirectTarget, config);
+      if (pathResult) {
+        decision = stricter(decision, pathResult.decision);
+        reason2 = pathResult.reason;
+      }
+    }
     return {
       tokens: stage.tokens,
       actionType,
       defaultPolicy: decision,
       decision,
-      reason: decision !== "allow" ? `${tokens[0]}: ${actionType}` : ""
+      reason: reason2
     };
   });
   const [compDecision, compReason, compRule] = checkComposition(stageResults, stages, config);

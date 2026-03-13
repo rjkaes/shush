@@ -54,6 +54,26 @@ describe("classifyCommand", () => {
     expect(classifyCommand("find . -print0 | xargs -0 grep 'ERROR'").finalDecision).toBe("allow");
   });
 
+  // Redirect detection
+  test("echo > file → context (filesystem_write)", () => {
+    const result = classifyCommand("echo hello > output.txt");
+    expect(result.finalDecision).toBe("context");
+    expect(result.stages[0].actionType).toBe("filesystem_write");
+  });
+  test("printf >> file → context (filesystem_write)", () => {
+    const result = classifyCommand("printf 'data' >> log.txt");
+    expect(result.finalDecision).toBe("context");
+    expect(result.stages[0].actionType).toBe("filesystem_write");
+  });
+  test("echo > ~/.ssh/key → block (sensitive path)", () => {
+    const result = classifyCommand("echo 'evil' > ~/.ssh/authorized_keys");
+    expect(result.finalDecision).toBe("block");
+  });
+  test("cat file > other is at least filesystem_write", () => {
+    const result = classifyCommand("cat input.txt > output.txt");
+    expect(result.stages[0].actionType).toBe("filesystem_write");
+  });
+
   // Unknown
   test("unknown command → ask", () => {
     expect(classifyCommand("mysterybin --flag").finalDecision).toBe("ask");
