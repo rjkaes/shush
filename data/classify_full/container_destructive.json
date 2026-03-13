@@ -5,6 +5,12 @@
     "delete-stack"
   ],
   [
+    "cfdisk"
+  ],
+  [
+    "dd"
+  ],
+  [
     "aws",
     "ec2",
     "terminate-instances"
@@ -41,6 +47,9 @@
     "rm"
   ],
   [
+    "fdisk"
+  ],
+  [
     "docker",
     "image",
     "rm"
@@ -73,6 +82,21 @@
     "compute",
     "instances",
     "delete"
+  ],
+  [
+    "mkfs"
+  ],
+  [
+    "mkfs.btrfs"
+  ],
+  [
+    "mkfs.ext4"
+  ],
+  [
+    "mkfs.xfs"
+  ],
+  [
+    "mount"
   ],
   [
     "gcloud",
@@ -124,5 +148,8 @@
     "podman",
     "volume",
     "rm"
+  ],
+  [
+    "umount"
   ]
 ]

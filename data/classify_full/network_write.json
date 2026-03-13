@@ -24,6 +24,9 @@
     "yank"
   ],
   [
+    "ftp"
+  ],
+  [
     "gem",
     "owner"
   ],
@@ -62,6 +65,15 @@
   [
     "mvn",
     "site-deploy"
+  ],
+  [
+    "nc"
+  ],
+  [
+    "ncat"
+  ],
+  [
+    "netcat"
   ],
   [
     "npm",
@@ -110,6 +122,12 @@
   [
     "pnpm",
     "publish"
+  ],
+  [
+    "socat"
+  ],
+  [
+    "telnet"
   ],
   [
     "uv",

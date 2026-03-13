@@ -1,8 +1,5 @@
 [
   [
-    "ftp"
-  ],
-  [
     "git",
     "daemon"
   ],
@@ -11,13 +8,7 @@
     "http-backend"
   ],
   [
-    "nc"
-  ],
-  [
-    "ncat"
-  ],
-  [
-    "netcat"
+    "nmap"
   ],
   [
     "openssl",
@@ -33,12 +24,6 @@
     "sftp"
   ],
   [
-    "socat"
-  ],
-  [
     "ssh"
-  ],
-  [
-    "telnet"
   ]
 ]

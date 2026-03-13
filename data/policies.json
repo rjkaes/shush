@@ -7,7 +7,7 @@
   "git_discard": "ask",
   "git_history_rewrite": "ask",
   "network_outbound": "context",
-  "network_write": "context",
+  "network_write": "ask",
   "network_diagnostic": "allow",
   "package_install": "allow",
   "package_run": "allow",

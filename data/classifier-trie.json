@@ -21,6 +21,12 @@
       }
     }
   },
+  "cfdisk": {
+    "_": "container_destructive"
+  },
+  "dd": {
+    "_": "container_destructive"
+  },
   "az": {
     "group": {
       "delete": {
@@ -85,6 +91,9 @@
       "_": "package_install"
     }
   },
+  "fdisk": {
+    "_": "container_destructive"
+  },
   "gcloud": {
     "compute": {
       "instances": {
@@ -100,6 +109,21 @@
         }
       }
     }
+  },
+  "mkfs": {
+    "_": "container_destructive"
+  },
+  "mkfs.btrfs": {
+    "_": "container_destructive"
+  },
+  "mkfs.ext4": {
+    "_": "container_destructive"
+  },
+  "mkfs.xfs": {
+    "_": "container_destructive"
+  },
+  "mount": {
+    "_": "container_destructive"
   },
   "helm": {
     "delete": {
@@ -173,6 +197,9 @@
     "pull": {
       "_": "package_install"
     }
+  },
+  "umount": {
+    "_": "container_destructive"
   },
   "mongosh": {
     "_": "db_write"
@@ -1217,10 +1244,19 @@
       "download": {
         "_": "filesystem_write"
       },
+      "create": {
+        "_": "git_history_rewrite"
+      },
       "delete": {
         "_": "git_history_rewrite"
       },
       "delete-asset": {
+        "_": "git_history_rewrite"
+      },
+      "edit": {
+        "_": "git_history_rewrite"
+      },
+      "upload": {
         "_": "git_history_rewrite"
       },
       "list": {
@@ -1228,18 +1264,12 @@
       },
       "view": {
         "_": "git_safe"
-      },
-      "create": {
-        "_": "git_write"
-      },
-      "edit": {
-        "_": "git_write"
-      },
-      "upload": {
-        "_": "git_write"
       }
     },
     "repo": {
+      "clone": {
+        "_": "filesystem_write"
+      },
       "set-default": {
         "_": "filesystem_write"
       },
@@ -1247,6 +1277,9 @@
         "_": "git_history_rewrite"
       },
       "autolink": {
+        "create": {
+          "_": "git_history_rewrite"
+        },
         "delete": {
           "_": "git_history_rewrite"
         },
@@ -1255,26 +1288,35 @@
         },
         "view": {
           "_": "git_safe"
-        },
-        "create": {
-          "_": "git_write"
         }
+      },
+      "create": {
+        "_": "git_history_rewrite"
       },
       "delete": {
         "_": "git_history_rewrite"
       },
       "deploy-key": {
+        "add": {
+          "_": "git_history_rewrite"
+        },
         "delete": {
           "_": "git_history_rewrite"
         },
         "list": {
           "_": "git_safe"
-        },
-        "add": {
-          "_": "git_write"
         }
       },
+      "edit": {
+        "_": "git_history_rewrite"
+      },
+      "fork": {
+        "_": "git_history_rewrite"
+      },
       "rename": {
+        "_": "git_history_rewrite"
+      },
+      "sync": {
         "_": "git_history_rewrite"
       },
       "unarchive": {
@@ -1301,21 +1343,6 @@
       },
       "view": {
         "_": "git_safe"
-      },
-      "clone": {
-        "_": "git_write"
-      },
-      "create": {
-        "_": "git_write"
-      },
-      "edit": {
-        "_": "git_write"
-      },
-      "fork": {
-        "_": "git_write"
-      },
-      "sync": {
-        "_": "git_write"
       }
     },
     "run": {
@@ -1328,6 +1355,9 @@
       "delete": {
         "_": "git_history_rewrite"
       },
+      "rerun": {
+        "_": "git_history_rewrite"
+      },
       "list": {
         "_": "git_safe"
       },
@@ -1336,9 +1366,6 @@
       },
       "watch": {
         "_": "git_safe"
-      },
-      "rerun": {
-        "_": "git_write"
       }
     },
     "cache": {
@@ -1350,10 +1377,40 @@
       }
     },
     "codespace": {
+      "code": {
+        "_": "git_history_rewrite"
+      },
+      "cp": {
+        "_": "git_history_rewrite"
+      },
+      "create": {
+        "_": "git_history_rewrite"
+      },
       "delete": {
         "_": "git_history_rewrite"
       },
+      "edit": {
+        "_": "git_history_rewrite"
+      },
+      "jupyter": {
+        "_": "git_history_rewrite"
+      },
+      "ports": {
+        "forward": {
+          "_": "git_history_rewrite"
+        },
+        "visibility": {
+          "_": "git_history_rewrite"
+        },
+        "_": "git_safe"
+      },
       "rebuild": {
+        "_": "git_history_rewrite"
+      },
+      "ssh": {
+        "_": "git_history_rewrite"
+      },
+      "stop": {
         "_": "git_history_rewrite"
       },
       "list": {
@@ -1362,42 +1419,24 @@
       "logs": {
         "_": "git_safe"
       },
-      "ports": {
-        "_": "git_safe",
-        "forward": {
-          "_": "git_write"
-        },
-        "visibility": {
-          "_": "git_write"
-        }
-      },
       "view": {
         "_": "git_safe"
-      },
-      "code": {
-        "_": "git_write"
-      },
-      "cp": {
-        "_": "git_write"
-      },
-      "create": {
-        "_": "git_write"
-      },
-      "edit": {
-        "_": "git_write"
-      },
-      "jupyter": {
-        "_": "git_write"
-      },
-      "ssh": {
-        "_": "git_write"
-      },
-      "stop": {
-        "_": "git_write"
       }
     },
     "gist": {
+      "clone": {
+        "_": "git_history_rewrite"
+      },
+      "create": {
+        "_": "git_history_rewrite"
+      },
       "delete": {
+        "_": "git_history_rewrite"
+      },
+      "edit": {
+        "_": "git_history_rewrite"
+      },
+      "rename": {
         "_": "git_history_rewrite"
       },
       "list": {
@@ -1405,33 +1444,54 @@
       },
       "view": {
         "_": "git_safe"
-      },
-      "clone": {
-        "_": "git_write"
-      },
-      "create": {
-        "_": "git_write"
-      },
-      "edit": {
-        "_": "git_write"
-      },
-      "rename": {
-        "_": "git_write"
       }
     },
     "gpg-key": {
+      "add": {
+        "_": "git_history_rewrite"
+      },
       "delete": {
         "_": "git_history_rewrite"
       },
       "list": {
         "_": "git_safe"
-      },
-      "add": {
-        "_": "git_write"
       }
     },
     "issue": {
+      "close": {
+        "_": "git_history_rewrite"
+      },
+      "comment": {
+        "_": "git_history_rewrite"
+      },
+      "create": {
+        "_": "git_history_rewrite"
+      },
       "delete": {
+        "_": "git_history_rewrite"
+      },
+      "develop": {
+        "_": "git_history_rewrite"
+      },
+      "edit": {
+        "_": "git_history_rewrite"
+      },
+      "lock": {
+        "_": "git_history_rewrite"
+      },
+      "pin": {
+        "_": "git_history_rewrite"
+      },
+      "reopen": {
+        "_": "git_history_rewrite"
+      },
+      "transfer": {
+        "_": "git_history_rewrite"
+      },
+      "unlock": {
+        "_": "git_history_rewrite"
+      },
+      "unpin": {
         "_": "git_history_rewrite"
       },
       "list": {
@@ -1442,179 +1502,62 @@
       },
       "view": {
         "_": "git_safe"
-      },
-      "close": {
-        "_": "git_write"
-      },
-      "comment": {
-        "_": "git_write"
-      },
-      "create": {
-        "_": "git_write"
-      },
-      "develop": {
-        "_": "git_write"
-      },
-      "edit": {
-        "_": "git_write"
-      },
-      "lock": {
-        "_": "git_write"
-      },
-      "pin": {
-        "_": "git_write"
-      },
-      "reopen": {
-        "_": "git_write"
-      },
-      "transfer": {
-        "_": "git_write"
-      },
-      "unlock": {
-        "_": "git_write"
-      },
-      "unpin": {
-        "_": "git_write"
       }
     },
     "label": {
-      "delete": {
-        "_": "git_history_rewrite"
-      },
-      "list": {
-        "_": "git_safe"
-      },
       "clone": {
-        "_": "git_write"
+        "_": "git_history_rewrite"
       },
       "create": {
-        "_": "git_write"
+        "_": "git_history_rewrite"
+      },
+      "delete": {
+        "_": "git_history_rewrite"
       },
       "edit": {
-        "_": "git_write"
-      }
-    },
-    "project": {
-      "delete": {
         "_": "git_history_rewrite"
       },
-      "field-delete": {
-        "_": "git_history_rewrite"
-      },
-      "item-delete": {
-        "_": "git_history_rewrite"
-      },
-      "field-list": {
-        "_": "git_safe"
-      },
-      "item-list": {
-        "_": "git_safe"
-      },
-      "list": {
-        "_": "git_safe"
-      },
-      "view": {
-        "_": "git_safe"
-      },
-      "close": {
-        "_": "git_write"
-      },
-      "copy": {
-        "_": "git_write"
-      },
-      "create": {
-        "_": "git_write"
-      },
-      "edit": {
-        "_": "git_write"
-      },
-      "field-create": {
-        "_": "git_write"
-      },
-      "item-add": {
-        "_": "git_write"
-      },
-      "item-archive": {
-        "_": "git_write"
-      },
-      "item-create": {
-        "_": "git_write"
-      },
-      "item-edit": {
-        "_": "git_write"
-      },
-      "link": {
-        "_": "git_write"
-      },
-      "mark-template": {
-        "_": "git_write"
-      },
-      "unlink": {
-        "_": "git_write"
-      }
-    },
-    "secret": {
-      "delete": {
-        "_": "git_history_rewrite"
-      },
-      "list": {
-        "_": "git_safe"
-      },
-      "set": {
-        "_": "git_write"
-      }
-    },
-    "ssh-key": {
-      "delete": {
-        "_": "git_history_rewrite"
-      },
-      "list": {
-        "_": "git_safe"
-      },
-      "add": {
-        "_": "git_write"
-      }
-    },
-    "variable": {
-      "delete": {
-        "_": "git_history_rewrite"
-      },
-      "get": {
-        "_": "git_safe"
-      },
-      "list": {
-        "_": "git_safe"
-      },
-      "set": {
-        "_": "git_write"
-      }
-    },
-    "workflow": {
-      "disable": {
-        "_": "git_history_rewrite"
-      },
-      "enable": {
-        "_": "git_history_rewrite"
-      },
-      "list": {
-        "_": "git_safe"
-      },
-      "view": {
-        "_": "git_safe"
-      },
-      "run": {
-        "_": "git_write"
-      }
-    },
-    "browse": {
-      "_": "git_safe"
-    },
-    "org": {
       "list": {
         "_": "git_safe"
       }
     },
     "pr": {
+      "checkout": {
+        "_": "git_history_rewrite"
+      },
+      "close": {
+        "_": "git_history_rewrite"
+      },
+      "comment": {
+        "_": "git_history_rewrite"
+      },
+      "create": {
+        "_": "git_history_rewrite"
+      },
+      "edit": {
+        "_": "git_history_rewrite"
+      },
+      "lock": {
+        "_": "git_history_rewrite"
+      },
+      "merge": {
+        "_": "git_history_rewrite"
+      },
+      "ready": {
+        "_": "git_history_rewrite"
+      },
+      "reopen": {
+        "_": "git_history_rewrite"
+      },
+      "review": {
+        "_": "git_history_rewrite"
+      },
+      "unlock": {
+        "_": "git_history_rewrite"
+      },
+      "update-branch": {
+        "_": "git_history_rewrite"
+      },
       "checks": {
         "_": "git_safe"
       },
@@ -1629,42 +1572,126 @@
       },
       "view": {
         "_": "git_safe"
-      },
-      "checkout": {
-        "_": "git_write"
-      },
+      }
+    },
+    "project": {
       "close": {
-        "_": "git_write"
+        "_": "git_history_rewrite"
       },
-      "comment": {
-        "_": "git_write"
+      "copy": {
+        "_": "git_history_rewrite"
       },
       "create": {
-        "_": "git_write"
+        "_": "git_history_rewrite"
+      },
+      "delete": {
+        "_": "git_history_rewrite"
       },
       "edit": {
-        "_": "git_write"
+        "_": "git_history_rewrite"
       },
-      "lock": {
-        "_": "git_write"
+      "field-create": {
+        "_": "git_history_rewrite"
       },
-      "merge": {
-        "_": "git_write"
+      "field-delete": {
+        "_": "git_history_rewrite"
       },
-      "ready": {
-        "_": "git_write"
+      "item-add": {
+        "_": "git_history_rewrite"
       },
-      "reopen": {
-        "_": "git_write"
+      "item-archive": {
+        "_": "git_history_rewrite"
       },
-      "review": {
-        "_": "git_write"
+      "item-create": {
+        "_": "git_history_rewrite"
       },
-      "unlock": {
-        "_": "git_write"
+      "item-delete": {
+        "_": "git_history_rewrite"
       },
-      "update-branch": {
-        "_": "git_write"
+      "item-edit": {
+        "_": "git_history_rewrite"
+      },
+      "link": {
+        "_": "git_history_rewrite"
+      },
+      "mark-template": {
+        "_": "git_history_rewrite"
+      },
+      "unlink": {
+        "_": "git_history_rewrite"
+      },
+      "field-list": {
+        "_": "git_safe"
+      },
+      "item-list": {
+        "_": "git_safe"
+      },
+      "list": {
+        "_": "git_safe"
+      },
+      "view": {
+        "_": "git_safe"
+      }
+    },
+    "secret": {
+      "delete": {
+        "_": "git_history_rewrite"
+      },
+      "set": {
+        "_": "git_history_rewrite"
+      },
+      "list": {
+        "_": "git_safe"
+      }
+    },
+    "ssh-key": {
+      "add": {
+        "_": "git_history_rewrite"
+      },
+      "delete": {
+        "_": "git_history_rewrite"
+      },
+      "list": {
+        "_": "git_safe"
+      }
+    },
+    "variable": {
+      "delete": {
+        "_": "git_history_rewrite"
+      },
+      "set": {
+        "_": "git_history_rewrite"
+      },
+      "get": {
+        "_": "git_safe"
+      },
+      "list": {
+        "_": "git_safe"
+      }
+    },
+    "workflow": {
+      "disable": {
+        "_": "git_history_rewrite"
+      },
+      "enable": {
+        "_": "git_history_rewrite"
+      },
+      "run": {
+        "_": "git_history_rewrite"
+      },
+      "list": {
+        "_": "git_safe"
+      },
+      "view": {
+        "_": "git_safe"
+      }
+    },
+    "browse": {
+      "_": "git_safe"
+    },
+    "org": {
+      "list": {
+        "_": "git_safe"
       }
     },
     "ruleset": {
@@ -3096,9 +3123,6 @@
   "bzip2": {
     "_": "filesystem_write"
   },
-  "cfdisk": {
-    "_": "filesystem_write"
-  },
   "chgrp": {
     "_": "filesystem_write"
   },
@@ -3109,15 +3133,6 @@
     "_": "filesystem_write"
   },
   "cp": {
-    "_": "filesystem_write"
-  },
-  "crontab": {
-    "_": "filesystem_write"
-  },
-  "dd": {
-    "_": "filesystem_write"
-  },
-  "fdisk": {
     "_": "filesystem_write"
   },
   "gunzip": {
@@ -3138,22 +3153,7 @@
   "mkfifo": {
     "_": "filesystem_write"
   },
-  "mkfs": {
-    "_": "filesystem_write"
-  },
-  "mkfs.btrfs": {
-    "_": "filesystem_write"
-  },
-  "mkfs.ext4": {
-    "_": "filesystem_write"
-  },
-  "mkfs.xfs": {
-    "_": "filesystem_write"
-  },
   "mktemp": {
-    "_": "filesystem_write"
-  },
-  "mount": {
     "_": "filesystem_write"
   },
   "mv": {
@@ -3177,9 +3177,6 @@
   "touch": {
     "_": "filesystem_write"
   },
-  "umount": {
-    "_": "filesystem_write"
-  },
   "unzip": {
     "_": "filesystem_write"
   },
@@ -3193,6 +3190,18 @@
     "prune": {
       "_": "git_discard"
     },
+    "credential": {
+      "_": "git_history_rewrite"
+    },
+    "credential-cache": {
+      "_": "git_history_rewrite"
+    },
+    "credential-store": {
+      "_": "git_history_rewrite"
+    },
+    "fast-import": {
+      "_": "git_history_rewrite"
+    },
     "filter-branch": {
       "_": "git_history_rewrite"
     },
@@ -3200,6 +3209,9 @@
       "_": "git_history_rewrite"
     },
     "replace": {
+      "_": "git_history_rewrite"
+    },
+    "send-pack": {
       "_": "git_history_rewrite"
     },
     "stash": {
@@ -3460,18 +3472,6 @@
     "commit-tree": {
       "_": "git_write"
     },
-    "credential": {
-      "_": "git_write"
-    },
-    "credential-cache": {
-      "_": "git_write"
-    },
-    "credential-store": {
-      "_": "git_write"
-    },
-    "fast-import": {
-      "_": "git_write"
-    },
     "fetch": {
       "_": "git_write"
     },
@@ -3553,9 +3553,6 @@
     "scalar": {
       "_": "git_write"
     },
-    "send-pack": {
-      "_": "git_write"
-    },
     "sparse-checkout": {
       "_": "git_write"
     },
@@ -3589,6 +3586,9 @@
     "http-backend": {
       "_": "network_outbound"
     }
+  },
+  "crontab": {
+    "_": "lang_exec"
   },
   "node": {
     "-e": {
@@ -3658,9 +3658,6 @@
   "mtr": {
     "_": "network_diagnostic"
   },
-  "nmap": {
-    "_": "network_diagnostic"
-  },
   "nslookup": {
     "_": "network_diagnostic"
   },
@@ -3679,16 +3676,7 @@
   "whois": {
     "_": "network_diagnostic"
   },
-  "ftp": {
-    "_": "network_outbound"
-  },
-  "nc": {
-    "_": "network_outbound"
-  },
-  "ncat": {
-    "_": "network_outbound"
-  },
-  "netcat": {
+  "nmap": {
     "_": "network_outbound"
   },
   "openssl": {
@@ -3705,14 +3693,26 @@
   "sftp": {
     "_": "network_outbound"
   },
-  "socat": {
-    "_": "network_outbound"
-  },
   "ssh": {
     "_": "network_outbound"
   },
+  "ftp": {
+    "_": "network_write"
+  },
+  "nc": {
+    "_": "network_write"
+  },
+  "ncat": {
+    "_": "network_write"
+  },
+  "netcat": {
+    "_": "network_write"
+  },
+  "socat": {
+    "_": "network_write"
+  },
   "telnet": {
-    "_": "network_outbound"
+    "_": "network_write"
   },
   "cpack": {
     "_": "package_install"

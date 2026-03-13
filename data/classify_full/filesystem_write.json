@@ -6,9 +6,6 @@
     "bzip2"
   ],
   [
-    "cfdisk"
-  ],
-  [
     "chgrp"
   ],
   [
@@ -23,12 +20,6 @@
   ],
   [
     "cp"
-  ],
-  [
-    "crontab"
-  ],
-  [
-    "dd"
   ],
   [
     "gh",
@@ -118,6 +109,11 @@
   [
     "gh",
     "repo",
+    "clone"
+  ],
+  [
+    "gh",
+    "repo",
     "set-default"
   ],
   [
@@ -128,9 +124,6 @@
   [
     "gmake",
     "install"
-  ],
-  [
-    "fdisk"
   ],
   [
     "gunzip"
@@ -155,22 +148,7 @@
     "mkfifo"
   ],
   [
-    "mkfs"
-  ],
-  [
-    "mkfs.btrfs"
-  ],
-  [
-    "mkfs.ext4"
-  ],
-  [
-    "mkfs.xfs"
-  ],
-  [
     "mktemp"
-  ],
-  [
-    "mount"
   ],
   [
     "mv"
@@ -192,9 +170,6 @@
   ],
   [
     "touch"
-  ],
-  [
-    "umount"
   ],
   [
     "unzip"
