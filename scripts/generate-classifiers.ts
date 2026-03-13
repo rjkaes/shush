@@ -83,6 +83,15 @@ async function main(): Promise<void> {
     }
 
     const raw = await Bun.file(resolve(INPUT_DIR, file)).json();
+    if (
+      !Array.isArray(raw) ||
+      !raw.every(
+        (arr: unknown) =>
+          Array.isArray(arr) && arr.every((s: unknown) => typeof s === "string"),
+      )
+    ) {
+      throw new Error(`${file}: expected JSON array of string arrays`);
+    }
     const prefixes = raw as string[][];
 
     for (const prefix of prefixes) {
