@@ -3,30 +3,40 @@ import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Decision, type ShushConfig, stricter } from "./types.js";
 
-// Action type constants
-export const FILESYSTEM_READ = "filesystem_read";
-export const FILESYSTEM_WRITE = "filesystem_write";
-export const FILESYSTEM_DELETE = "filesystem_delete";
-export const GIT_SAFE = "git_safe";
-export const GIT_WRITE = "git_write";
-export const GIT_DISCARD = "git_discard";
-export const GIT_HISTORY_REWRITE = "git_history_rewrite";
-export const NETWORK_OUTBOUND = "network_outbound";
-export const NETWORK_WRITE = "network_write";
-export const NETWORK_DIAGNOSTIC = "network_diagnostic";
-export const PACKAGE_INSTALL = "package_install";
-export const PACKAGE_RUN = "package_run";
-export const PACKAGE_UNINSTALL = "package_uninstall";
-export const LANG_EXEC = "lang_exec";
-export const PROCESS_SIGNAL = "process_signal";
-export const CONTAINER_DESTRUCTIVE = "container_destructive";
-export const DB_READ = "db_read";
-export const DB_WRITE = "db_write";
-export const OBFUSCATED = "obfuscated";
-export const UNKNOWN = "unknown";
+const DATA_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..", "data");
+
+// Action types loaded from data/types.json (keys are the type identifiers).
+const ACTION_TYPES: Record<string, string> = JSON.parse(
+  readFileSync(resolve(DATA_DIR, "types.json"), "utf-8"),
+);
+
+// Derive constants from the JSON keys for use throughout the codebase.
+const t = (key: string): string => {
+  if (!(key in ACTION_TYPES)) throw new Error(`Unknown action type: ${key}`);
+  return key;
+};
+export const FILESYSTEM_READ = t("filesystem_read");
+export const FILESYSTEM_WRITE = t("filesystem_write");
+export const FILESYSTEM_DELETE = t("filesystem_delete");
+export const GIT_SAFE = t("git_safe");
+export const GIT_WRITE = t("git_write");
+export const GIT_DISCARD = t("git_discard");
+export const GIT_HISTORY_REWRITE = t("git_history_rewrite");
+export const NETWORK_OUTBOUND = t("network_outbound");
+export const NETWORK_WRITE = t("network_write");
+export const NETWORK_DIAGNOSTIC = t("network_diagnostic");
+export const PACKAGE_INSTALL = t("package_install");
+export const PACKAGE_RUN = t("package_run");
+export const PACKAGE_UNINSTALL = t("package_uninstall");
+export const LANG_EXEC = t("lang_exec");
+export const PROCESS_SIGNAL = t("process_signal");
+export const CONTAINER_DESTRUCTIVE = t("container_destructive");
+export const DB_READ = t("db_read");
+export const DB_WRITE = t("db_write");
+export const OBFUSCATED = t("obfuscated");
+export const UNKNOWN = t("unknown");
 
 // Default policies loaded from data/policies.json
-const DATA_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..", "data");
 export const DEFAULT_POLICIES: Record<string, Decision> = JSON.parse(
   readFileSync(resolve(DATA_DIR, "policies.json"), "utf-8"),
 );
