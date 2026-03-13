@@ -94,13 +94,15 @@ async function main(): Promise<void> {
   allEntries.sort((a, b) => {
     const lenDiff = b.prefix.length - a.prefix.length;
     if (lenDiff !== 0) return lenDiff;
-    return a.prefix.join(" ").localeCompare(b.prefix.join(" "));
+    const aKey = a.prefix.join(" ");
+    const bKey = b.prefix.join(" ");
+    return aKey < bKey ? -1 : aKey > bKey ? 1 : 0;
   });
 
   // Build the generated file content.
   const entryLines = allEntries.map(
     (e) =>
-      `  { prefix: ${JSON.stringify(e.prefix)}, actionType: ${JSON.stringify(e.actionType)} },`,
+      `  { prefix: ${JSON.stringify(e.prefix).replace(/,/g, ", ")}, actionType: ${JSON.stringify(e.actionType)} },`,
   );
 
   const output = [

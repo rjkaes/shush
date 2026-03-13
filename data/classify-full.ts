@@ -1,8 +1,7 @@
-// data/classify-full.ts
-//
-// Pre-computed classification prefix table compiled from nah's classify_full data.
-// Each entry: { prefix: string[], actionType: string }
-// Sorted by prefix length descending for longest-prefix-first matching.
+// =============================================================================
+// AUTO-GENERATED from data/classify_full/*.json
+// Do not edit manually. Run: bun run scripts/generate-classifiers.ts
+// =============================================================================
 
 export interface PrefixEntry {
   prefix: string[];
@@ -1123,4 +1122,3 @@ export const CLASSIFY_FULL_TABLE: PrefixEntry[] = [
   { prefix: ["zless"], actionType: "filesystem_read" },
   { prefix: ["zmore"], actionType: "filesystem_read" },
 ];
-

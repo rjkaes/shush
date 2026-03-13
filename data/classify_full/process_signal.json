@@ -1,0 +1,20 @@
+[
+  [
+    "kill",
+    "-9"
+  ],
+  [
+    "kill",
+    "-KILL"
+  ],
+  [
+    "kill",
+    "-SIGKILL"
+  ],
+  [
+    "killall"
+  ],
+  [
+    "pkill"
+  ]
+]

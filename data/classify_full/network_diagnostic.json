@@ -1,0 +1,29 @@
+[
+  [
+    "dig"
+  ],
+  [
+    "host"
+  ],
+  [
+    "mtr"
+  ],
+  [
+    "nslookup"
+  ],
+  [
+    "ping"
+  ],
+  [
+    "ping6"
+  ],
+  [
+    "traceroute"
+  ],
+  [
+    "traceroute6"
+  ],
+  [
+    "whois"
+  ]
+]
