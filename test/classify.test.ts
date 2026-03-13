@@ -110,6 +110,12 @@ describe("git flag classifier — additional subcommands", () => {
   test("git add -n → git_safe", () => {
     expect(classifyWithFlags(["git", "add", "-n"])).toBe("git_safe");
   });
+  test("git add -f → git_discard (ask)", () => {
+    expect(classifyWithFlags(["git", "add", "-f", "ignored-file"])).toBe("git_discard");
+  });
+  test("git add --force → git_discard (ask)", () => {
+    expect(classifyWithFlags(["git", "add", "--force", "ignored-file"])).toBe("git_discard");
+  });
   test("git clean --dry-run → git_safe", () => {
     expect(classifyWithFlags(["git", "clean", "--dry-run"])).toBe("git_safe");
   });

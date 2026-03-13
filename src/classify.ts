@@ -475,7 +475,9 @@ function classifyGit(tokens: string[]): string | null {
   }
 
   if (sub === "add") {
-    return (args.includes("--dry-run") || args.includes("-n")) ? T.GIT_SAFE : T.GIT_WRITE;
+    if (args.includes("--dry-run") || args.includes("-n")) return T.GIT_SAFE;
+    if (args.includes("--force") || args.includes("-f")) return T.GIT_DISCARD;
+    return T.GIT_WRITE;
   }
 
   if (sub === "rm") {
