@@ -1,0 +1,25 @@
+{
+  "name": "shush",
+  "description": "Plugins by rjkaes",
+  "owner": {
+    "name": "rjkaes",
+    "url": "https://github.com/rjkaes"
+  },
+  "plugins": [
+    {
+      "name": "shush",
+      "source": "./",
+      "description": "Context-aware safety guard for Claude Code tool calls",
+      "keywords": [
+        "security",
+        "safety",
+        "permissions",
+        "hook",
+        "guard",
+        "pretooluse",
+        "bash",
+        "command-classification"
+      ]
+    }
+  ]
+}

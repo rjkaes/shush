@@ -24,14 +24,33 @@ shush classifies every tool call by what it *actually does* using structural ana
 
 ## Install
 
+### As a Claude Code plugin
+
+```bash
+claude plugin add /path/to/shush
+```
+
+Or add the GitHub repo directly:
+
+```bash
+claude plugin add github:rjkaes/shush
+```
+
+Then restart Claude Code. shush runs as a PreToolUse hook; no configuration required.
+
+### From source
+
 Requires [Bun](https://bun.sh).
 
 ```bash
+git clone https://github.com/rjkaes/shush.git
+cd shush
 bun install
 bun run build
+claude plugin add .
 ```
 
-This produces `hooks/pretooluse.js`, a single bundled file. To use as a Claude Code plugin, add the plugin path to your configuration. The manifest is at `.claude-plugin/plugin.json`.
+This produces `hooks/pretooluse.js`, a single bundled file.
 
 > **Don't use `--dangerously-skip-permissions`.** In bypass mode, hooks
 > [fire asynchronously](https://github.com/anthropics/claude-code/issues/20946);
@@ -191,7 +210,7 @@ data/classify_full/     Per-type JSON prefix tables (~1,200 entries)
 ### Design decisions
 
 - **AST over tokenization** -- bash-parser gives a real parse tree, so pipes, subshells, logical operators, and redirects are handled correctly rather than splitting on whitespace.
-- **Embedded data** -- Classification tables are TypeScript, not runtime JSON, avoiding filesystem I/O in the hot path.
+- **Pre-built trie** -- Classification tables compile to a prefix trie at build time, giving O(1) lookup with no runtime I/O in the hot path.
 - **Deterministic** -- No LLM in the classification loop. Every decision is traceable to a prefix match, flag classifier, or composition rule.
 
 ## Acknowledgements
