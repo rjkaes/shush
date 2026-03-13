@@ -228,6 +228,14 @@
     "cpack"
   ],
   [
+    "docker",
+    "build"
+  ],
+  [
+    "docker",
+    "pull"
+  ],
+  [
     "dnf",
     "builddep"
   ],
@@ -305,6 +313,14 @@
   [
     "gem",
     "update"
+  ],
+  [
+    "helm",
+    "install"
+  ],
+  [
+    "helm",
+    "upgrade"
   ],
   [
     "go",
@@ -449,6 +465,10 @@
     "war"
   ],
   [
+    "kubectl",
+    "apply"
+  ],
+  [
     "mvn",
     "archetype:generate"
   ],
@@ -552,6 +572,14 @@
   [
     "pip3",
     "wheel"
+  ],
+  [
+    "podman",
+    "build"
+  ],
+  [
+    "podman",
+    "pull"
   ],
   [
     "pnpm",

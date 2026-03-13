@@ -1,5 +1,17 @@
 [
   [
+    "bunzip2"
+  ],
+  [
+    "bzip2"
+  ],
+  [
+    "cfdisk"
+  ],
+  [
+    "chgrp"
+  ],
+  [
     "chmod"
   ],
   [
@@ -11,6 +23,12 @@
   ],
   [
     "cp"
+  ],
+  [
+    "crontab"
+  ],
+  [
+    "dd"
   ],
   [
     "gh",
@@ -112,6 +130,15 @@
     "install"
   ],
   [
+    "fdisk"
+  ],
+  [
+    "gunzip"
+  ],
+  [
+    "gzip"
+  ],
+  [
     "install"
   ],
   [
@@ -128,7 +155,22 @@
     "mkfifo"
   ],
   [
+    "mkfs"
+  ],
+  [
+    "mkfs.btrfs"
+  ],
+  [
+    "mkfs.ext4"
+  ],
+  [
+    "mkfs.xfs"
+  ],
+  [
     "mktemp"
+  ],
+  [
+    "mount"
   ],
   [
     "mv"
@@ -150,5 +192,17 @@
   ],
   [
     "touch"
+  ],
+  [
+    "umount"
+  ],
+  [
+    "unzip"
+  ],
+  [
+    "xz"
+  ],
+  [
+    "zip"
   ]
 ]

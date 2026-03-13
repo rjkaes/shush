@@ -16,5 +16,21 @@
   ],
   [
     "pkill"
+  ],
+  [
+    "systemctl",
+    "disable"
+  ],
+  [
+    "systemctl",
+    "kill"
+  ],
+  [
+    "systemctl",
+    "restart"
+  ],
+  [
+    "systemctl",
+    "stop"
   ]
 ]

@@ -1,5 +1,13 @@
 [
   [
+    "docker",
+    "exec"
+  ],
+  [
+    "docker",
+    "run"
+  ],
+  [
     "gh",
     "api"
   ],
@@ -7,6 +15,14 @@
     "gh",
     "extension",
     "exec"
+  ],
+  [
+    "kubectl",
+    "exec"
+  ],
+  [
+    "kubectl",
+    "run"
   ],
   [
     "node",
@@ -21,6 +37,14 @@
     "-r"
   ],
   [
+    "podman",
+    "exec"
+  ],
+  [
+    "podman",
+    "run"
+  ],
+  [
     "python",
     "-c"
   ],
@@ -31,5 +55,11 @@
   [
     "ruby",
     "-e"
+  ],
+  [
+    "sudo"
+  ],
+  [
+    "su"
   ]
 ]
