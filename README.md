@@ -192,22 +192,6 @@ bun run typecheck     # type-check without emitting
 bun run build         # bundle hook entry point
 ```
 
-## Architecture
-
-```
-hooks/pretooluse.ts     Entry point: reads stdin JSON, dispatches to guards
-src/bash-guard.ts       Bash tool: parse -> decompose -> classify -> compose
-src/ast-walk.ts         bash-parser AST -> flat list of pipeline stages
-src/taxonomy.ts         Action types, policy defaults, prefix matching
-src/classify.ts         Flag-dependent classifiers (git, curl, find, etc.)
-src/composition.ts      Pipe composition threat detection
-src/path-guard.ts       Path sensitivity checks for file tools
-src/content-guard.ts    Content pattern scanning for Write/Edit
-src/config.ts           YAML config loading, validation, merging
-src/types.ts            Shared types (Decision, Stage, HookInput, etc.)
-data/classify_full/     Per-type JSON prefix tables (~1,200 entries)
-```
-
 ### Design decisions
 
 - **AST over tokenization** -- bash-parser gives a real parse tree, so pipes, subshells, logical operators, and redirects are handled correctly rather than splitting on whitespace.
