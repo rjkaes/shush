@@ -2,6 +2,12 @@ output:
   - failure
   - execution_info
 
+pre-commit:
+  commands:
+    build-trie:
+      glob: "data/classify_full/*.json"
+      run: bun run scripts/build-trie.ts && git add data/classifier-trie.json
+
 post-commit:
   parallel: false
   commands:
