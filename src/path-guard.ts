@@ -1,9 +1,10 @@
 // src/path-guard.ts
 
+import { homedir } from "node:os";
 import path from "node:path";
 import type { Decision, ShushConfig } from "./types.js";
 
-const HOME = process.env.HOME ?? "";
+const HOME = homedir();
 const HOOKS_DIR = path.resolve(HOME, ".claude", "hooks");
 
 // Sensitive directories: [resolved_dir, display_name, policy]

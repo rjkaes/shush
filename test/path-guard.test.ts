@@ -33,7 +33,7 @@ describe("checkPath", () => {
 
 describe("isHookPath", () => {
   test("detects ~/.claude/hooks paths", () => {
-    const home = process.env.HOME ?? "";
+    const home = require("node:os").homedir();
     expect(isHookPath(`${home}/.claude/hooks/test.sh`)).toBe(true);
   });
 
