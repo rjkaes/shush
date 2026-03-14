@@ -21681,6 +21681,25 @@ var GIT_BOOLEAN_FLAGS = new Set([
   "--noglob-pathspecs",
   "--no-optional-locks"
 ]);
+var GIT_DIR_FLAGS = new Set(["-C", "--git-dir", "--work-tree"]);
+function extractGitDirPaths(tokens) {
+  const paths = [];
+  let i = 1;
+  while (i < tokens.length) {
+    const tok = tokens[i];
+    if (GIT_DIR_FLAGS.has(tok) && i + 1 < tokens.length) {
+      paths.push(tokens[i + 1]);
+      i += 2;
+    } else if (GIT_VALUE_FLAGS.has(tok)) {
+      i += 2;
+    } else if (GIT_BOOLEAN_FLAGS.has(tok)) {
+      i += 1;
+    } else {
+      break;
+    }
+  }
+  return paths;
+}
 function stripGitGlobalFlags(tokens) {
   const result = [tokens[0]];
   let i = 1;
@@ -22356,6 +22375,15 @@ function classifyCommand(command, depth = 0, config) {
       if (pathResult) {
         decision = stricter(decision, pathResult.decision);
         reason2 = pathResult.reason;
+      }
+    }
+    if (tokens[0] === "git") {
+      for (const dirPath of extractGitDirPaths(tokens)) {
+        const pathResult = checkPath("Bash", dirPath, config);
+        if (pathResult) {
+          decision = stricter(decision, pathResult.decision);
+          reason2 = pathResult.reason;
+        }
       }
     }
     return {

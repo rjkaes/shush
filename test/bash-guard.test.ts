@@ -74,6 +74,16 @@ describe("classifyCommand", () => {
     expect(result.stages[0].actionType).toBe("filesystem_write");
   });
 
+  // git -C with sensitive path
+  test("git -C ~/.ssh commit → block (sensitive git dir)", () => {
+    const result = classifyCommand("git -C ~/.ssh commit -m 'oops'");
+    expect(result.finalDecision).toBe("block");
+  });
+  test("git --work-tree ~/.gnupg status → block (sensitive git dir)", () => {
+    const result = classifyCommand("git --work-tree ~/.gnupg status");
+    expect(result.finalDecision).toBe("block");
+  });
+
   // Unknown
   test("unknown command → ask", () => {
     expect(classifyCommand("mysterybin --flag").finalDecision).toBe("ask");

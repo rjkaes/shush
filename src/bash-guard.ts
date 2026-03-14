@@ -5,7 +5,7 @@
 
 import { extractStages } from "./ast-walk.js";
 import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_WRITE } from "./taxonomy.js";
-import { classifyWithFlags, stripGitGlobalFlags } from "./classify.js";
+import { classifyWithFlags, stripGitGlobalFlags, extractGitDirPaths } from "./classify.js";
 import { checkComposition } from "./composition.js";
 import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
@@ -86,6 +86,18 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       if (pathResult) {
         decision = stricter(decision, pathResult.decision);
         reason = pathResult.reason;
+      }
+    }
+
+    // git -C / --git-dir / --work-tree paths control where git operates;
+    // check them against sensitive-path and project-boundary rules.
+    if (tokens[0] === "git") {
+      for (const dirPath of extractGitDirPaths(tokens)) {
+        const pathResult = checkPath("Bash", dirPath, config);
+        if (pathResult) {
+          decision = stricter(decision, pathResult.decision);
+          reason = pathResult.reason;
+        }
       }
     }
 

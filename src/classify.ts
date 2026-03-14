@@ -13,6 +13,32 @@ const GIT_BOOLEAN_FLAGS = new Set([
   "--glob-pathspecs", "--noglob-pathspecs", "--no-optional-locks",
 ]);
 
+// Flags whose values are directory paths that change where git operates.
+const GIT_DIR_FLAGS = new Set(["-C", "--git-dir", "--work-tree"]);
+
+/**
+ * Extract directory paths from git global flags (-C, --git-dir, --work-tree).
+ * These control where git operates and should be checked against path guards.
+ */
+export function extractGitDirPaths(tokens: string[]): string[] {
+  const paths: string[] = [];
+  let i = 1;
+  while (i < tokens.length) {
+    const tok = tokens[i];
+    if (GIT_DIR_FLAGS.has(tok) && i + 1 < tokens.length) {
+      paths.push(tokens[i + 1]);
+      i += 2;
+    } else if (GIT_VALUE_FLAGS.has(tok)) {
+      i += 2; // skip non-dir value flags (-c, --namespace)
+    } else if (GIT_BOOLEAN_FLAGS.has(tok)) {
+      i += 1;
+    } else {
+      break; // reached subcommand
+    }
+  }
+  return paths;
+}
+
 /**
  * Strip git global flags (e.g. -C <dir>, --no-pager) from token list.
  * Preserves 'git' as first token followed by the subcommand and its args.

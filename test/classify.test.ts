@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { classifyWithFlags } from "../src/classify";
+import { classifyWithFlags, extractGitDirPaths } from "../src/classify";
 
 describe("git flag classifier", () => {
   test("git push → git_write", () => {
@@ -159,6 +159,28 @@ describe("git global flag stripping", () => {
     expect(classifyWithFlags(["git", "--no-pager", "-C", "/tmp", "push", "--force"])).toBe("git_history_rewrite");
   });
 })
+
+describe("extractGitDirPaths", () => {
+  test("extracts -C path", () => {
+    expect(extractGitDirPaths(["git", "-C", "/tmp", "commit"])).toEqual(["/tmp"]);
+  });
+  test("extracts --git-dir path", () => {
+    expect(extractGitDirPaths(["git", "--git-dir", "/repo/.git", "status"])).toEqual(["/repo/.git"]);
+  });
+  test("extracts --work-tree path", () => {
+    expect(extractGitDirPaths(["git", "--work-tree", "/repo", "diff"])).toEqual(["/repo"]);
+  });
+  test("extracts multiple dir paths", () => {
+    expect(extractGitDirPaths(["git", "-C", "/tmp", "--work-tree", "/repo", "status"])).toEqual(["/tmp", "/repo"]);
+  });
+  test("skips non-dir value flags", () => {
+    expect(extractGitDirPaths(["git", "-c", "core.pager=less", "log"])).toEqual([]);
+  });
+  test("returns empty for plain git command", () => {
+    expect(extractGitDirPaths(["git", "status"])).toEqual([]);
+  });
+});
+
 describe("curl flag classifier", () => {
   test("curl url → network_outbound", () => {
     expect(classifyWithFlags(["curl", "https://example.com"])).toBe("network_outbound");
