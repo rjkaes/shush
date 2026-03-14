@@ -73,20 +73,20 @@ export function parseConfigYaml(text: string): ShushConfig {
  * For actions and sensitive_paths: overlay can only make policies stricter.
  * For classify: overlay entries are additive (union of patterns).
  */
-export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConfig {
-  // Merge actions: stricter wins
-  const actions: Record<string, Decision> = { ...base.actions };
-  for (const [key, overlayVal] of Object.entries(overlay.actions)) {
-    const baseVal = actions[key];
-    actions[key] = baseVal ? stricter(baseVal, overlayVal) : overlayVal;
+function mergeStricter(
+  base: Record<string, Decision>,
+  overlay: Record<string, Decision>,
+): Record<string, Decision> {
+  const result = { ...base };
+  for (const [key, overlayVal] of Object.entries(overlay)) {
+    result[key] = result[key] ? stricter(result[key], overlayVal) : overlayVal;
   }
+  return result;
+}
 
-  // Merge sensitive_paths: stricter wins
-  const sensitivePaths: Record<string, Decision> = { ...base.sensitivePaths };
-  for (const [key, overlayVal] of Object.entries(overlay.sensitivePaths)) {
-    const baseVal = sensitivePaths[key];
-    sensitivePaths[key] = baseVal ? stricter(baseVal, overlayVal) : overlayVal;
-  }
+export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConfig {
+  const actions = mergeStricter(base.actions, overlay.actions);
+  const sensitivePaths = mergeStricter(base.sensitivePaths, overlay.sensitivePaths);
 
   // Merge classify: additive union of patterns per action type
   const classify: Record<string, string[]> = {};
@@ -121,10 +121,9 @@ export function loadConfigFile(filePath: string): ShushConfig | null {
   }
 }
 
-const DEFAULT_GLOBAL_PATH = (() => {
-  const { homedir } = require("node:os");
-  return path.join(homedir(), ".config", "shush", "config.yaml");
-})();
+import { homedir } from "node:os";
+
+const DEFAULT_GLOBAL_PATH = path.join(homedir(), ".config", "shush", "config.yaml");
 
 /**
  * Load the effective config by merging global and per-project files.

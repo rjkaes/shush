@@ -2,7 +2,40 @@ import { classifyCommand } from "../src/bash-guard.js";
 import { checkPath, checkProjectBoundary } from "../src/path-guard.js";
 import { scanContent, isCredentialSearch, formatContentMessage } from "../src/content-guard.js";
 import { loadConfig } from "../src/config.js";
-import type { HookInput, HookOutput, Decision } from "../src/types.js";
+import type { HookInput, HookOutput, Decision, ShushConfig } from "../src/types.js";
+
+/** Shared path + boundary + content check for file-writing tools. */
+function checkFileWrite(
+  toolName: string,
+  filePath: string,
+  content: string,
+  projectRoot: string | null,
+  config: ShushConfig,
+): { decision: Decision; reason: string } {
+  let decision: Decision = "allow";
+  let reason = "";
+
+  const pathResult = checkPath(toolName, filePath, config);
+  if (pathResult) {
+    decision = pathResult.decision;
+    reason = pathResult.reason;
+  }
+  if (decision === "allow") {
+    const boundaryResult = checkProjectBoundary(toolName, filePath, projectRoot);
+    if (boundaryResult) {
+      decision = boundaryResult.decision;
+      reason = boundaryResult.reason;
+    }
+  }
+  if (decision === "allow" || decision === "context") {
+    const matches = scanContent(content);
+    if (matches.length > 0) {
+      decision = "ask";
+      reason = formatContentMessage(toolName, matches);
+    }
+  }
+  return { decision, reason };
+}
 
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
@@ -39,54 +72,15 @@ async function main() {
       break;
     }
     case "Write": {
-      const filePath = tool_input.file_path as string ?? "";
-      const content = tool_input.content as string ?? "";
-      // Path check
-      const pathResult = checkPath("Write", filePath, config);
-      if (pathResult) {
-        decision = pathResult.decision;
-        reason = pathResult.reason;
-      }
-      // Project boundary check
-      if (decision === "allow") {
-        const boundaryResult = checkProjectBoundary("Write", filePath, projectRoot);
-        if (boundaryResult) {
-          decision = boundaryResult.decision;
-          reason = boundaryResult.reason;
-        }
-      }
-      // Content scan
-      if (decision === "allow" || decision === "context") {
-        const matches = scanContent(content);
-        if (matches.length > 0) {
-          decision = "ask";
-          reason = formatContentMessage("Write", matches);
-        }
-      }
+      const result = checkFileWrite("Write", tool_input.file_path as string ?? "", tool_input.content as string ?? "", projectRoot, config);
+      decision = result.decision;
+      reason = result.reason;
       break;
     }
     case "Edit": {
-      const filePath = tool_input.file_path as string ?? "";
-      const newString = tool_input.new_string as string ?? "";
-      const pathResult = checkPath("Edit", filePath, config);
-      if (pathResult) {
-        decision = pathResult.decision;
-        reason = pathResult.reason;
-      }
-      if (decision === "allow") {
-        const boundaryResult = checkProjectBoundary("Edit", filePath, projectRoot);
-        if (boundaryResult) {
-          decision = boundaryResult.decision;
-          reason = boundaryResult.reason;
-        }
-      }
-      if (decision === "allow" || decision === "context") {
-        const matches = scanContent(newString);
-        if (matches.length > 0) {
-          decision = "ask";
-          reason = formatContentMessage("Edit", matches);
-        }
-      }
+      const result = checkFileWrite("Edit", tool_input.file_path as string ?? "", tool_input.new_string as string ?? "", projectRoot, config);
+      decision = result.decision;
+      reason = result.reason;
       break;
     }
     case "Glob": {

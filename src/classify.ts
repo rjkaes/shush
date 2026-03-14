@@ -1,4 +1,5 @@
 import * as T from "./taxonomy.js";
+import { STRICTNESS } from "./types.js";
 
 // ==============================================================================
 // Git Global Flag Stripping
@@ -133,14 +134,10 @@ function classifyExecTokens(tokens: string[]): string {
   return T.classifyTokens(tokens);
 }
 
-// Rank action types by how restrictive their default policy is.
-// Derived from DEFAULT_POLICIES so new action types are handled automatically.
-const DECISION_RANK: Record<string, number> = { allow: 0, context: 1, ask: 2, block: 3 };
-
 /** Return the more dangerous of two action types (by default policy). */
 function stricterType(a: string, b: string): string {
-  const aRank = DECISION_RANK[T.DEFAULT_POLICIES[a] ?? "ask"] ?? 2;
-  const bRank = DECISION_RANK[T.DEFAULT_POLICIES[b] ?? "ask"] ?? 2;
+  const aRank = STRICTNESS[T.DEFAULT_POLICIES[a] ?? "ask"] ?? 2;
+  const bRank = STRICTNESS[T.DEFAULT_POLICIES[b] ?? "ask"] ?? 2;
   return bRank > aRank ? b : a;
 }
 
