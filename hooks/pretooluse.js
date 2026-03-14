@@ -22753,9 +22753,10 @@ async function main() {
   const permissionDecision = decision === "block" ? "deny" : "ask";
   const output = {
     hookSpecificOutput: {
-      permissionDecision
-    },
-    systemMessage: `shush(${decision}) ${tool_name}: ${reason}`
+      hookEventName: "PreToolUse",
+      permissionDecision,
+      permissionDecisionReason: `shush(${decision}) ${tool_name}: ${reason}`
+    }
   };
   process.stdout.write(JSON.stringify(output));
   process.exit(0);

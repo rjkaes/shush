@@ -139,9 +139,10 @@ async function main() {
 
   const output: HookOutput = {
     hookSpecificOutput: {
+      hookEventName: "PreToolUse",
       permissionDecision,
+      permissionDecisionReason: `shush(${decision}) ${tool_name}: ${reason}`,
     },
-    systemMessage: `shush(${decision}) ${tool_name}: ${reason}`,
   };
 
   process.stdout.write(JSON.stringify(output));

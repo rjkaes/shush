@@ -56,10 +56,11 @@ export interface HookInput {
 /** Hook output written to stdout. */
 export interface HookOutput {
   hookSpecificOutput?: {
+    hookEventName: "PreToolUse";
     permissionDecision: "allow" | "deny" | "ask";
+    permissionDecisionReason?: string;
     updatedInput?: Record<string, unknown>;
   };
-  systemMessage?: string;
 }
 
 /** User configuration loaded from YAML files. */
