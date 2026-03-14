@@ -17,7 +17,7 @@ const GIT_BOOLEAN_FLAGS = new Set([
  * Strip git global flags (e.g. -C <dir>, --no-pager) from token list.
  * Preserves 'git' as first token followed by the subcommand and its args.
  */
-function stripGitGlobalFlags(tokens: string[]): string[] {
+export function stripGitGlobalFlags(tokens: string[]): string[] {
   const result = [tokens[0]]; // keep "git"
   let i = 1;
   while (i < tokens.length) {
@@ -511,6 +511,10 @@ function classifyGit(tokens: string[]): string | null {
 
   if (sub === "restore") {
     return args.includes("--staged") ? T.GIT_WRITE : T.GIT_DISCARD;
+  }
+
+  if (sub === "commit") {
+    return args.includes("--amend") ? T.GIT_HISTORY_REWRITE : T.GIT_WRITE;
   }
 
   // Read-only subcommands: return git_safe so that global-flag stripping

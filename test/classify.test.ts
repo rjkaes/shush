@@ -41,6 +41,15 @@ describe("git flag classifier", () => {
   test("strips git -C flag", () => {
     expect(classifyWithFlags(["git", "-C", "/tmp", "status"])).toBe("git_safe");
   });
+  test("git commit → git_write", () => {
+    expect(classifyWithFlags(["git", "commit", "-m", "test"])).toBe("git_write");
+  });
+  test("git commit --amend → git_history_rewrite", () => {
+    expect(classifyWithFlags(["git", "commit", "--amend"])).toBe("git_history_rewrite");
+  });
+  test("git -C /path commit → git_write", () => {
+    expect(classifyWithFlags(["git", "-C", "/tmp", "commit", "-m", "test"])).toBe("git_write");
+  });
 });
 
 describe("git flag classifier — additional subcommands", () => {

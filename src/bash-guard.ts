@@ -5,7 +5,7 @@
 
 import { extractStages } from "./ast-walk.js";
 import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_WRITE } from "./taxonomy.js";
-import { classifyWithFlags } from "./classify.js";
+import { classifyWithFlags, stripGitGlobalFlags } from "./classify.js";
 import { checkComposition } from "./composition.js";
 import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
@@ -24,8 +24,10 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
     const policy = getPolicy(flagResult, config);
     return { actionType: flagResult, decision: policy };
   }
-  // Prefix table fallback
-  const actionType = classifyTokens(tokens, config);
+  // Prefix table fallback — use flag-stripped tokens so that e.g.
+  // `git -C /path commit` matches the `["git", "commit"]` trie entry.
+  const normalized = tokens[0] === "git" ? stripGitGlobalFlags(tokens) : tokens;
+  const actionType = classifyTokens(normalized, config);
   const decision = getPolicy(actionType, config);
   return { actionType, decision };
 }

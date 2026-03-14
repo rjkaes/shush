@@ -22086,6 +22086,9 @@ function classifyGit(tokens) {
   if (sub === "restore") {
     return args2.includes("--staged") ? GIT_WRITE : GIT_DISCARD;
   }
+  if (sub === "commit") {
+    return args2.includes("--amend") ? GIT_HISTORY_REWRITE : GIT_WRITE;
+  }
   if (GIT_SAFE_SUBCOMMANDS.has(sub)) {
     return GIT_SAFE;
   }
@@ -22318,7 +22321,8 @@ function classifyStage(tokens, config) {
     const policy = getPolicy(flagResult, config);
     return { actionType: flagResult, decision: policy };
   }
-  const actionType = classifyTokens(tokens, config);
+  const normalized = tokens[0] === "git" ? stripGitGlobalFlags(tokens) : tokens;
+  const actionType = classifyTokens(normalized, config);
   const decision = getPolicy(actionType, config);
   return { actionType, decision };
 }
