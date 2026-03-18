@@ -20,27 +20,42 @@ const MAX_UNWRAP_DEPTH = 3;
 // Commands that wrap another command. We strip them and their flags to classify
 // the inner command. Each entry maps the wrapper name to a set of flags that
 // consume a following argument (value flags).
-const COMMAND_WRAPPERS: Record<string, { valueFlags: Set<string> }> = {
+interface WrapperSpec {
+  valueFlags: Set<string>;
+  /** Skip tokens matching VAR=value (used by `env`). */
+  skipAssignments?: boolean;
+  /** Skip the first non-flag positional (used by `timeout` for the duration arg). */
+  skipFirstPositional?: RegExp;
+  /** Fallback tokens when the wrapper has no inner command (used by `xargs` → echo). */
+  defaultInner?: string[];
+}
+
+const COMMAND_WRAPPERS: Record<string, WrapperSpec> = {
+  xargs:   { valueFlags: new Set(["-I", "-L", "-n", "-P", "-s", "-R", "-S"]), defaultInner: ["echo"] },
   nice:    { valueFlags: new Set(["-n", "--adjustment"]) },
   nohup:   { valueFlags: new Set([]) },
-  timeout: { valueFlags: new Set(["-k", "--kill-after", "-s", "--signal"]) },
+  timeout: { valueFlags: new Set(["-k", "--kill-after", "-s", "--signal"]), skipFirstPositional: /^[\d.]+[smhd]?$/ },
   stdbuf:  { valueFlags: new Set(["-i", "--input", "-o", "--output", "-e", "--error"]) },
   ionice:  { valueFlags: new Set(["-c", "--class", "-n", "--classdata", "-t"]) },
-  // `env` is special: skip env assignments (FOO=bar) in addition to flags
-  env:     { valueFlags: new Set(["-u", "--unset", "-C", "--chdir", "-S", "--split-string"]) },
+  env:     { valueFlags: new Set(["-u", "--unset", "-C", "--chdir", "-S", "--split-string"]), skipAssignments: true },
 };
 
-/** Strip a command wrapper and its flags, returning the inner command tokens. */
+/**
+ * Strip a command wrapper and its flags, returning the inner command tokens.
+ * Returns null if the command is not a known wrapper (or has no inner command
+ * and no defaultInner fallback).
+ */
 function unwrapCommandWrapper(tokens: string[]): string[] | null {
   const wrapper = COMMAND_WRAPPERS[tokens[0]];
   if (!wrapper) return null;
 
   let i = 1; // skip the wrapper itself
+  let sawFirstPositional = false;
   while (i < tokens.length) {
     const tok = tokens[i];
 
-    // `env` skips inline assignments (VAR=value)
-    if (tokens[0] === "env" && tok.includes("=") && !tok.startsWith("-")) {
+    // Skip inline assignments (VAR=value) when the wrapper supports it
+    if (wrapper.skipAssignments && tok.includes("=") && !tok.startsWith("-")) {
       i += 1;
       continue;
     }
@@ -51,7 +66,7 @@ function unwrapCommandWrapper(tokens: string[]): string[] | null {
       continue;
     }
 
-    // Joined value flags: -n5, -c2, etc.
+    // Joined value flags: -n5, -c2, -I{}, -P4, etc.
     if (tok.length > 2 && tok.startsWith("-") && !tok.startsWith("--") && wrapper.valueFlags.has(tok.slice(0, 2))) {
       i += 1;
       continue;
@@ -63,8 +78,10 @@ function unwrapCommandWrapper(tokens: string[]): string[] | null {
       continue;
     }
 
-    // timeout's first non-flag positional is the duration, not the command
-    if (tokens[0] === "timeout" && /^[\d.]+[smhd]?$/.test(tok)) {
+    // Skip the first non-flag positional when the wrapper has a leading arg
+    // (e.g., timeout's duration: `timeout 5s rm foo`)
+    if (wrapper.skipFirstPositional && !sawFirstPositional && wrapper.skipFirstPositional.test(tok)) {
+      sawFirstPositional = true;
       i += 1;
       continue;
     }
@@ -73,7 +90,7 @@ function unwrapCommandWrapper(tokens: string[]): string[] | null {
     break;
   }
 
-  if (i >= tokens.length) return null; // wrapper with no inner command
+  if (i >= tokens.length) return wrapper.defaultInner ?? null;
   return tokens.slice(i);
 }
 
@@ -146,16 +163,12 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     return classifyCommand(innerCommand, depth + 1, config);
   }
 
-  // Classify each stage. xargs and command wrappers are unwrapped to expose
-  // the inner command without mutating the original stage tokens.
+  // Classify each stage. Command wrappers (xargs, nice, nohup, timeout, etc.)
+  // are unwrapped to expose the inner command without mutating the original
+  // stage tokens.
   const stageResults: StageResult[] = stages.map((stage) => {
-    let tokens = (stage.tokens[0] === "xargs" && stage.tokens.length >= 2)
-      ? unwrapXargs(stage.tokens)
-      : stage.tokens;
-
-    // Unwrap command wrappers (nice, nohup, timeout, stdbuf, env, ionice)
-    const unwrapped = unwrapCommandWrapper(tokens);
-    if (unwrapped) tokens = unwrapped;
+    const unwrapped = unwrapCommandWrapper(stage.tokens);
+    const tokens = unwrapped ?? stage.tokens;
 
     let { actionType, decision } = classifyStage(tokens, config);
     let reason = decision !== "allow" ? `${tokens[0]}: ${actionType}` : "";
@@ -245,38 +258,4 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     reason,
     compositionRule: compRule || undefined,
   };
-}
-
-// xargs flags that consume a following argument
-const XARGS_VALUE_FLAGS = new Set(["-I", "-L", "-n", "-P", "-s", "-R", "-S"]);
-
-/**
- * Strip xargs and its flags, returning the inner command tokens.
- * e.g. ["xargs", "-0", "grep", "-l", "pattern"] -> ["grep", "-l", "pattern"]
- */
-function unwrapXargs(tokens: string[]): string[] {
-  let i = 1; // skip "xargs"
-  while (i < tokens.length) {
-    const tok = tokens[i];
-    // Value flags: -I {}, -n 10, etc.
-    if (XARGS_VALUE_FLAGS.has(tok)) {
-      i += 2;
-      continue;
-    }
-    // Joined value flags: -I{}, -P4, etc.
-    if (tok.length > 2 && tok.startsWith("-") && !tok.startsWith("--") && XARGS_VALUE_FLAGS.has(tok.slice(0, 2))) {
-      i += 1;
-      continue;
-    }
-    // Boolean flags: -0, -t, -p, -r, --no-run-if-empty, -d, etc.
-    if (tok.startsWith("-")) {
-      i += 1;
-      continue;
-    }
-    // First non-flag token is the start of the inner command
-    break;
-  }
-  // If we consumed everything, xargs with no command defaults to /bin/echo
-  if (i >= tokens.length) return ["echo"];
-  return tokens.slice(i);
 }
