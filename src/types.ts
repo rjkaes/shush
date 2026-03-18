@@ -25,6 +25,8 @@ export interface Stage {
   redirectTarget?: string;
   /** True if >> (append), false if > (truncate). */
   redirectAppend?: boolean;
+  /** Env var assignments prefixing the command (e.g., `PAGER=less git log`). */
+  envAssignments?: string[];
 }
 
 /** Classification result for a single pipeline stage. */

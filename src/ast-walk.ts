@@ -130,6 +130,7 @@ function walkControlFlow(node: AstNode, trailingOp: string): Stage[] {
 
 function commandToStage(node: AstNode, operator: string): Stage {
   const tokens: string[] = [];
+  const envAssignments: string[] = [];
   let redirectTarget: string | undefined;
   let redirectAppend: boolean | undefined;
 
@@ -139,7 +140,7 @@ function commandToStage(node: AstNode, operator: string): Stage {
     tokens.push(name.text as string);
   }
 
-  // Extract prefix: skip AssignmentWord, collect redirects
+  // Extract prefix: collect env assignments and redirects
   const prefix = node.prefix as AstNode[] | undefined;
   if (prefix) {
     for (const p of prefix) {
@@ -150,8 +151,9 @@ function commandToStage(node: AstNode, operator: string): Stage {
           redirectTarget = file.text as string;
           redirectAppend = opText === ">>";
         }
+      } else if (p.type === "AssignmentWord" && p.text) {
+        envAssignments.push(p.text as string);
       }
-      // Skip AssignmentWord — env var prefixes are stripped
     }
   }
 
@@ -177,6 +179,7 @@ function commandToStage(node: AstNode, operator: string): Stage {
     operator,
     redirectTarget,
     redirectAppend,
+    ...(envAssignments.length > 0 ? { envAssignments } : {}),
   };
 }
 
