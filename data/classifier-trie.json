@@ -2704,6 +2704,9 @@
   "sha512sum": {
     "_": "filesystem_read"
   },
+  "shellcheck": {
+    "_": "filesystem_read"
+  },
   "sleep": {
     "_": "filesystem_read"
   },

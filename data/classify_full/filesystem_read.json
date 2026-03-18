@@ -1218,6 +1218,9 @@
     "sha512sum"
   ],
   [
+    "shellcheck"
+  ],
+  [
     "sleep"
   ],
   [
