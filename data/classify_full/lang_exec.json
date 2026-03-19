@@ -12,10 +12,6 @@
   ],
   [
     "gh",
-    "api"
-  ],
-  [
-    "gh",
     "extension",
     "exec"
   ],

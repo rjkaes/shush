@@ -82,6 +82,7 @@ export function classifyWithFlags(tokens: string[]): string | null {
     classifyAwk(normalized) ??
     classifyTar(normalized) ??
     classifyGit(normalized) ??
+    classifyGhApi(normalized) ??
     classifyCurl(normalized) ??
     classifyWget(normalized) ??
     classifyHttpie(normalized) ??
@@ -223,6 +224,59 @@ function classifyTar(tokens: string[]): string | null {
   if (foundWrite) return T.FILESYSTEM_WRITE;
   if (foundRead) return T.FILESYSTEM_READ;
   return T.FILESYSTEM_WRITE; // Conservative default
+}
+
+// ==============================================================================
+// gh api
+// ==============================================================================
+
+// gh api uses --method/-X for HTTP method (default GET).
+// Body flags (-f, --field, -F, --raw-field, --input) flip the default to POST.
+const GH_API_METHOD_FLAGS = new Set(["--method", "-X"]);
+const GH_API_BODY_FLAGS = new Set(["-f", "--field", "-F", "--raw-field", "--input"]);
+const GH_API_BODY_PREFIXES = ["-f=", "--field=", "-F=", "--raw-field=", "--input="];
+
+function classifyGhApi(tokens: string[]): string | null {
+  if (tokens.length < 2 || tokens[0] !== "gh" || tokens[1] !== "api") return null;
+
+  let explicitMethod: string | null = null;
+  let hasBody = false;
+
+  let i = 2;
+  while (i < tokens.length) {
+    const tok = tokens[i];
+
+    if (GH_API_METHOD_FLAGS.has(tok) && i + 1 < tokens.length) {
+      explicitMethod = tokens[i + 1].toUpperCase();
+      i += 2;
+      continue;
+    }
+    if (tok.startsWith("--method=")) {
+      explicitMethod = tok.split("=", 2)[1].toUpperCase();
+      i += 1;
+      continue;
+    }
+
+    if (GH_API_BODY_FLAGS.has(tok)) {
+      hasBody = true;
+      i += 2; // flag + value
+      continue;
+    }
+    if (GH_API_BODY_PREFIXES.some((p) => tok.startsWith(p))) {
+      hasBody = true;
+      i += 1;
+      continue;
+    }
+
+    i += 1;
+  }
+
+  const method = explicitMethod ?? (hasBody ? "POST" : "GET");
+
+  if (method === "DELETE") return T.GIT_HISTORY_REWRITE;
+  if (method === "GET" || method === "HEAD") return T.GIT_SAFE;
+  // POST, PUT, PATCH
+  return T.GIT_WRITE;
 }
 
 // ==============================================================================

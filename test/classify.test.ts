@@ -466,6 +466,65 @@ describe("global install classifier", () => {
   });
 });
 
+describe("gh api flag classifier", () => {
+  test("bare gh api → git_safe (GET by default)", () => {
+    expect(classifyWithFlags(["gh", "api", "/repos/owner/repo"])).toBe("git_safe");
+  });
+
+  test("explicit GET → git_safe", () => {
+    expect(classifyWithFlags(["gh", "api", "--method", "GET", "/repos/owner/repo"])).toBe("git_safe");
+  });
+
+  test("explicit -X GET → git_safe", () => {
+    expect(classifyWithFlags(["gh", "api", "-X", "GET", "/repos/owner/repo"])).toBe("git_safe");
+  });
+
+  test("explicit POST → git_write", () => {
+    expect(classifyWithFlags(["gh", "api", "--method", "POST", "/repos/owner/repo/issues"])).toBe("git_write");
+  });
+
+  test("explicit PATCH → git_write", () => {
+    expect(classifyWithFlags(["gh", "api", "-X", "PATCH", "/repos/owner/repo"])).toBe("git_write");
+  });
+
+  test("explicit DELETE → git_history_rewrite", () => {
+    expect(classifyWithFlags(["gh", "api", "--method", "DELETE", "/repos/owner/repo"])).toBe("git_history_rewrite");
+  });
+
+  test("-X DELETE → git_history_rewrite", () => {
+    expect(classifyWithFlags(["gh", "api", "-X", "DELETE", "/repos/owner/repo"])).toBe("git_history_rewrite");
+  });
+
+  test("--method=DELETE → git_history_rewrite", () => {
+    expect(classifyWithFlags(["gh", "api", "--method=DELETE", "/repos/owner/repo"])).toBe("git_history_rewrite");
+  });
+
+  test("body flag -f without method → git_write (implicit POST)", () => {
+    expect(classifyWithFlags(["gh", "api", "/repos/owner/repo/issues", "-f", "title=Bug"])).toBe("git_write");
+  });
+
+  test("body flag --field without method → git_write", () => {
+    expect(classifyWithFlags(["gh", "api", "/repos/owner/repo/issues", "--field", "title=Bug"])).toBe("git_write");
+  });
+
+  test("body flag --input without method → git_write", () => {
+    expect(classifyWithFlags(["gh", "api", "/repos/owner/repo/issues", "--input", "body.json"])).toBe("git_write");
+  });
+
+  test("body flag -f=value without method → git_write", () => {
+    expect(classifyWithFlags(["gh", "api", "/repos/owner/repo/issues", "-f=title=Bug"])).toBe("git_write");
+  });
+
+  test("explicit method overrides body-inferred default", () => {
+    // Even with body flags, explicit GET wins
+    expect(classifyWithFlags(["gh", "api", "-X", "GET", "-f", "per_page=100", "/repos"])).toBe("git_safe");
+  });
+
+  test("non-api gh subcommand → null (not handled here)", () => {
+    expect(classifyWithFlags(["gh", "pr", "list"])).toBeNull();
+  });
+});
+
 describe("edge cases", () => {
   test("empty tokens → null", () => {
     expect(classifyWithFlags([])).toBeNull();

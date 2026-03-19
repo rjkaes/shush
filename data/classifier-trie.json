@@ -1724,9 +1724,6 @@
       "run": {
         "_": "git_write"
       }
-    },
-    "api": {
-      "_": "lang_exec"
     }
   },
   "gmake": {
