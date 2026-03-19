@@ -267,15 +267,14 @@ describe("getPolicy with config", () => {
     expect(getPolicy("lang_exec", config)).toBe("block");
   });
 
-  test("config cannot relax below hardcoded default", () => {
+  test("config can relax hardcoded default", () => {
     const config: ShushConfig = {
       actions: { lang_exec: "allow" },
       sensitivePaths: {},
       classify: {},
     };
-    // Hardcoded default for lang_exec is "ask"; config says "allow"
-    // stricter("ask", "allow") = "ask"
-    expect(getPolicy("lang_exec", config)).toBe("ask");
+    // Global config overrides the hardcoded default for lang_exec ("ask")
+    expect(getPolicy("lang_exec", config)).toBe("allow");
   });
 
   test("no config returns hardcoded default", () => {

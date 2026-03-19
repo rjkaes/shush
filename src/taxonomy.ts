@@ -1,4 +1,4 @@
-import { type Decision, type ShushConfig, stricter } from "./types.js";
+import { type Decision, type ShushConfig } from "./types.js";
 import ACTION_TYPES from "../data/types.json";
 import DEFAULT_POLICIES_JSON from "../data/policies.json";
 import classifyTrieJSON from "../data/classifier-trie.json";
@@ -91,11 +91,10 @@ export function prefixMatch(
   return UNKNOWN;
 }
 
-/** Get the default policy for an action type. */
+/** Get the default policy for an action type. Config overrides the hardcoded default. */
 export function getPolicy(actionType: string, config?: ShushConfig): Decision {
-  const hardcoded = DEFAULT_POLICIES[actionType] ?? "ask";
-  if (!config?.actions[actionType]) return hardcoded;
-  return stricter(hardcoded, config.actions[actionType]);
+  if (config?.actions[actionType]) return config.actions[actionType];
+  return DEFAULT_POLICIES[actionType] ?? "ask";
 }
 
 // Shell wrappers that need unwrapping
