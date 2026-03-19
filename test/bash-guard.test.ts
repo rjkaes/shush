@@ -12,6 +12,12 @@ describe("classifyCommand", () => {
   test("npm test → allow", () => {
     expect(classifyCommand("npm test").finalDecision).toBe("allow");
   });
+  test("dotnet build → allow", () => {
+    expect(classifyCommand("dotnet build").finalDecision).toBe("allow");
+  });
+  test("dotnet test → allow", () => {
+    expect(classifyCommand("dotnet test").finalDecision).toBe("allow");
+  });
 
   // Context-dependent
   test("rm file → context", () => {

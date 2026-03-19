@@ -3723,6 +3723,14 @@
   "bunx": {
     "_": "package_run"
   },
+  "dotnet": {
+    "build": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
   "just": {
     "_": "package_run"
   },
