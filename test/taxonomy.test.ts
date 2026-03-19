@@ -58,4 +58,24 @@ describe("classifyTokens", () => {
   test("normalizes absolute paths: /usr/bin/rm → rm", () => {
     expect(classifyTokens(["/usr/bin/rm", "file"])).toBe("filesystem_delete");
   });
+
+  test("classifies 'gh pr create' as git_write", () => {
+    expect(classifyTokens(["gh", "pr", "create"])).toBe("git_write");
+  });
+
+  test("classifies 'gh pr list' as git_safe", () => {
+    expect(classifyTokens(["gh", "pr", "list"])).toBe("git_safe");
+  });
+
+  test("classifies 'gh repo delete' as git_history_rewrite", () => {
+    expect(classifyTokens(["gh", "repo", "delete"])).toBe("git_history_rewrite");
+  });
+
+  test("classifies 'gh issue create' as git_write", () => {
+    expect(classifyTokens(["gh", "issue", "create"])).toBe("git_write");
+  });
+
+  test("classifies 'gh issue delete' as git_history_rewrite", () => {
+    expect(classifyTokens(["gh", "issue", "delete"])).toBe("git_history_rewrite");
+  });
 });
