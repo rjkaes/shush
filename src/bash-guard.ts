@@ -30,6 +30,20 @@ interface WrapperSpec {
   defaultInner?: string[];
 }
 
+// PowerShell value flags: flags that take a separate argument.
+// -Command/-c and -File/-f are intentionally excluded so the next positional
+// token (the script or command string) becomes the classified inner command.
+const PWSH_VALUE_FLAGS = new Set([
+  "-ExecutionPolicy", "-ep",
+  "-EncodedCommand", "-ec",
+  "-ConfigurationName",
+  "-CustomPipeName",
+  "-InputFormat", "-if",
+  "-OutputFormat", "-of",
+  "-SettingsFile",
+  "-WorkingDirectory", "-wd",
+]);
+
 const COMMAND_WRAPPERS: Record<string, WrapperSpec> = {
   xargs:   { valueFlags: new Set(["-I", "-L", "-n", "-P", "-s", "-R", "-S"]), defaultInner: ["echo"] },
   nice:    { valueFlags: new Set(["-n", "--adjustment"]) },
@@ -38,6 +52,8 @@ const COMMAND_WRAPPERS: Record<string, WrapperSpec> = {
   stdbuf:  { valueFlags: new Set(["-i", "--input", "-o", "--output", "-e", "--error"]) },
   ionice:  { valueFlags: new Set(["-c", "--class", "-n", "--classdata", "-t"]) },
   env:     { valueFlags: new Set(["-u", "--unset", "-C", "--chdir", "-S", "--split-string"]), skipAssignments: true },
+  pwsh:       { valueFlags: PWSH_VALUE_FLAGS },
+  powershell: { valueFlags: PWSH_VALUE_FLAGS },
 };
 
 /**
