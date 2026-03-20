@@ -45,8 +45,14 @@ actions:
   filesystem_delete: ask
   git_safe: invalid_value
 `;
-    const config = parseConfigYaml(yaml);
-    expect(config.actions).toEqual({ filesystem_delete: "ask" });
+    const origWrite = process.stderr.write;
+    process.stderr.write = (() => true) as typeof process.stderr.write;
+    try {
+      const config = parseConfigYaml(yaml);
+      expect(config.actions).toEqual({ filesystem_delete: "ask" });
+    } finally {
+      process.stderr.write = origWrite;
+    }
   });
 
   test("skips invalid decision values in sensitive_paths", () => {
@@ -55,8 +61,14 @@ sensitive_paths:
   ~/.kube: ask
   ~/bad: nope
 `;
-    const config = parseConfigYaml(yaml);
-    expect(config.sensitivePaths).toEqual({ "~/.kube": "ask" });
+    const origWrite = process.stderr.write;
+    process.stderr.write = (() => true) as typeof process.stderr.write;
+    try {
+      const config = parseConfigYaml(yaml);
+      expect(config.sensitivePaths).toEqual({ "~/.kube": "ask" });
+    } finally {
+      process.stderr.write = origWrite;
+    }
   });
 
   test("skips classify entries that are not string arrays", () => {
@@ -66,8 +78,14 @@ classify:
     - "psql -c DROP"
   bad_type: "not an array"
 `;
-    const config = parseConfigYaml(yaml);
-    expect(config.classify).toEqual({ good_type: ["psql -c DROP"] });
+    const origWrite = process.stderr.write;
+    process.stderr.write = (() => true) as typeof process.stderr.write;
+    try {
+      const config = parseConfigYaml(yaml);
+      expect(config.classify).toEqual({ good_type: ["psql -c DROP"] });
+    } finally {
+      process.stderr.write = origWrite;
+    }
   });
 
   test("handles config with only actions section", () => {
@@ -208,11 +226,14 @@ describe("loadConfigFile", () => {
     const dir = mkdtempSync(join(tmpdir(), "shush-test-"));
     const filePath = join(dir, "config.yaml");
     writeFileSync(filePath, "{{{{not yaml");
+    const origWrite = process.stderr.write;
+    process.stderr.write = (() => true) as typeof process.stderr.write;
     try {
       const result = loadConfigFile(filePath);
       expect(result).not.toBeNull();
       expect(result).toEqual(EMPTY_CONFIG);
     } finally {
+      process.stderr.write = origWrite;
       rmSync(dir, { recursive: true, force: true });
     }
   });
