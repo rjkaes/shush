@@ -106,7 +106,7 @@ export const SHELL_WRAPPERS = new Set(["bash", "sh", "dash", "zsh"]);
 // Exec sinks for pipe composition
 export const EXEC_SINKS = new Set([
   "bash", "sh", "dash", "zsh", "eval", "python", "python3",
-  "node", "ruby", "perl", "php", "bun", "deno", "fish", "pwsh",
+  "node", "ruby", "perl", "php", "bun", "deno", "fish", "pwsh", "powershell",
 ]);
 
 // Decode commands for pipe composition: [command, flag | null]
