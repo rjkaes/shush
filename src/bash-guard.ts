@@ -31,11 +31,11 @@ interface WrapperSpec {
 }
 
 // PowerShell value flags: flags that take a separate argument.
-// -Command/-c and -File/-f are intentionally excluded so the next positional
-// token (the script or command string) becomes the classified inner command.
+// -Command/-c, -File/-f, and -EncodedCommand/-e/-ec are intentionally excluded
+// so the next positional token (the script, command string, or opaque payload)
+// becomes the classified inner command.
 const PWSH_VALUE_FLAGS = new Set([
   "-ExecutionPolicy", "-ep",
-  "-EncodedCommand", "-ec",
   "-ConfigurationName",
   "-CustomPipeName",
   "-InputFormat", "-if",

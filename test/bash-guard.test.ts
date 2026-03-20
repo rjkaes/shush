@@ -248,18 +248,27 @@ describe("pwsh/powershell unwrapping", () => {
   test("pwsh script.ps1 → unwraps to classify the script", () => {
     const result = classifyCommand("pwsh ./scripts/test.ps1 -- --filter-class 'Foo'");
     expect(result.stages[0].actionType).toBe("unknown");
+    expect(result.stages[0].reason).toContain("test.ps1");
   });
   test("pwsh -NoProfile script.ps1 → skips boolean flags", () => {
     const result = classifyCommand("pwsh -NoProfile ./scripts/test.ps1");
     expect(result.stages[0].actionType).toBe("unknown");
+    expect(result.stages[0].reason).toContain("test.ps1");
   });
   test("pwsh -ExecutionPolicy Bypass script.ps1 → skips value flags", () => {
     const result = classifyCommand("pwsh -ExecutionPolicy Bypass ./scripts/test.ps1");
     expect(result.stages[0].actionType).toBe("unknown");
+    expect(result.stages[0].reason).toContain("test.ps1");
   });
   test("pwsh -File script.ps1 → -File treated as boolean, script is inner command", () => {
     const result = classifyCommand("pwsh -File ./scripts/test.ps1");
     expect(result.stages[0].actionType).toBe("unknown");
+    expect(result.stages[0].reason).toContain("test.ps1");
+  });
+  test("pwsh -EncodedCommand <payload> → payload becomes inner command (not skipped)", () => {
+    const result = classifyCommand("pwsh -EncodedCommand SGVsbG8=");
+    expect(result.stages[0].actionType).toBe("unknown");
+    expect(result.stages[0].reason).toContain("SGVsbG8=");
   });
   test("pwsh ls → allow (unwraps to safe command)", () => {
     expect(classifyCommand("pwsh ls").finalDecision).toBe("allow");
@@ -270,6 +279,7 @@ describe("pwsh/powershell unwrapping", () => {
   test("powershell script.ps1 → same as pwsh", () => {
     const result = classifyCommand("powershell ./scripts/test.ps1");
     expect(result.stages[0].actionType).toBe("unknown");
+    expect(result.stages[0].reason).toContain("test.ps1");
   });
   test("pwsh with config classify → respects user classification", () => {
     const config = {
