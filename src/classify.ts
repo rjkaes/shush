@@ -234,6 +234,8 @@ function classifyTar(tokens: string[]): string | null {
 // Body flags (-f, --field, -F, --raw-field, --input) flip the default to POST.
 const GH_API_METHOD_FLAGS = new Set(["--method", "-X"]);
 const GH_API_BODY_FLAGS = new Set(["-f", "--field", "-F", "--raw-field", "--input"]);
+// Known flags that consume a value argument (skip to avoid misclassification)
+const GH_API_VALUE_FLAGS = new Set(["-H", "--header", "--jq", "-t", "--template", "--cache"]);
 
 function classifyGhApi(tokens: string[]): string | null {
   if (tokens.length < 2 || tokens[0] !== "gh" || tokens[1] !== "api") return null;
@@ -264,14 +266,21 @@ function classifyGhApi(tokens: string[]): string | null {
       continue;
     }
 
+    // Skip known flags that consume a value argument
+    if (GH_API_VALUE_FLAGS.has(flagPart)) {
+      i += eqIdx >= 0 ? 1 : 2;
+      continue;
+    }
+
     i += 1;
   }
 
   const method = explicitMethod ?? (hasBody ? "POST" : "GET");
 
+  // Classification: DELETE → git_history_rewrite (destructive, irreversible),
+  // GET/HEAD → git_safe (read-only), POST/PUT/PATCH → git_write (mutating).
   if (method === "DELETE") return T.GIT_HISTORY_REWRITE;
   if (method === "GET" || method === "HEAD") return T.GIT_SAFE;
-  // POST, PUT, PATCH
   return T.GIT_WRITE;
 }
 

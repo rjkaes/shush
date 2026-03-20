@@ -91,7 +91,10 @@ export function prefixMatch(
   return UNKNOWN;
 }
 
-/** Get the default policy for an action type. Config overrides the hardcoded default. */
+/** Get the policy for an action type. If config specifies a policy for this
+ *  action type, it wins unconditionally; otherwise falls back to the hardcoded
+ *  default from policies.json. Callers trust that loadConfig() has already
+ *  prevented untrusted (project) config from loosening policies. */
 export function getPolicy(actionType: string, config?: ShushConfig): Decision {
   if (config?.actions[actionType]) return config.actions[actionType];
   return DEFAULT_POLICIES[actionType] ?? "ask";

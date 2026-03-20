@@ -520,6 +520,22 @@ describe("gh api flag classifier", () => {
     expect(classifyWithFlags(["gh", "api", "-X", "GET", "-f", "per_page=100", "/repos"])).toBe("git_safe");
   });
 
+  test("-X HEAD → git_safe", () => {
+    expect(classifyWithFlags(["gh", "api", "-X", "HEAD", "/repos/owner/repo"])).toBe("git_safe");
+  });
+
+  test("-X PUT → git_write", () => {
+    expect(classifyWithFlags(["gh", "api", "-X", "PUT", "/repos/owner/repo/issues/1", "-f", "state=closed"])).toBe("git_write");
+  });
+
+  test("--method with no value → git_safe (default GET)", () => {
+    expect(classifyWithFlags(["gh", "api", "--method"])).toBe("git_safe");
+  });
+
+  test("-H header flag is skipped correctly", () => {
+    expect(classifyWithFlags(["gh", "api", "-H", "Accept: application/json", "/repos/owner/repo"])).toBe("git_safe");
+  });
+
   test("non-api gh subcommand → null (not handled here)", () => {
     expect(classifyWithFlags(["gh", "pr", "list"])).toBeNull();
   });

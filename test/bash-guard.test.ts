@@ -223,3 +223,20 @@ describe("env var exec-sink detection", () => {
     expect(result.finalDecision).toBe("ask");
   });
 });
+
+describe("gh api integration", () => {
+  test("gh api -X DELETE /repos/owner/repo → git_history_rewrite", () => {
+    const result = classifyCommand("gh api -X DELETE /repos/owner/repo");
+    expect(result.stages[0].actionType).toBe("git_history_rewrite");
+  });
+
+  test("gh api /repos/owner/repo → git_safe (default GET)", () => {
+    const result = classifyCommand("gh api /repos/owner/repo");
+    expect(result.stages[0].actionType).toBe("git_safe");
+  });
+
+  test("gh api -f title=Bug → git_write (implicit POST)", () => {
+    const result = classifyCommand("gh api -f title=Bug /repos/owner/repo/issues");
+    expect(result.stages[0].actionType).toBe("git_write");
+  });
+});

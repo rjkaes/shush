@@ -253,6 +253,18 @@ describe("loadConfig", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  test("project config cannot relax hardcoded defaults", () => {
+    const dir = mkdtempSync(join(tmpdir(), "shush-test-"));
+    // No global config; project tries to set obfuscated (hardcoded: "block") to "allow"
+    writeFileSync(join(dir, ".shush.yaml"), "actions:\n  obfuscated: allow\n");
+    try {
+      const result = loadConfig(dir, join(dir, "no-such-global.yaml"));
+      expect(result.actions.obfuscated).toBe("block");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
 
 import { getPolicy, classifyTokens } from "../src/taxonomy.js";

@@ -8,6 +8,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
 import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter } from "./types.js";
+import ACTION_TYPES from "../data/types.json";
+import DEFAULT_POLICIES_JSON from "../data/policies.json";
 
 const VALID_DECISIONS = new Set<string>(Object.keys(STRICTNESS));
 
@@ -18,8 +20,8 @@ export function parseConfigYaml(text: string): ShushConfig {
   let raw: unknown;
   try {
     raw = parseYaml(text);
-  } catch {
-    process.stderr.write("shush: malformed config YAML, ignoring\n");
+  } catch (err) {
+    process.stderr.write(`shush: malformed config YAML, ignoring: ${err}\n`);
     return EMPTY_CONFIG;
   }
 
@@ -33,6 +35,10 @@ export function parseConfigYaml(text: string): ShushConfig {
   const actions: Record<string, Decision> = {};
   if (doc.actions && typeof doc.actions === "object") {
     for (const [key, val] of Object.entries(doc.actions as Record<string, unknown>)) {
+      if (!(key in ACTION_TYPES)) {
+        process.stderr.write(`shush: config: unknown action type "${key}", skipping\n`);
+        continue;
+      }
       if (typeof val === "string" && VALID_DECISIONS.has(val)) {
         actions[key] = val as Decision;
       } else {
@@ -70,7 +76,11 @@ export function parseConfigYaml(text: string): ShushConfig {
 
 /**
  * Merge an overlay config onto a base config with tightening semantics.
- * For actions and sensitive_paths: overlay can only make policies stricter.
+ * For actions and sensitive_paths: overlay can only make policies stricter
+ * (so project config cannot relax global config). Note: this controls
+ * inter-layer merge only. The merged result can still override hardcoded
+ * defaults in either direction via getPolicy() — see loadConfig() for how
+ * project configs are prevented from exploiting this.
  * For classify: overlay entries are additive (union of patterns).
  */
 function mergeStricter(
@@ -141,5 +151,22 @@ export function loadConfig(
   const projectPath = path.join(projectRoot, ".shush.yaml");
   const projectConfig = loadConfigFile(projectPath) ?? EMPTY_CONFIG;
 
-  return mergeConfigs(globalConfig, projectConfig);
+  // Build effective base: for action types the project tries to override,
+  // ensure the base includes the effective policy (global override or
+  // hardcoded default). This prevents a malicious .shush.yaml from
+  // loosening policies below the effective default.
+  const baseActions: Record<string, Decision> = { ...globalConfig.actions };
+  for (const key of Object.keys(projectConfig.actions)) {
+    if (!(key in baseActions)) {
+      const hardcoded = (DEFAULT_POLICIES_JSON as Record<string, Decision>)[key];
+      if (hardcoded) baseActions[key] = hardcoded;
+    }
+  }
+  const effectiveBase: ShushConfig = {
+    actions: baseActions,
+    sensitivePaths: globalConfig.sensitivePaths,
+    classify: globalConfig.classify,
+  };
+
+  return mergeConfigs(effectiveBase, projectConfig);
 }
