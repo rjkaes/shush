@@ -234,7 +234,6 @@ function classifyTar(tokens: string[]): string | null {
 // Body flags (-f, --field, -F, --raw-field, --input) flip the default to POST.
 const GH_API_METHOD_FLAGS = new Set(["--method", "-X"]);
 const GH_API_BODY_FLAGS = new Set(["-f", "--field", "-F", "--raw-field", "--input"]);
-const GH_API_BODY_PREFIXES = ["-f=", "--field=", "-F=", "--raw-field=", "--input="];
 
 function classifyGhApi(tokens: string[]): string | null {
   if (tokens.length < 2 || tokens[0] !== "gh" || tokens[1] !== "api") return null;
@@ -257,14 +256,11 @@ function classifyGhApi(tokens: string[]): string | null {
       continue;
     }
 
-    if (GH_API_BODY_FLAGS.has(tok)) {
+    const eqIdx = tok.indexOf("=");
+    const flagPart = eqIdx >= 0 ? tok.slice(0, eqIdx) : tok;
+    if (GH_API_BODY_FLAGS.has(flagPart)) {
       hasBody = true;
-      i += 2; // flag + value
-      continue;
-    }
-    if (GH_API_BODY_PREFIXES.some((p) => tok.startsWith(p))) {
-      hasBody = true;
-      i += 1;
+      i += eqIdx >= 0 ? 1 : 2; // =joined: skip flag only; separate: skip flag + value
       continue;
     }
 
