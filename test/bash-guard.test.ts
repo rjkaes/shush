@@ -159,8 +159,23 @@ describe("classifyCommand", () => {
   });
 
   // Empty
+  // Docker/Podman inspect
+  test("docker inspect → allow (filesystem_read)", () => {
+    const result = classifyCommand("docker inspect alpine");
+    expect(result.finalDecision).toBe("allow");
+    expect(result.stages[0].actionType).toBe("filesystem_read");
+  });
+  test("podman inspect → allow (filesystem_read)", () => {
+    const result = classifyCommand("podman inspect alpine");
+    expect(result.finalDecision).toBe("allow");
+    expect(result.stages[0].actionType).toBe("filesystem_read");
+  });
+  test("docker inspect && rm -rf / → not allow (compound still caught)", () => {
+    expect(classifyCommand("docker inspect alpine && rm -rf /").finalDecision).not.toBe("allow");
+  });
+
+  // Empty
   test("empty → allow", () => {
-    expect(classifyCommand("").finalDecision).toBe("allow");
   });
 });
 

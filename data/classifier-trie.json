@@ -72,6 +72,9 @@
         "_": "container_destructive"
       }
     },
+    "inspect": {
+      "_": "filesystem_read"
+    },
     "exec": {
       "_": "lang_exec"
     },
@@ -160,6 +163,9 @@
       "rm": {
         "_": "container_destructive"
       }
+    },
+    "inspect": {
+      "_": "filesystem_read"
     },
     "exec": {
       "_": "lang_exec"

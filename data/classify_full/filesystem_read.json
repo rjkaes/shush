@@ -382,6 +382,10 @@
     "diff"
   ],
   [
+    "docker",
+    "inspect"
+  ],
+  [
     "dotnet",
     "--info"
   ],
@@ -1257,6 +1261,10 @@
   [
     "pnpm",
     "why"
+  ],
+  [
+    "podman",
+    "inspect"
   ],
   [
     "popd"
