@@ -27,6 +27,9 @@ describe("classifyCommand", () => {
   test("dotnet format → allow", () => {
     expect(classifyCommand("dotnet format").finalDecision).toBe("allow");
   });
+  test("dotnet csharpier format → allow", () => {
+    expect(classifyCommand("dotnet csharpier format").finalDecision).toBe("allow");
+  });
   test("dotnet --info → allow", () => {
     expect(classifyCommand("dotnet --info").finalDecision).toBe("allow");
   });

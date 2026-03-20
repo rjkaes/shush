@@ -1078,6 +1078,11 @@
     "build": {
       "_": "package_run"
     },
+    "csharpier": {
+      "format": {
+        "_": "package_run"
+      }
+    },
     "msbuild": {
       "_": "package_run"
     },
