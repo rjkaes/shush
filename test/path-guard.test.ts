@@ -31,6 +31,21 @@ describe("checkPath", () => {
     expect(result).not.toBeNull();
     expect(result!.decision).toBe("block");
   });
+
+  test("allows Read on hook directory", () => {
+    expect(checkPath("Read", "~/.claude/hooks/guard.py")).toBeNull();
+  });
+  test("allows Glob on hook directory", () => {
+    expect(checkPath("Glob", "~/.claude/hooks/")).toBeNull();
+  });
+  test("allows Grep on hook directory", () => {
+    expect(checkPath("Grep", "~/.claude/hooks/guard.py")).toBeNull();
+  });
+  test("asks for Bash on hook directory", () => {
+    const result = checkPath("Bash", "~/.claude/hooks/guard.py");
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
+  });
 });
 
 describe("isHookPath", () => {

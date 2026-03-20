@@ -101,6 +101,11 @@ export function checkPath(
         reason: `${toolName} targets hook directory: ~/.claude/hooks/ (self-modification blocked)`,
       };
     }
+    // Read-only tools can inspect hooks without prompting
+    const readOnlyTools = new Set(["Read", "Glob", "Grep"]);
+    if (readOnlyTools.has(toolName)) {
+      return null;
+    }
     return {
       decision: "ask",
       reason: `${toolName} targets hook directory: ~/.claude/hooks/`,
