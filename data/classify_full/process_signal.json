@@ -1,5 +1,10 @@
 [
   [
+    "dotnet",
+    "build-server",
+    "shutdown"
+  ],
+  [
     "kill",
     "-9"
   ],

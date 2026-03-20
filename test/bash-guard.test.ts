@@ -18,6 +18,66 @@ describe("classifyCommand", () => {
   test("dotnet test → allow", () => {
     expect(classifyCommand("dotnet test").finalDecision).toBe("allow");
   });
+  test("dotnet run → allow", () => {
+    expect(classifyCommand("dotnet run").finalDecision).toBe("allow");
+  });
+  test("dotnet watch → allow", () => {
+    expect(classifyCommand("dotnet watch").finalDecision).toBe("allow");
+  });
+  test("dotnet format → allow", () => {
+    expect(classifyCommand("dotnet format").finalDecision).toBe("allow");
+  });
+  test("dotnet --info → allow", () => {
+    expect(classifyCommand("dotnet --info").finalDecision).toBe("allow");
+  });
+  test("dotnet --version → allow", () => {
+    expect(classifyCommand("dotnet --version").finalDecision).toBe("allow");
+  });
+  test("dotnet list → allow", () => {
+    expect(classifyCommand("dotnet list").finalDecision).toBe("allow");
+  });
+  test("dotnet help → allow", () => {
+    expect(classifyCommand("dotnet help").finalDecision).toBe("allow");
+  });
+  test("dotnet restore → allow", () => {
+    expect(classifyCommand("dotnet restore").finalDecision).toBe("allow");
+  });
+  test("dotnet new console → allow", () => {
+    expect(classifyCommand("dotnet new console").finalDecision).toBe("allow");
+  });
+  test("dotnet add package Newtonsoft.Json → allow", () => {
+    expect(classifyCommand("dotnet add package Newtonsoft.Json").finalDecision).toBe("allow");
+  });
+  test("dotnet tool list → allow", () => {
+    expect(classifyCommand("dotnet tool list").finalDecision).toBe("allow");
+  });
+  test("dotnet tool install dotnet-ef → allow", () => {
+    expect(classifyCommand("dotnet tool install dotnet-ef").finalDecision).toBe("allow");
+  });
+  test("dotnet nuget push → ask (network_write)", () => {
+    expect(classifyCommand("dotnet nuget push foo.nupkg").finalDecision).toBe("ask");
+  });
+  test("dotnet nuget delete → ask (network_write)", () => {
+    expect(classifyCommand("dotnet nuget delete Foo 1.0").finalDecision).toBe("ask");
+  });
+  test("dotnet clean → ask (package_uninstall)", () => {
+    expect(classifyCommand("dotnet clean").finalDecision).toBe("ask");
+  });
+  test("dotnet remove package → ask (package_uninstall)", () => {
+    expect(classifyCommand("dotnet remove package Foo").finalDecision).toBe("ask");
+  });
+  test("dotnet build-server shutdown → ask (process_signal)", () => {
+    expect(classifyCommand("dotnet build-server shutdown").finalDecision).toBe("ask");
+  });
+  test("dotnet user-secrets set → context (filesystem_write)", () => {
+    expect(classifyCommand("dotnet user-secrets set key val").finalDecision).toBe("context");
+  });
+  test("dotnet user-secrets list → allow (filesystem_read)", () => {
+    expect(classifyCommand("dotnet user-secrets list").finalDecision).toBe("allow");
+  });
+  test("dotnet format --verify-no-changes → allow (filesystem_read)", () => {
+    expect(classifyCommand("dotnet format --verify-no-changes").finalDecision).toBe("allow");
+  });
 
   // Context-dependent
   test("rm file → context", () => {

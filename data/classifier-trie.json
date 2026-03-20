@@ -904,6 +904,207 @@
   "diff": {
     "_": "filesystem_read"
   },
+  "dotnet": {
+    "--info": {
+      "_": "filesystem_read"
+    },
+    "--list-runtimes": {
+      "_": "filesystem_read"
+    },
+    "--list-sdks": {
+      "_": "filesystem_read"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "dev-certs": {
+      "https": {
+        "--check": {
+          "_": "filesystem_read"
+        },
+        "_": "filesystem_write",
+        "--trust": {
+          "_": "filesystem_write"
+        },
+        "--clean": {
+          "_": "package_uninstall"
+        }
+      }
+    },
+    "format": {
+      "--verify-no-changes": {
+        "_": "filesystem_read"
+      },
+      "_": "package_run"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "nuget": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "verify": {
+        "_": "filesystem_read"
+      },
+      "sign": {
+        "_": "filesystem_write"
+      },
+      "delete": {
+        "_": "network_write"
+      },
+      "push": {
+        "_": "network_write"
+      },
+      "add": {
+        "_": "package_install"
+      },
+      "disable": {
+        "_": "package_install"
+      },
+      "enable": {
+        "_": "package_install"
+      },
+      "trust": {
+        "_": "package_install"
+      },
+      "update": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "sdk": {
+      "check": {
+        "_": "filesystem_read"
+      }
+    },
+    "sln": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "add": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "tool": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "search": {
+        "_": "filesystem_read"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "restore": {
+        "_": "package_install"
+      },
+      "update": {
+        "_": "package_install"
+      },
+      "run": {
+        "_": "package_run"
+      },
+      "uninstall": {
+        "_": "package_uninstall"
+      }
+    },
+    "user-secrets": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "init": {
+        "_": "filesystem_write"
+      },
+      "set": {
+        "_": "filesystem_write"
+      },
+      "clear": {
+        "_": "package_uninstall"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "workload": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "search": {
+        "_": "filesystem_read"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "repair": {
+        "_": "package_install"
+      },
+      "restore": {
+        "_": "package_install"
+      },
+      "update": {
+        "_": "package_install"
+      },
+      "uninstall": {
+        "_": "package_uninstall"
+      }
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "new": {
+      "_": "package_install"
+    },
+    "pack": {
+      "_": "package_install"
+    },
+    "publish": {
+      "_": "package_install"
+    },
+    "restore": {
+      "_": "package_install"
+    },
+    "store": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "msbuild": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "vstest": {
+      "_": "package_run"
+    },
+    "watch": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    },
+    "build-server": {
+      "shutdown": {
+        "_": "process_signal"
+      }
+    }
+  },
   "dirname": {
     "_": "filesystem_read"
   },
@@ -3719,14 +3920,6 @@
   },
   "bunx": {
     "_": "package_run"
-  },
-  "dotnet": {
-    "build": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    }
   },
   "just": {
     "_": "package_run"

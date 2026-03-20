@@ -71,7 +71,32 @@
   ],
   [
     "dotnet",
+    "format"
+  ],
+  [
+    "dotnet",
+    "msbuild"
+  ],
+  [
+    "dotnet",
+    "run"
+  ],
+  [
+    "dotnet",
     "test"
+  ],
+  [
+    "dotnet",
+    "tool",
+    "run"
+  ],
+  [
+    "dotnet",
+    "vstest"
+  ],
+  [
+    "dotnet",
+    "watch"
   ],
   [
     "gmake"

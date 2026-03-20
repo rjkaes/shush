@@ -19,6 +19,32 @@
     "--install"
   ],
   [
+    "dotnet",
+    "dev-certs",
+    "https"
+  ],
+  [
+    "dotnet",
+    "dev-certs",
+    "https",
+    "--trust"
+  ],
+  [
+    "dotnet",
+    "nuget",
+    "sign"
+  ],
+  [
+    "dotnet",
+    "user-secrets",
+    "init"
+  ],
+  [
+    "dotnet",
+    "user-secrets",
+    "set"
+  ],
+  [
     "cp"
   ],
   [
