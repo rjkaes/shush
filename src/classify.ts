@@ -1,3 +1,4 @@
+import { PROCSUB_PLACEHOLDER } from "./ast-walk.js";
 import * as T from "./taxonomy.js";
 import { STRICTNESS } from "./types.js";
 
@@ -86,7 +87,8 @@ export function classifyWithFlags(tokens: string[]): string | null {
     classifyCurl(normalized) ??
     classifyWget(normalized) ??
     classifyHttpie(normalized) ??
-    classifyGlobalInstall(normalized)
+    classifyGlobalInstall(normalized) ??
+    classifyTee(normalized)
   );
 }
 
@@ -617,3 +619,28 @@ const GIT_SAFE_SUBCOMMANDS = new Set([
   "name-rev", "cat-file", "count-objects", "for-each-ref",
   "merge-base", "symbolic-ref", "var", "verify-pack",
 ]);
+
+// ==============================================================================
+// Tee: process-substitution-only targets are not real file writes
+// ==============================================================================
+
+/**
+ * If `tee` only writes to process substitutions (no real file paths),
+ * classify as filesystem_read instead of letting the trie return
+ * filesystem_write.
+ */
+function classifyTee(tokens: string[]): string | null {
+  if (tokens[0] !== "tee") return null;
+  // Check non-flag arguments: are they all process-sub placeholders?
+  let hasRealTarget = false;
+  for (let i = 1; i < tokens.length; i++) {
+    if (tokens[i].startsWith("-")) continue; // skip flags
+    if (tokens[i] === PROCSUB_PLACEHOLDER) continue;
+    hasRealTarget = true;
+    break;
+  }
+  // If every target is a process substitution (or there are none), this
+  // tee invocation just reads stdin without writing to any real file.
+  if (!hasRealTarget) return T.FILESYSTEM_READ;
+  return null;
+}

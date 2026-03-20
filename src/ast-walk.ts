@@ -7,9 +7,73 @@ interface AstNode {
   [key: string]: unknown;
 }
 
+/** Sentinel token replacing extracted process substitutions. */
+export const PROCSUB_PLACEHOLDER = "__PROCSUB__";
+
+/**
+ * Extract >(cmd) and <(cmd) process substitutions from a command string.
+ * Returns the cleaned command (with placeholders) and the inner command strings.
+ * Respects single/double quoting so quoted parens are not extracted.
+ */
+export function extractProcessSubs(command: string): { cleaned: string; subs: string[] } {
+  const subs: string[] = [];
+  let result = "";
+  let i = 0;
+
+  while (i < command.length) {
+    const ch = command[i];
+
+    // Skip single-quoted strings
+    if (ch === "'" ) {
+      const end = command.indexOf("'", i + 1);
+      if (end === -1) { result += command.slice(i); break; }
+      result += command.slice(i, end + 1);
+      i = end + 1;
+      continue;
+    }
+
+    // Skip double-quoted strings (with backslash escaping)
+    if (ch === '"') {
+      let j = i + 1;
+      while (j < command.length && command[j] !== '"') {
+        if (command[j] === "\\" && j + 1 < command.length) j++;
+        j++;
+      }
+      result += command.slice(i, j + 1);
+      i = j + 1;
+      continue;
+    }
+
+    // Detect >( or <(
+    if ((ch === ">" || ch === "<") && command[i + 1] === "(") {
+      let depth = 1;
+      let j = i + 2;
+      while (j < command.length && depth > 0) {
+        if (command[j] === "(") depth++;
+        else if (command[j] === ")") depth--;
+        j++;
+      }
+      if (depth === 0) {
+        const inner = command.slice(i + 2, j - 1);
+        subs.push(inner);
+        result += PROCSUB_PLACEHOLDER;
+        i = j;
+        continue;
+      }
+    }
+
+    result += ch;
+    i++;
+  }
+
+  return { cleaned: result, subs };
+}
+
 /**
  * Parse a bash command and extract flat pipeline stages.
  * Falls back to simple splitting when bash-parser can't handle the syntax.
+ * Process substitutions >(cmd)/<(cmd) are extracted first since bash-parser
+ * does not support them.
  */
 export function extractStages(command: string): Stage[] {
   if (!command.trim()) return [];

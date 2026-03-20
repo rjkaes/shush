@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { extractStages } from "../src/ast-walk";
+import { extractProcessSubs, extractStages, PROCSUB_PLACEHOLDER } from "../src/ast-walk";
 
 describe("extractStages", () => {
   test("simple command", () => {
@@ -93,5 +93,43 @@ describe("extractStages", () => {
     expect(grepStage).toBeDefined();
     expect(grepStage!.tokens[0]).toBe("grep");
     expect(grepStage!.tokens).toHaveLength(4); // grep -rn <pattern> .
+  });
+});
+
+describe("extractProcessSubs", () => {
+  test("extracts output process substitution", () => {
+    const { cleaned, subs } = extractProcessSubs("tee >(cat -n)");
+    expect(cleaned).toBe(`tee ${PROCSUB_PLACEHOLDER}`);
+    expect(subs).toEqual(["cat -n"]);
+  });
+
+  test("extracts input process substitution", () => {
+    const { cleaned, subs } = extractProcessSubs("diff <(ls dir1) <(ls dir2)");
+    expect(cleaned).toBe(`diff ${PROCSUB_PLACEHOLDER} ${PROCSUB_PLACEHOLDER}`);
+    expect(subs).toEqual(["ls dir1", "ls dir2"]);
+  });
+
+  test("ignores process subs inside single quotes", () => {
+    const { cleaned, subs } = extractProcessSubs("echo '>(not a sub)'");
+    expect(cleaned).toBe("echo '>(not a sub)'");
+    expect(subs).toHaveLength(0);
+  });
+
+  test("ignores process subs inside double quotes", () => {
+    const { cleaned, subs } = extractProcessSubs('echo ">(not a sub)"');
+    expect(cleaned).toBe('echo ">(not a sub)"');
+    expect(subs).toHaveLength(0);
+  });
+
+  test("handles nested parens", () => {
+    const { cleaned, subs } = extractProcessSubs("tee >(grep $(echo pattern))");
+    expect(cleaned).toBe(`tee ${PROCSUB_PLACEHOLDER}`);
+    expect(subs).toEqual(["grep $(echo pattern)"]);
+  });
+
+  test("no-op when no process subs present", () => {
+    const { cleaned, subs } = extractProcessSubs("ls -la");
+    expect(cleaned).toBe("ls -la");
+    expect(subs).toHaveLength(0);
   });
 });
