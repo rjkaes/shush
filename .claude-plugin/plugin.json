@@ -1,5 +1,5 @@
 {
   "name": "shush",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Context-aware safety guard for Claude Code tool calls"
 }
