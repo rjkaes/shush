@@ -122,6 +122,44 @@
     "delete": {
       "_": "container_destructive"
     },
+    "get": {
+      "_": "db_read"
+    },
+    "describe": {
+      "_": "db_read"
+    },
+    "logs": {
+      "_": "db_read"
+    },
+    "top": {
+      "_": "db_read"
+    },
+    "cluster-info": {
+      "_": "db_read"
+    },
+    "api-resources": {
+      "_": "db_read"
+    },
+    "api-versions": {
+      "_": "db_read"
+    },
+    "version": {
+      "_": "db_read"
+    },
+    "explain": {
+      "_": "db_read"
+    },
+    "config": {
+      "view": {
+        "_": "db_read"
+      },
+      "current-context": {
+        "_": "db_read"
+      },
+      "get-contexts": {
+        "_": "db_read"
+      }
+    },
     "exec": {
       "_": "lang_exec"
     },

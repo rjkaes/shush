@@ -174,6 +174,37 @@ describe("classifyCommand", () => {
     expect(classifyCommand("docker inspect alpine && rm -rf /").finalDecision).not.toBe("allow");
   });
 
+  // kubectl read commands (db_read)
+  test("kubectl get pods → allow (db_read)", () => {
+    const result = classifyCommand("kubectl get pods");
+    expect(result.finalDecision).toBe("allow");
+    expect(result.stages[0].actionType).toBe("db_read");
+  });
+  test("kubectl describe pod foo → allow (db_read)", () => {
+    const result = classifyCommand("kubectl describe pod foo");
+    expect(result.finalDecision).toBe("allow");
+    expect(result.stages[0].actionType).toBe("db_read");
+  });
+  test("kubectl logs my-pod → allow (db_read)", () => {
+    const result = classifyCommand("kubectl logs my-pod");
+    expect(result.finalDecision).toBe("allow");
+    expect(result.stages[0].actionType).toBe("db_read");
+  });
+  test("kubectl config view → allow (db_read)", () => {
+    const result = classifyCommand("kubectl config view");
+    expect(result.finalDecision).toBe("allow");
+    expect(result.stages[0].actionType).toBe("db_read");
+  });
+  test("kubectl delete pod foo → not allow (mutations stay guarded)", () => {
+    expect(classifyCommand("kubectl delete pod foo").finalDecision).not.toBe("allow");
+  });
+  test("kubectl exec -it pod -- bash → not allow (exec stays guarded)", () => {
+    expect(classifyCommand("kubectl exec -it pod -- bash").finalDecision).not.toBe("allow");
+  });
+  test("kubectl describe pod foo && rm -rf / → not allow (compound caught)", () => {
+    expect(classifyCommand("kubectl describe pod foo && rm -rf /").finalDecision).not.toBe("allow");
+  });
+
   // Process substitution targets
   test("tee >(cat -n) → allow (procsub only, no real file)", () => {
     expect(classifyCommand("tee >(cat -n)").finalDecision).toBe("allow");
