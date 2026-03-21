@@ -14,6 +14,7 @@
     "yaml": "^2.8.2"
   },
   "devDependencies": {
+    "@opencode-ai/plugin": "^1.2.27",
     "@types/bun": "latest",
     "typescript": "^5.7"
   }
