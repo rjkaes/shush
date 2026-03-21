@@ -7,12 +7,14 @@ import type { Decision, ShushConfig } from "./types.js";
 const HOME = homedir();
 const HOOKS_DIR = path.resolve(HOME, ".claude", "hooks");
 
-// Sensitive directories: [resolved_dir, display_name, policy]
+// Sensitive directories and files: [resolved_path, display_name, policy]
 const SENSITIVE_DIRS: Array<[string, string, Decision]> = [
   [path.resolve(HOME, ".ssh"), "~/.ssh", "block"],
   [path.resolve(HOME, ".gnupg"), "~/.gnupg", "block"],
   [path.resolve(HOME, ".git-credentials"), "~/.git-credentials", "block"],
   [path.resolve(HOME, ".netrc"), "~/.netrc", "block"],
+  ["/etc/shadow", "/etc/shadow", "block"],
+  ["/etc/master.passwd", "/etc/master.passwd", "block"],
   [path.resolve(HOME, ".aws"), "~/.aws", "ask"],
   [path.resolve(HOME, ".config", "gcloud"), "~/.config/gcloud", "ask"],
   [path.resolve(HOME, ".claude", "settings.json"), "~/.claude/settings.json", "ask"],

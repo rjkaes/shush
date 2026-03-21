@@ -20,6 +20,18 @@ describe("checkPath", () => {
     expect(result!.decision).toBe("ask");
   });
 
+  test("blocks /etc/shadow access", () => {
+    const result = checkPath("Read", "/etc/shadow");
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
+  });
+
+  test("blocks /etc/master.passwd access", () => {
+    const result = checkPath("Read", "/etc/master.passwd");
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
+  });
+
   test("asks for .env files", () => {
     const result = checkPath("Read", "/some/path/.env");
     expect(result).not.toBeNull();
