@@ -81,3 +81,16 @@ export const EMPTY_CONFIG: ShushConfig = {
   sensitivePaths: {},
   classify: {},
 };
+
+/** Platform-agnostic input for the shared classification core. */
+export interface EvalInput {
+  toolName: string;
+  toolInput: Record<string, unknown>;
+  cwd: string | null;
+}
+
+/** Classification result from the shared core. */
+export interface EvalResult {
+  decision: Decision;
+  reason: string;
+}
