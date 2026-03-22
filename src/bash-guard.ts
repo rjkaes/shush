@@ -259,13 +259,17 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   // Check composition rules (pipe chains, etc.)
   const [compDecision, compReason, compRule] = checkComposition(stageResults, stages, config);
 
-  // Aggregate: most restrictive stage decision
+  // Aggregate: most restrictive stage decision, keeping the reason
+  // from whichever stage produced the strictest decision.
   let finalDecision: Decision = "allow";
   let reason = "";
   for (const sr of stageResults) {
     if (sr.decision !== "allow") {
-      finalDecision = stricter(finalDecision, sr.decision);
-      reason = sr.reason;
+      const combined = stricter(finalDecision, sr.decision);
+      if (combined !== finalDecision || reason === "") {
+        reason = sr.reason;
+      }
+      finalDecision = combined;
     }
   }
 

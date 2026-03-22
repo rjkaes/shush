@@ -94,6 +94,11 @@ describe("classifyCommand", () => {
   test("git push --force → ask", () => {
     expect(classifyCommand("git push --force").finalDecision).toBe("ask");
   });
+  test("reason comes from strictest stage, not last", () => {
+    const result = classifyCommand("git push --force && rm foo");
+    expect(result.finalDecision).toBe("ask");
+    expect(result.reason).toContain("git_history_rewrite");
+  });
 
   // Composition rules
   test("curl | bash → block (RCE)", () => {
