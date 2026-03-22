@@ -185,16 +185,20 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     : { cleaned: command, subs: [] as string[] };
   const { stages, cmdSubs } = extractStages(cleaned);
 
-  // Shell unwrapping: if the entire command is `bash -c '...'`, classify the inner command.
+  // Shell unwrapping: if the entire command is `bash [-x] -c '...'`, classify
+  // the inner command. Flags before -c (e.g., -x, -v) are skipped.
   if (
     depth < MAX_UNWRAP_DEPTH &&
     stages.length === 1 &&
     stages[0].tokens.length >= 3 &&
-    SHELL_WRAPPERS.has(stages[0].tokens[0]) &&
-    stages[0].tokens[1] === "-c"
+    SHELL_WRAPPERS.has(stages[0].tokens[0])
   ) {
-    const innerCommand = stages[0].tokens.slice(2).join(" ");
-    return classifyCommand(innerCommand, depth + 1, config);
+    const toks = stages[0].tokens;
+    const cIdx = toks.indexOf("-c");
+    if (cIdx >= 1 && cIdx + 1 < toks.length) {
+      const innerCommand = toks.slice(cIdx + 1).join(" ");
+      return classifyCommand(innerCommand, depth + 1, config);
+    }
   }
 
   // Classify each stage. Command wrappers (xargs, nice, nohup, timeout, etc.)

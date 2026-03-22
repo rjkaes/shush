@@ -59,8 +59,7 @@ const CREDENTIAL_SEARCH_PATTERNS: RegExp[] = [
 ];
 
 /** Scan content for dangerous patterns. Returns matches (empty = safe).
- *  Collects at most one match per category for the reason string, then
- *  stops scanning remaining categories once all have been checked. */
+ *  Collects at most one match per category for the reason string. */
 export function scanContent(content: string): ContentMatch[] {
   if (!content) return [];
 

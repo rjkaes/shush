@@ -94,8 +94,9 @@ function initClassifiers(): void {
   registerClassifier(["npm", "pnpm", "bun", "pip", "pip3", "cargo", "gem"], classifyGlobalInstall);
   registerClassifier(["tee"], classifyTee);
   registerClassifier(["python", "python3", "node", "ruby"], classifyInlineCode);
-  // bun is already registered via classifyGlobalInstall; inlineCode also handles it
-  // but globalInstall takes priority since it's registered first.
+  // bun is NOT registered for classifyInlineCode above (intentionally omitted).
+  // classifyGlobalInstall handles bun; the fallback in classifyWithFlags() tries
+  // classifyInlineCode when the primary classifier returns null (handles bun -e).
 }
 
 /** Run flag-dependent classifiers. Returns action type or null (use prefix table). */
@@ -560,12 +561,18 @@ function classifyGit(tokens: string[]): string | null {
 
   if (sub === "branch") {
     if (!args.length) return T.GIT_SAFE;
+    // Accumulate the strictest classification across all flags so that
+    // `git branch -v -D foo` correctly returns GIT_HISTORY_REWRITE.
+    let branchResult = T.GIT_WRITE;
+    let hasListFlag = false;
     for (const a of args) {
-      if (["-a", "-r", "--list", "-v", "-vv"].includes(a)) return T.GIT_SAFE;
-      if (a === "-d") return T.GIT_DISCARD;
-      if (a === "-D") return T.GIT_HISTORY_REWRITE;
+      if (["-a", "-r", "--list", "-v", "-vv"].includes(a)) hasListFlag = true;
+      else if (a === "-d") branchResult = stricterType(branchResult, T.GIT_DISCARD);
+      else if (a === "-D") branchResult = stricterType(branchResult, T.GIT_HISTORY_REWRITE);
     }
-    return T.GIT_WRITE;
+    // List/verbose flags alone make it read-only; with destructive flags, destructive wins.
+    if (hasListFlag && branchResult === T.GIT_WRITE) return T.GIT_SAFE;
+    return branchResult;
   }
 
   if (sub === "config") {
@@ -593,7 +600,8 @@ function classifyGit(tokens: string[]): string | null {
 
   if (sub === "add") {
     if (args.includes("--dry-run") || args.includes("-n")) return T.GIT_SAFE;
-    if (args.includes("--force") || args.includes("-f")) return T.GIT_DISCARD;
+    // --force adds ignored files to staging; it does not discard changes.
+    if (args.includes("--force") || args.includes("-f")) return T.GIT_WRITE;
     return T.GIT_WRITE;
   }
 

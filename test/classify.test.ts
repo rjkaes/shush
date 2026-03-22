@@ -23,6 +23,12 @@ describe("git flag classifier", () => {
   test("git branch -D → git_history_rewrite", () => {
     expect(classifyWithFlags(["git", "branch", "-D", "feature"])).toBe("git_history_rewrite");
   });
+  test("git branch -v -D → git_history_rewrite (verbose doesn't mask destructive)", () => {
+    expect(classifyWithFlags(["git", "branch", "-v", "-D", "feature"])).toBe("git_history_rewrite");
+  });
+  test("git branch -a -d → git_discard (list flag doesn't mask delete)", () => {
+    expect(classifyWithFlags(["git", "branch", "-a", "-d", "feature"])).toBe("git_discard");
+  });
   test("git branch (list) → git_safe", () => {
     expect(classifyWithFlags(["git", "branch"])).toBe("git_safe");
   });
@@ -119,11 +125,11 @@ describe("git flag classifier — additional subcommands", () => {
   test("git add -n → git_safe", () => {
     expect(classifyWithFlags(["git", "add", "-n"])).toBe("git_safe");
   });
-  test("git add -f → git_discard (ask)", () => {
-    expect(classifyWithFlags(["git", "add", "-f", "ignored-file"])).toBe("git_discard");
+  test("git add -f → git_write (adds ignored files, not destructive)", () => {
+    expect(classifyWithFlags(["git", "add", "-f", "ignored-file"])).toBe("git_write");
   });
-  test("git add --force → git_discard (ask)", () => {
-    expect(classifyWithFlags(["git", "add", "--force", "ignored-file"])).toBe("git_discard");
+  test("git add --force → git_write (adds ignored files, not destructive)", () => {
+    expect(classifyWithFlags(["git", "add", "--force", "ignored-file"])).toBe("git_write");
   });
   test("git clean --dry-run → git_safe", () => {
     expect(classifyWithFlags(["git", "clean", "--dry-run"])).toBe("git_safe");

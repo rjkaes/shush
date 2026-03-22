@@ -125,16 +125,32 @@ export function evaluate(
           break;
         }
       }
+      // Project boundary check (same as Write/Edit).
+      if (decision === "allow" && globPath) {
+        const boundaryResult = checkProjectBoundary("Glob", globPath, projectRoot);
+        if (boundaryResult) {
+          decision = boundaryResult.decision;
+          reason = boundaryResult.reason;
+        }
+      }
       break;
     }
     case "Grep": {
-      const path = (toolInput.path as string) ?? "";
+      const grepPath = (toolInput.path as string) ?? "";
       const pattern = (toolInput.pattern as string) ?? "";
-      if (path) {
-        const pathResult = checkPath("Grep", path, config);
+      if (grepPath) {
+        const pathResult = checkPath("Grep", grepPath, config);
         if (pathResult) {
           decision = pathResult.decision;
           reason = pathResult.reason;
+        }
+        // Project boundary check (same as Write/Edit).
+        if (decision === "allow") {
+          const boundaryResult = checkProjectBoundary("Grep", grepPath, projectRoot);
+          if (boundaryResult) {
+            decision = boundaryResult.decision;
+            reason = boundaryResult.reason;
+          }
         }
       }
       if (decision === "allow" && isCredentialSearch(pattern)) {

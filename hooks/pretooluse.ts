@@ -21,7 +21,7 @@ async function main() {
     config,
   );
 
-  // Silent allow
+  // Silent pass-through: both "allow" and "context" exit with no output.
   if (decision === "allow" || decision === "context") {
     process.exit(0);
   }
