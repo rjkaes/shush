@@ -409,20 +409,20 @@ describe("isSensitive with config", () => {
   test("config adds new sensitive path", () => {
     const config: ShushConfig = {
       actions: {},
-      sensitivePaths: { "~/.kube": "ask" },
+      sensitivePaths: { "~/.vault": "ask" },
       classify: {},
     };
-    const resolved = resolvePath("~/.kube/config");
+    const resolved = resolvePath("~/.vault/token");
     const result = isSensitive(resolved, config);
     expect(result.matched).toBe(true);
     expect(result.policy).toBe("ask");
-    expect(result.pattern).toBe("~/.kube");
+    expect(result.pattern).toBe("~/.vault");
   });
 
   test("built-in sensitive paths still work with config", () => {
     const config: ShushConfig = {
       actions: {},
-      sensitivePaths: { "~/.kube": "ask" },
+      sensitivePaths: { "~/.vault": "ask" },
       classify: {},
     };
     const resolved = resolvePath("~/.ssh/id_rsa");
@@ -432,7 +432,7 @@ describe("isSensitive with config", () => {
   });
 
   test("no config returns built-in result only", () => {
-    const resolved = resolvePath("~/.kube/config");
+    const resolved = resolvePath("~/.vault/token");
     const result = isSensitive(resolved);
     expect(result.matched).toBe(false);
   });
@@ -489,10 +489,10 @@ describe("end-to-end: config affects path checks", () => {
   test("config sensitive path triggers ask on checkPath", () => {
     const config: ShushConfig = {
       actions: {},
-      sensitivePaths: { "~/.kube": "ask" },
+      sensitivePaths: { "~/.vault": "ask" },
       classify: {},
     };
-    const result = checkPath("Read", "~/.kube/config", config);
+    const result = checkPath("Read", "~/.vault/token", config);
     expect(result).not.toBeNull();
     expect(result!.decision).toBe("ask");
   });

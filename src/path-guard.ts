@@ -17,6 +17,9 @@ const SENSITIVE_DIRS: Array<[string, string, Decision]> = [
   [path.resolve("/etc/master.passwd"), "/etc/master.passwd", "block"],
   [path.resolve(HOME, ".aws"), "~/.aws", "ask"],
   [path.resolve(HOME, ".config", "gcloud"), "~/.config/gcloud", "ask"],
+  [path.resolve(HOME, ".docker", "config.json"), "~/.docker/config.json", "block"],
+  [path.resolve(HOME, ".kube", "config"), "~/.kube/config", "block"],
+  [path.resolve(HOME, ".config", "gh", "hosts.yml"), "~/.config/gh/hosts.yml", "block"],
   [path.resolve(HOME, ".claude", "settings.json"), "~/.claude/settings.json", "ask"],
   [path.resolve(HOME, ".claude", "settings.local.json"), "~/.claude/settings.local.json", "ask"],
 ];

@@ -32,6 +32,24 @@ describe("checkPath", () => {
     expect(result!.decision).toBe("block");
   });
 
+  test("blocks ~/.docker/config.json access", () => {
+    const result = checkPath("Read", "~/.docker/config.json");
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
+  });
+
+  test("blocks ~/.kube/config access", () => {
+    const result = checkPath("Read", "~/.kube/config");
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
+  });
+
+  test("blocks ~/.config/gh/hosts.yml access", () => {
+    const result = checkPath("Read", "~/.config/gh/hosts.yml");
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
+  });
+
   test("asks for .env files", () => {
     const result = checkPath("Read", "/some/path/.env");
     expect(result).not.toBeNull();
