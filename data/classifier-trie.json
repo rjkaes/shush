@@ -1151,6 +1151,37 @@
   "arch": {
     "_": "filesystem_read"
   },
+  "asdf": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "current": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "where": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "plugin": {
+      "add": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
   "awk": {
     "_": "filesystem_read"
   },
@@ -2295,6 +2326,32 @@
   },
   "fmt": {
     "_": "filesystem_read"
+  },
+  "fnm": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "current": {
+      "_": "filesystem_read"
+    },
+    "default": {
+      "_": "package_install"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "alias": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "use": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
   },
   "fold": {
     "_": "filesystem_read"
@@ -3459,6 +3516,35 @@
   "miller": {
     "_": "filesystem_read"
   },
+  "mise": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "current": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "ls": {
+      "_": "filesystem_read"
+    },
+    "where": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "use": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
   "mix": {
     "deps.tree": {
       "_": "filesystem_read"
@@ -3877,6 +3963,38 @@
   "numfmt": {
     "_": "filesystem_read"
   },
+  "nvm": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "current": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "ls": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "alias": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "use": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
   "objdump": {
     "_": "filesystem_read"
   },
@@ -4260,6 +4378,29 @@
   "pwd": {
     "_": "filesystem_read"
   },
+  "pyenv": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "commands": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "versions": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
   "python": {
     "--version": {
       "_": "filesystem_read"
@@ -4382,6 +4523,29 @@
       "_": "package_run"
     }
   },
+  "rbenv": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "commands": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "versions": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
   "readelf": {
     "_": "filesystem_read"
   },
@@ -4411,6 +4575,69 @@
     },
     "-V": {
       "_": "filesystem_read"
+    }
+  },
+  "rustup": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "completions": {
+      "_": "filesystem_read"
+    },
+    "doc": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "target": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "add": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "toolchain": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "uninstall": {
+        "_": "package_uninstall"
+      }
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "component": {
+      "add": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "default": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "override": {
+      "set": {
+        "_": "package_install"
+      }
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "self": {
+      "uninstall": {
+        "_": "package_uninstall"
+      }
     }
   },
   "sbt": {
@@ -4739,6 +4966,26 @@
   },
   "vmstat": {
     "_": "filesystem_read"
+  },
+  "volta": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "pin": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
   },
   "w": {
     "_": "filesystem_read"

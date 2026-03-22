@@ -89,6 +89,26 @@
     "arch"
   ],
   [
+    "asdf",
+    "--version"
+  ],
+  [
+    "asdf",
+    "current"
+  ],
+  [
+    "asdf",
+    "list"
+  ],
+  [
+    "asdf",
+    "where"
+  ],
+  [
+    "asdf",
+    "which"
+  ],
+  [
     "awk"
   ],
   [
@@ -1092,6 +1112,22 @@
     "fmt"
   ],
   [
+    "fnm",
+    "--version"
+  ],
+  [
+    "fnm",
+    "current"
+  ],
+  [
+    "fnm",
+    "default"
+  ],
+  [
+    "fnm",
+    "list"
+  ],
+  [
     "fold"
   ],
   [
@@ -1599,6 +1635,30 @@
     "miller"
   ],
   [
+    "mise",
+    "--version"
+  ],
+  [
+    "mise",
+    "current"
+  ],
+  [
+    "mise",
+    "list"
+  ],
+  [
+    "mise",
+    "ls"
+  ],
+  [
+    "mise",
+    "where"
+  ],
+  [
+    "mise",
+    "which"
+  ],
+  [
     "mix",
     "deps.tree"
   ],
@@ -1840,6 +1900,30 @@
   ],
   [
     "numfmt"
+  ],
+  [
+    "nvm",
+    "--version"
+  ],
+  [
+    "nvm",
+    "current"
+  ],
+  [
+    "nvm",
+    "list"
+  ],
+  [
+    "nvm",
+    "ls"
+  ],
+  [
+    "nvm",
+    "version"
+  ],
+  [
+    "nvm",
+    "which"
   ],
   [
     "objdump"
@@ -2247,6 +2331,26 @@
     "pwd"
   ],
   [
+    "pyenv",
+    "--version"
+  ],
+  [
+    "pyenv",
+    "commands"
+  ],
+  [
+    "pyenv",
+    "version"
+  ],
+  [
+    "pyenv",
+    "versions"
+  ],
+  [
+    "pyenv",
+    "which"
+  ],
+  [
     "python",
     "--version"
   ],
@@ -2265,6 +2369,26 @@
   [
     "rails",
     "--version"
+  ],
+  [
+    "rbenv",
+    "--version"
+  ],
+  [
+    "rbenv",
+    "commands"
+  ],
+  [
+    "rbenv",
+    "version"
+  ],
+  [
+    "rbenv",
+    "versions"
+  ],
+  [
+    "rbenv",
+    "which"
   ],
   [
     "readelf"
@@ -2292,6 +2416,36 @@
   [
     "rustc",
     "-V"
+  ],
+  [
+    "rustup",
+    "--version"
+  ],
+  [
+    "rustup",
+    "completions"
+  ],
+  [
+    "rustup",
+    "doc"
+  ],
+  [
+    "rustup",
+    "show"
+  ],
+  [
+    "rustup",
+    "target",
+    "list"
+  ],
+  [
+    "rustup",
+    "toolchain",
+    "list"
+  ],
+  [
+    "rustup",
+    "which"
   ],
   [
     "sbt",
@@ -2554,6 +2708,18 @@
   ],
   [
     "vmstat"
+  ],
+  [
+    "volta",
+    "--version"
+  ],
+  [
+    "volta",
+    "list"
+  ],
+  [
+    "volta",
+    "which"
   ],
   [
     "w"

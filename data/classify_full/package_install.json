@@ -96,6 +96,15 @@
     "upgrade"
   ],
   [
+    "asdf",
+    "install"
+  ],
+  [
+    "asdf",
+    "plugin",
+    "add"
+  ],
+  [
     "bazel",
     "fetch"
   ],
@@ -450,6 +459,22 @@
     "upgrade"
   ],
   [
+    "fnm",
+    "alias"
+  ],
+  [
+    "fnm",
+    "default"
+  ],
+  [
+    "fnm",
+    "install"
+  ],
+  [
+    "fnm",
+    "use"
+  ],
+  [
     "gem",
     "build"
   ],
@@ -663,6 +688,14 @@
     "install"
   ],
   [
+    "mise",
+    "install"
+  ],
+  [
+    "mise",
+    "use"
+  ],
+  [
     "mix",
     "deps.get"
   ],
@@ -767,6 +800,18 @@
   [
     "npm",
     "update"
+  ],
+  [
+    "nvm",
+    "alias"
+  ],
+  [
+    "nvm",
+    "install"
+  ],
+  [
+    "nvm",
+    "use"
   ],
   [
     "pdm",
@@ -899,6 +944,10 @@
     "update"
   ],
   [
+    "pyenv",
+    "install"
+  ],
+  [
     "python",
     "-m",
     "build"
@@ -919,6 +968,37 @@
     "-m",
     "pip",
     "install"
+  ],
+  [
+    "rbenv",
+    "install"
+  ],
+  [
+    "rustup",
+    "component",
+    "add"
+  ],
+  [
+    "rustup",
+    "default"
+  ],
+  [
+    "rustup",
+    "install"
+  ],
+  [
+    "rustup",
+    "override",
+    "set"
+  ],
+  [
+    "rustup",
+    "target",
+    "add"
+  ],
+  [
+    "rustup",
+    "update"
   ],
   [
     "sbt",
@@ -998,6 +1078,14 @@
   [
     "uv",
     "venv"
+  ],
+  [
+    "volta",
+    "install"
+  ],
+  [
+    "volta",
+    "pin"
   ],
   [
     "yarn",

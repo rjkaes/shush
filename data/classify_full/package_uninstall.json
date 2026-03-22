@@ -44,6 +44,15 @@
     "remove"
   ],
   [
+    "asdf",
+    "plugin",
+    "remove"
+  ],
+  [
+    "asdf",
+    "uninstall"
+  ],
+  [
     "bazel",
     "clean"
   ],
@@ -221,6 +230,10 @@
     "clean"
   ],
   [
+    "fnm",
+    "uninstall"
+  ],
+  [
     "gem",
     "cleanup"
   ],
@@ -244,6 +257,10 @@
     "helm",
     "repo",
     "remove"
+  ],
+  [
+    "mise",
+    "uninstall"
   ],
   [
     "mix",
@@ -273,6 +290,10 @@
   [
     "npm",
     "unlink"
+  ],
+  [
+    "nvm",
+    "uninstall"
   ],
   [
     "pip",
@@ -334,6 +355,34 @@
     "down"
   ],
   [
+    "pyenv",
+    "uninstall"
+  ],
+  [
+    "rbenv",
+    "uninstall"
+  ],
+  [
+    "rustup",
+    "component",
+    "remove"
+  ],
+  [
+    "rustup",
+    "self",
+    "uninstall"
+  ],
+  [
+    "rustup",
+    "target",
+    "remove"
+  ],
+  [
+    "rustup",
+    "toolchain",
+    "uninstall"
+  ],
+  [
     "stack",
     "clean"
   ],
@@ -368,6 +417,10 @@
   [
     "uv",
     "tool",
+    "uninstall"
+  ],
+  [
+    "volta",
     "uninstall"
   ],
   [
