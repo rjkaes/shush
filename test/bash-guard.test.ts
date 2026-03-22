@@ -114,6 +114,35 @@ describe("classifyCommand", () => {
     expect(result.finalDecision).not.toBe("allow");
   });
 
+  // Shell unwrapping: other shells in SHELL_WRAPPERS
+  test("sh -c 'rm -rf /' is unwrapped and classified", () => {
+    const result = classifyCommand("sh -c 'rm -rf /'");
+    expect(result.finalDecision).not.toBe("allow");
+  });
+  test("dash -c 'rm -rf /' is unwrapped and classified", () => {
+    const result = classifyCommand("dash -c 'rm -rf /'");
+    expect(result.finalDecision).not.toBe("allow");
+  });
+  test("zsh -c 'rm -rf /' is unwrapped and classified", () => {
+    const result = classifyCommand("zsh -c 'rm -rf /'");
+    expect(result.finalDecision).not.toBe("allow");
+  });
+
+  // Recursive shell unwrapping
+  test("bash -c \"sh -c 'rm -rf /'\" recursively unwraps (depth 2)", () => {
+    const result = classifyCommand("bash -c \"sh -c 'rm -rf /'\"");
+    expect(result.finalDecision).not.toBe("allow");
+  });
+  test('bash -c "sh -c \"dash -c \'rm -rf /\'\"" recursively unwraps (depth 3)', () => {
+    const result = classifyCommand("bash -c \"sh -c \\\"dash -c 'rm -rf /'\\\"\" ");
+    expect(result.finalDecision).not.toBe("allow");
+  });
+  test("4 levels of shell nesting does not crash", () => {
+    // MAX_UNWRAP_DEPTH is 3, so depth 4 may not fully unwrap, but must not throw
+    const cmd = `bash -c "sh -c \\"dash -c \\\\\\"zsh -c 'rm -rf /'\\\\\\"\\"" `;
+    expect(() => classifyCommand(cmd)).not.toThrow();
+  });
+
   // xargs unwrapping
   test("find | xargs grep → allow (unwraps xargs)", () => {
     expect(classifyCommand("find . -name '*.ts' | xargs grep 'pattern'").finalDecision).toBe("allow");
@@ -223,6 +252,40 @@ describe("classifyCommand", () => {
   });
   test("diff <(ls dir1) <(ls dir2) → allow (input procsubs)", () => {
     expect(classifyCommand("diff <(ls dir1) <(ls dir2)").finalDecision).toBe("allow");
+  });
+
+  // Disk destructive (policy: ask)
+  test("dd if=/dev/zero of=/dev/sda → ask (disk_destructive)", () => {
+    const result = classifyCommand("dd if=/dev/zero of=/dev/sda");
+    expect(result.finalDecision).toBe("ask");
+    expect(result.stages[0].actionType).toBe("disk_destructive");
+  });
+  test("mkfs.ext4 /dev/sda1 → ask (disk_destructive)", () => {
+    const result = classifyCommand("mkfs.ext4 /dev/sda1");
+    expect(result.finalDecision).toBe("ask");
+    expect(result.stages[0].actionType).toBe("disk_destructive");
+  });
+  test("fdisk /dev/sda → ask (disk_destructive)", () => {
+    const result = classifyCommand("fdisk /dev/sda");
+    expect(result.finalDecision).toBe("ask");
+    expect(result.stages[0].actionType).toBe("disk_destructive");
+  });
+
+  // Database write (policy: ask)
+  test("mysql -e 'DROP TABLE users' → ask (db_write)", () => {
+    const result = classifyCommand("mysql -e 'DROP TABLE users'");
+    expect(result.finalDecision).toBe("ask");
+    expect(result.stages[0].actionType).toBe("db_write");
+  });
+  test("psql -c 'DELETE FROM users' → ask (db_write)", () => {
+    const result = classifyCommand("psql -c 'DELETE FROM users'");
+    expect(result.finalDecision).toBe("ask");
+    expect(result.stages[0].actionType).toBe("db_write");
+  });
+  test("redis-cli FLUSHALL → ask (db_write)", () => {
+    const result = classifyCommand("redis-cli FLUSHALL");
+    expect(result.finalDecision).toBe("ask");
+    expect(result.stages[0].actionType).toBe("db_write");
   });
 
   // Empty

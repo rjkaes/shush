@@ -90,6 +90,38 @@ describe("isHookPath", () => {
   });
 });
 
+describe("checkProjectBoundary", () => {
+  const projectRoot = "/home/user/myproject";
+
+  test("file inside project root returns null (allowed)", () => {
+    expect(checkProjectBoundary("Read", "/home/user/myproject/src/index.ts", projectRoot)).toBeNull();
+  });
+
+  test("file outside project root returns ask", () => {
+    const result = checkProjectBoundary("Read", "/tmp/secret.txt", projectRoot);
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
+    expect(result!.reason).toContain("outside project");
+  });
+
+  test("null projectRoot returns ask", () => {
+    const result = checkProjectBoundary("Write", "/home/user/myproject/file.ts", null);
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
+    expect(result!.reason).toContain("no git root");
+  });
+
+  test("exact project root path returns null", () => {
+    expect(checkProjectBoundary("Read", "/home/user/myproject", projectRoot)).toBeNull();
+  });
+
+  test("nested subdirectory inside project returns null", () => {
+    expect(
+      checkProjectBoundary("Edit", "/home/user/myproject/src/deep/nested/file.ts", projectRoot),
+    ).toBeNull();
+  });
+});
+
 describe("cross-platform path handling", () => {
   const home = homedir();
 
