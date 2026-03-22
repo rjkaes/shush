@@ -8,6 +8,41 @@
     "uploadArchives"
   ],
   [
+    "aws",
+    "s3",
+    "cp"
+  ],
+  [
+    "aws",
+    "s3",
+    "mv"
+  ],
+  [
+    "aws",
+    "s3",
+    "rm"
+  ],
+  [
+    "aws",
+    "s3",
+    "sync"
+  ],
+  [
+    "az",
+    "group",
+    "delete"
+  ],
+  [
+    "az",
+    "vm",
+    "create"
+  ],
+  [
+    "az",
+    "vm",
+    "delete"
+  ],
+  [
     "bun",
     "publish"
   ],
@@ -56,6 +91,18 @@
   [
     "gem",
     "yank"
+  ],
+  [
+    "gcloud",
+    "compute",
+    "instances",
+    "create"
+  ],
+  [
+    "gcloud",
+    "compute",
+    "instances",
+    "delete"
   ],
   [
     "gradle",

@@ -20,10 +20,19 @@
     },
     "s3": {
       "rm": {
-        "_": "container_destructive"
+        "_": "network_write"
       },
       "ls": {
         "_": "filesystem_read"
+      },
+      "cp": {
+        "_": "network_write"
+      },
+      "mv": {
+        "_": "network_write"
+      },
+      "sync": {
+        "_": "network_write"
       }
     },
     "--version": {
@@ -77,7 +86,7 @@
   "az": {
     "group": {
       "delete": {
-        "_": "container_destructive"
+        "_": "network_write"
       },
       "list": {
         "_": "filesystem_read"
@@ -92,10 +101,13 @@
     },
     "vm": {
       "delete": {
-        "_": "container_destructive"
+        "_": "network_write"
       },
       "list": {
         "_": "filesystem_read"
+      },
+      "create": {
+        "_": "network_write"
       }
     },
     "--version": {
@@ -357,10 +369,13 @@
     "compute": {
       "instances": {
         "delete": {
-          "_": "container_destructive"
+          "_": "network_write"
         },
         "list": {
           "_": "filesystem_read"
+        },
+        "create": {
+          "_": "network_write"
         }
       }
     },
