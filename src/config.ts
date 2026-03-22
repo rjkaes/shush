@@ -6,7 +6,7 @@
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { parse as parseYaml } from "yaml";
+import { parseSimpleYaml } from "./mini-yaml.js";
 import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter } from "./types.js";
 import ACTION_TYPES from "../data/types.json";
 import DEFAULT_POLICIES_JSON from "../data/policies.json";
@@ -18,24 +18,20 @@ const VALID_DECISIONS = new Set<string>(Object.keys(STRICTNESS));
 export function parseConfigYaml(text: string): ShushConfig {
   if (!text) return EMPTY_CONFIG;
 
-  let raw: unknown;
+  let doc: Record<string, Record<string, string | string[]>> | undefined;
   try {
-    raw = parseYaml(text);
+    doc = parseSimpleYaml(text);
   } catch (err) {
     process.stderr.write(`shush: malformed config YAML, ignoring: ${err}\n`);
     return EMPTY_CONFIG;
   }
 
-  if (raw === null || raw === undefined || typeof raw !== "object") {
-    return EMPTY_CONFIG;
-  }
-
-  const doc = raw as Record<string, unknown>;
+  if (!doc) return EMPTY_CONFIG;
 
   // Parse actions
   const actions: Record<string, Decision> = {};
-  if (doc.actions && typeof doc.actions === "object") {
-    for (const [key, val] of Object.entries(doc.actions as Record<string, unknown>)) {
+  if (doc.actions) {
+    for (const [key, val] of Object.entries(doc.actions)) {
       if (!(key in ACTION_TYPES)) {
         process.stderr.write(`shush: config: unknown action type "${key}", skipping\n`);
         continue;
@@ -50,8 +46,8 @@ export function parseConfigYaml(text: string): ShushConfig {
 
   // Parse sensitive_paths
   const sensitivePaths: Record<string, Decision> = {};
-  if (doc.sensitive_paths && typeof doc.sensitive_paths === "object") {
-    for (const [key, val] of Object.entries(doc.sensitive_paths as Record<string, unknown>)) {
+  if (doc.sensitive_paths) {
+    for (const [key, val] of Object.entries(doc.sensitive_paths)) {
       if (typeof val === "string" && VALID_DECISIONS.has(val)) {
         sensitivePaths[key] = val as Decision;
       } else {
@@ -62,8 +58,8 @@ export function parseConfigYaml(text: string): ShushConfig {
 
   // Parse classify
   const classify: Record<string, string[]> = {};
-  if (doc.classify && typeof doc.classify === "object") {
-    for (const [key, val] of Object.entries(doc.classify as Record<string, unknown>)) {
+  if (doc.classify) {
+    for (const [key, val] of Object.entries(doc.classify)) {
       if (Array.isArray(val) && val.every((v) => typeof v === "string")) {
         classify[key] = val as string[];
       } else {

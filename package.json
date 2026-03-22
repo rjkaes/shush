@@ -10,8 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "unbash": "^2.2.0",
-    "yaml": "^2.8.2"
+    "unbash": "^2.2.0"
   },
   "devDependencies": {
     "@opencode-ai/plugin": "^1.2.27",
