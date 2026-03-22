@@ -10,6 +10,7 @@ import { parse as parseYaml } from "yaml";
 import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter } from "./types.js";
 import ACTION_TYPES from "../data/types.json";
 import DEFAULT_POLICIES_JSON from "../data/policies.json";
+import { prefixMatch } from "./taxonomy.js";
 
 const VALID_DECISIONS = new Set<string>(Object.keys(STRICTNESS));
 
@@ -82,6 +83,8 @@ export function parseConfigYaml(text: string): ShushConfig {
  * defaults in either direction via getPolicy() — see loadConfig() for how
  * project configs are prevented from exploiting this.
  * For classify: overlay entries are additive (union of patterns).
+ * Callers are responsible for pre-filtering untrusted classify entries
+ * via filterClassifyTightenOnly() before passing them here.
  */
 function mergeStricter(
   base: Record<string, Decision>,
@@ -133,6 +136,58 @@ export function loadConfigFile(filePath: string): ShushConfig | null {
 
 import { homedir } from "node:os";
 
+const DEFAULT_POLICIES = DEFAULT_POLICIES_JSON as Record<string, Decision>;
+
+/**
+ * Filter project classify entries to only allow tightening.
+ *
+ * For each pattern in the project config's classify section, look up
+ * what the base (trie + global config) would classify those tokens as,
+ * then compare policies. Only keep entries where the project's target
+ * action type has a policy that is stricter-or-equal to the base
+ * classification's policy.
+ */
+export function filterClassifyTightenOnly(
+  projectClassify: Record<string, string[]>,
+  baseClassify: Record<string, string[]>,
+  effectiveActions: Record<string, Decision>,
+): Record<string, string[]> {
+  const filtered: Record<string, string[]> = {};
+  for (const [targetActionType, patterns] of Object.entries(projectClassify)) {
+    const targetPolicy = effectiveActions[targetActionType]
+      ?? DEFAULT_POLICIES[targetActionType]
+      ?? "ask";
+    const kept: string[] = [];
+    for (const pattern of patterns) {
+      // If this pattern already exists in the base classify, allow it
+      // (it came from the global config or built-in data).
+      if (baseClassify[targetActionType]?.includes(pattern)) {
+        kept.push(pattern);
+        continue;
+      }
+      const tokens = pattern.split(/\s+/);
+      // Look up the base classification via the trie
+      const baseActionType = prefixMatch(tokens);
+      const basePolicy = effectiveActions[baseActionType]
+        ?? DEFAULT_POLICIES[baseActionType]
+        ?? "ask";
+      // Only keep if the target policy is at least as strict
+      if (STRICTNESS[targetPolicy as Decision] >= STRICTNESS[basePolicy as Decision]) {
+        kept.push(pattern);
+      } else {
+        process.stderr.write(
+          `shush: project config classify: dropping "${pattern}" -> ${targetActionType} `
+          + `(would loosen from ${baseActionType}/${basePolicy} to ${targetPolicy})\n`,
+        );
+      }
+    }
+    if (kept.length > 0) {
+      filtered[targetActionType] = kept;
+    }
+  }
+  return filtered;
+}
+
 const DEFAULT_GLOBAL_PATH = path.join(homedir(), ".config", "shush", "config.yaml");
 
 /**
@@ -168,5 +223,16 @@ export function loadConfig(
     classify: globalConfig.classify,
   };
 
-  return mergeConfigs(effectiveBase, projectConfig);
+  // Filter project classify entries: only allow tightening.
+  const filteredClassify = filterClassifyTightenOnly(
+    projectConfig.classify,
+    globalConfig.classify,
+    baseActions,
+  );
+  const filteredProject: ShushConfig = {
+    ...projectConfig,
+    classify: filteredClassify,
+  };
+
+  return mergeConfigs(effectiveBase, filteredProject);
 }

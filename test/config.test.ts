@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { parseConfigYaml, mergeConfigs, loadConfigFile, loadConfig } from "../src/config.js";
+import { parseConfigYaml, mergeConfigs, loadConfigFile, loadConfig, filterClassifyTightenOnly } from "../src/config.js";
 import { EMPTY_CONFIG } from "../src/types.js";
 import type { ShushConfig } from "../src/types.js";
 
@@ -199,6 +199,57 @@ describe("mergeConfigs", () => {
   });
 });
 
+describe("filterClassifyTightenOnly", () => {
+  test("drops classify entries that loosen classification", () => {
+    // "rm -rf /" is classified as disk_destructive (policy: "ask") by the trie.
+    // Reclassifying it as filesystem_read (policy: "allow") would loosen it.
+    const origWrite = process.stderr.write;
+    process.stderr.write = (() => true) as typeof process.stderr.write;
+    try {
+      const result = filterClassifyTightenOnly(
+        { filesystem_read: ["rm -rf /"] },
+        {},
+        {},
+      );
+      expect(result.filesystem_read).toBeUndefined();
+    } finally {
+      process.stderr.write = origWrite;
+    }
+  });
+
+  test("keeps classify entries that tighten classification", () => {
+    // "ls" is classified as filesystem_read (policy: "allow") by the trie.
+    // Reclassifying it as disk_destructive (policy: "ask") tightens it.
+    const result = filterClassifyTightenOnly(
+      { disk_destructive: ["ls"] },
+      {},
+      {},
+    );
+    expect(result.disk_destructive).toEqual(["ls"]);
+  });
+
+  test("keeps classify entries that preserve same strictness", () => {
+    // Moving between action types with the same policy level is fine.
+    const result = filterClassifyTightenOnly(
+      { git_safe: ["ls"] },
+      {},
+      {},
+    );
+    // Both filesystem_read and git_safe have policy "allow", so same strictness
+    expect(result.git_safe).toEqual(["ls"]);
+  });
+
+  test("keeps entries that already exist in base classify", () => {
+    // If the global config already has this entry, the project can keep it.
+    const result = filterClassifyTightenOnly(
+      { filesystem_read: ["rm -rf /"] },
+      { filesystem_read: ["rm -rf /"] },
+      {},
+    );
+    expect(result.filesystem_read).toEqual(["rm -rf /"]);
+  });
+});
+
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -271,6 +322,26 @@ describe("loadConfig", () => {
       const result = loadConfig(dir, globalPath);
       expect(result.actions.lang_exec).toBe("ask");
     } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("project config cannot loosen classify entries", () => {
+    const dir = mkdtempSync(join(tmpdir(), "shush-test-"));
+    // Project tries to reclassify "rm -rf /" (disk_destructive, ask) as
+    // filesystem_read (allow). This should be silently dropped.
+    writeFileSync(
+      join(dir, ".shush.yaml"),
+      'classify:\n  filesystem_read:\n    - "rm -rf /"\n',
+    );
+    const origWrite = process.stderr.write;
+    process.stderr.write = (() => true) as typeof process.stderr.write;
+    try {
+      const result = loadConfig(dir, join(dir, "no-such-global.yaml"));
+      // The loosening entry should not appear in the merged config
+      expect(result.classify.filesystem_read).toBeUndefined();
+    } finally {
+      process.stderr.write = origWrite;
       rmSync(dir, { recursive: true, force: true });
     }
   });
