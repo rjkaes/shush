@@ -45,7 +45,7 @@ const PWSH_VALUE_FLAGS = new Set([
 ]);
 
 const COMMAND_WRAPPERS: Record<string, WrapperSpec> = {
-  xargs:   { valueFlags: new Set(["-I", "-L", "-n", "-P", "-s", "-R", "-S"]), defaultInner: ["echo"] },
+  xargs:   { valueFlags: new Set(["-I", "-L", "-n", "-P", "-s", "-R", "-S", "-E"]), defaultInner: ["echo"] },
   nice:    { valueFlags: new Set(["-n", "--adjustment"]) },
   nohup:   { valueFlags: new Set([]) },
   timeout: { valueFlags: new Set(["-k", "--kill-after", "-s", "--signal"]), skipFirstPositional: /^[\d.]+[smhd]?$/ },
@@ -178,7 +178,11 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
 
   // Extract process substitutions >(cmd)/<(cmd) before parsing.
   // Inner commands are classified separately and composed into the result.
-  const { cleaned, subs } = extractProcessSubs(command);
+  // Guard: skip the char-by-char scan when no process sub markers are present.
+  const hasProcSub = command.includes(">(") || command.includes("<(");
+  const { cleaned, subs } = hasProcSub
+    ? extractProcessSubs(command)
+    : { cleaned: command, subs: [] as string[] };
   const { stages, cmdSubs } = extractStages(cleaned);
 
   // Shell unwrapping: if the entire command is `bash -c '...'`, classify the inner command.
@@ -256,7 +260,6 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     return {
       tokens: stage.tokens,
       actionType,
-      defaultPolicy: decision,
       decision,
       reason,
     };

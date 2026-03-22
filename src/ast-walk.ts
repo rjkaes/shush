@@ -48,9 +48,17 @@ export function extractProcessSubs(command: string): { cleaned: string; subs: st
     if ((ch === ">" || ch === "<") && command[i + 1] === "(") {
       let depth = 1;
       let j = i + 2;
+      let pInSQ = false;
+      let pInDQ = false;
       while (j < command.length && depth > 0) {
-        if (command[j] === "(") depth++;
-        else if (command[j] === ")") depth--;
+        const c = command[j];
+        if (c === "'" && !pInDQ) { pInSQ = !pInSQ; }
+        else if (c === '"' && !pInSQ) { pInDQ = !pInDQ; }
+        else if (c === "\\" && !pInSQ) { j++; } // skip escaped char
+        else if (!pInSQ && !pInDQ) {
+          if (c === "(") depth++;
+          else if (c === ")") depth--;
+        }
         j++;
       }
       if (depth === 0) {
@@ -81,9 +89,12 @@ export function extractProcessSubs(command: string): { cleaned: string; subs: st
 export function extractStages(command: string): { stages: Stage[]; cmdSubs: string[] } {
   if (!command.trim()) return { stages: [], cmdSubs: [] };
 
-  // Always extract command substitution inner strings for separate
-  // security classification (bash-guard.ts classifies these recursively).
-  const { subs: cmdSubs } = extractCommandSubs(command);
+  // Extract command substitution inner strings for separate security
+  // classification (bash-guard.ts classifies these recursively).
+  // Guard: skip the char-by-char scan when no substitution markers are present.
+  const cmdSubs = (command.includes("$(") || command.includes("`"))
+    ? extractCommandSubs(command).subs
+    : [];
 
   const ast = parse(command);
   if (ast.errors?.length) {
@@ -124,8 +135,8 @@ export function extractCommandSubs(command: string): { cleaned: string; subs: st
       continue;
     }
 
-    // Detect $( - start of command substitution
-    if (ch === "$" && command[i + 1] === "(") {
+    // Detect $( - start of command substitution (but not $(( arithmetic))
+    if (ch === "$" && command[i + 1] === "(" && command[i + 2] !== "(") {
       let depth = 1;
       let j = i + 2;
       let inSQ = false;
@@ -452,9 +463,9 @@ function splitOnUnquotedOperators(command: string): Array<{ text: string; operat
         i++; // skip second char
         continue;
       }
-      // Single | or ;
-      if (ch === "|" || ch === ";") {
-        results.push({ text: current, operator: ch });
+      // Single | or ; or & (background)
+      if (ch === "|" || ch === ";" || ch === "&") {
+        results.push({ text: current, operator: ch === "&" ? ";" : ch });
         current = "";
         continue;
       }

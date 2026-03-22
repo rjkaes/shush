@@ -11,6 +11,6 @@
     "declaration": true,
     "types": ["bun"]
   },
-  "include": ["src/**/*.ts", "hooks/**/*.ts", "test/**/*.ts"],
+  "include": ["src/**/*.ts", "hooks/**/*.ts", "test/**/*.ts", "plugins/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

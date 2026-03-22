@@ -41,11 +41,15 @@ function checkFileWrite(
       reason = boundaryResult.reason;
     }
   }
-  if (decision === "allow" || decision === "context") {
+  if (decision !== "block") {
     const matches = scanContent(content);
     if (matches.length > 0) {
-      decision = "ask";
-      reason = formatContentMessage(toolName, matches);
+      const contentReason = formatContentMessage(toolName, matches);
+      // Append content findings to existing reason when path already flagged.
+      reason = reason ? `${reason}; ${contentReason}` : contentReason;
+      if (decision === "allow" || decision === "context") {
+        decision = "ask";
+      }
     }
   }
   return { decision, reason };
@@ -109,12 +113,16 @@ export function evaluate(
       break;
     }
     case "Glob": {
-      const path = (toolInput.path as string) ?? "";
-      if (path) {
-        const pathResult = checkPath("Glob", path, config);
+      const globPath = (toolInput.path as string) ?? "";
+      const globPattern = (toolInput.pattern as string) ?? "";
+      // Check both path and pattern for sensitive locations.
+      for (const p of [globPath, globPattern]) {
+        if (!p) continue;
+        const pathResult = checkPath("Glob", p, config);
         if (pathResult) {
           decision = pathResult.decision;
           reason = pathResult.reason;
+          break;
         }
       }
       break;

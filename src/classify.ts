@@ -67,9 +67,41 @@ export function stripGitGlobalFlags(tokens: string[]): string[] {
 // Flag Classifier Entry Point
 // ==============================================================================
 
+// Dispatch map: O(1) lookup by command name instead of calling 12 classifiers.
+// Multi-command classifiers have one entry per command name they handle.
+type Classifier = (tokens: string[]) => string | null;
+const FLAG_CLASSIFIERS: Record<string, Classifier> = {};
+
+function registerClassifier(commands: string[], fn: Classifier): void {
+  for (const cmd of commands) FLAG_CLASSIFIERS[cmd] = fn;
+}
+
+// Registrations are deferred until after all classifier functions are defined
+// (see bottom of this section). The `initClassifiers()` call populates the map.
+let classifiersInitialized = false;
+function initClassifiers(): void {
+  if (classifiersInitialized) return;
+  classifiersInitialized = true;
+  registerClassifier(["find"], classifyFind);
+  registerClassifier(["sed"], classifySed);
+  registerClassifier(["awk", "gawk", "mawk", "nawk"], classifyAwk);
+  registerClassifier(["tar"], classifyTar);
+  registerClassifier(["git"], classifyGit);
+  registerClassifier(["gh"], classifyGhApi);
+  registerClassifier(["curl"], classifyCurl);
+  registerClassifier(["wget"], classifyWget);
+  registerClassifier(["http", "https", "xh", "xhs"], classifyHttpie);
+  registerClassifier(["npm", "pnpm", "bun", "pip", "pip3", "cargo", "gem"], classifyGlobalInstall);
+  registerClassifier(["tee"], classifyTee);
+  registerClassifier(["python", "python3", "node", "ruby"], classifyInlineCode);
+  // bun is already registered via classifyGlobalInstall; inlineCode also handles it
+  // but globalInstall takes priority since it's registered first.
+}
+
 /** Run flag-dependent classifiers. Returns action type or null (use prefix table). */
 export function classifyWithFlags(tokens: string[]): string | null {
   if (!tokens.length) return null;
+  initClassifiers();
 
   // Git: strip global flags first
   let normalized = tokens;
@@ -77,20 +109,20 @@ export function classifyWithFlags(tokens: string[]): string | null {
     normalized = stripGitGlobalFlags(tokens);
   }
 
-  return (
-    classifyFind(normalized) ??
-    classifySed(normalized) ??
-    classifyAwk(normalized) ??
-    classifyTar(normalized) ??
-    classifyGit(normalized) ??
-    classifyGhApi(normalized) ??
-    classifyCurl(normalized) ??
-    classifyWget(normalized) ??
-    classifyHttpie(normalized) ??
-    classifyGlobalInstall(normalized) ??
-    classifyTee(normalized) ??
-    classifyInlineCode(normalized)
-  );
+  const classifier = FLAG_CLASSIFIERS[normalized[0]];
+  if (!classifier) return null;
+
+  // Some commands need multiple classifiers tried in sequence.
+  // gh needs ghApi; bun needs both globalInstall and inlineCode.
+  const result = classifier(normalized);
+  if (result !== null) return result;
+
+  // Fallback: try inlineCode if the primary classifier returned null
+  // (handles bun -e when bun's primary classifier is globalInstall).
+  if (normalized[0] in INLINE_CODE_CMDS) {
+    return classifyInlineCode(normalized);
+  }
+  return null;
 }
 
 // ==============================================================================
@@ -312,10 +344,10 @@ function classifyCurl(tokens: string[]): string | null {
   while (i < tokens.length) {
     const tok = tokens[i];
 
-    // Standalone data flags
+    // Standalone data flags (consume the value argument too)
     if (CURL_DATA_FLAGS.has(tok)) {
       hasData = true;
-      i += 1;
+      i += 2;
       continue;
     }
 
@@ -808,13 +840,18 @@ function classifyNodePayload(code: string): string | null {
   }
 
   // Extract require() calls and check against both allowlist and blocklist.
-  const requireRe = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+  // Also catch template literal requires: require(`child_process`).
+  const requireRe = /require\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g;
   let match: RegExpExecArray | null;
   while ((match = requireRe.exec(code)) !== null) {
     const mod = match[1];
     if (NODE_DANGEROUS_MODULES.has(mod)) return null;
     if (!NODE_SAFE_REQUIRES.has(mod)) return null;
   }
+
+  // Reject computed requires: require("child" + "_process"), require(variable).
+  if (/require\s*\([^)]*\+/.test(code)) return null;
+  if (/require\s*\(\s*[a-zA-Z_$]/.test(code)) return null;
 
   // Check for dynamic import().
   if (/\bimport\s*\(/.test(code)) return null;
@@ -852,12 +889,27 @@ const SCRIPT_INTERPRETERS = new Set([
   "bun", "deno", "ts-node", "tsx",
 ]);
 
+// Per-interpreter flags that consume a following value argument. Without
+// this, the flag's value would be misidentified as the script path.
+const INTERPRETER_VALUE_FLAGS: Record<string, Set<string>> = {
+  node: new Set(["--require", "-r", "--loader", "--import", "--input-type", "--conditions", "-C"]),
+  bun: new Set(["--require", "-r", "--loader", "--import", "--conditions"]),
+  deno: new Set(["--import-map", "--lock", "--config", "-c", "--reload", "--allow-read", "--allow-write", "--allow-net"]),
+  python: new Set(["-m", "-W", "-X", "--check-hash-based-pycs"]),
+  python3: new Set(["-m", "-W", "-X", "--check-hash-based-pycs"]),
+  ruby: new Set(["-r", "-I", "-e", "-E", "--encoding"]),
+  perl: new Set(["-I", "-M", "-m", "-e", "-E"]),
+  php: new Set(["-d", "-c", "-z"]),
+};
+
 export function classifyScriptExec(tokens: string[]): string | null {
   if (tokens.length < 2) return null;
   if (!SCRIPT_INTERPRETERS.has(tokens[0])) return null;
 
+  const valueFlags = INTERPRETER_VALUE_FLAGS[tokens[0]];
+
   // Find the first non-flag argument after the command name.
-  // Skip flags (tokens starting with -) and their values.
+  // Skip flags and their value arguments.
   for (let i = 1; i < tokens.length; i++) {
     const tok = tokens[i];
     if (tok === "--") {
@@ -865,16 +917,20 @@ export function classifyScriptExec(tokens: string[]): string | null {
       if (i + 1 < tokens.length) return isProjectPath(tokens[i + 1]) ? T.SCRIPT_EXEC : null;
       return null;
     }
-    if (tok.startsWith("-")) continue;
+    if (tok.startsWith("-")) {
+      // Skip the value argument for known value-consuming flags.
+      if (valueFlags?.has(tok)) i++;
+      continue;
+    }
     // Found a non-flag argument: this is the script path.
     // Only classify as script_exec for relative paths (project scripts).
-    // Absolute paths could be anywhere and stay as unknown (ask).
+    // Absolute and ~ paths could be anywhere and stay as unknown (ask).
     return isProjectPath(tok) ? T.SCRIPT_EXEC : null;
   }
   return null;
 }
 
-/** Relative paths are assumed to be project-local; absolute paths are not. */
+/** Relative paths are assumed to be project-local; absolute and ~ paths are not. */
 function isProjectPath(scriptPath: string): boolean {
-  return !scriptPath.startsWith("/");
+  return !scriptPath.startsWith("/") && !scriptPath.startsWith("~");
 }

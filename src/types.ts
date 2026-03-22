@@ -33,7 +33,6 @@ export interface Stage {
 export interface StageResult {
   tokens: string[];
   actionType: string;
-  defaultPolicy: Decision;
   decision: Decision;
   reason: string;
 }

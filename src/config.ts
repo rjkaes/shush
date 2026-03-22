@@ -5,12 +5,12 @@
 // Per-project: .shush.yaml (can only tighten)
 
 import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
 import path from "node:path";
 import { parseSimpleYaml } from "./mini-yaml.js";
 import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter } from "./types.js";
 import ACTION_TYPES from "../data/types.json";
-import DEFAULT_POLICIES_JSON from "../data/policies.json";
-import { prefixMatch } from "./taxonomy.js";
+import { DEFAULT_POLICIES, prefixMatch } from "./taxonomy.js";
 
 const VALID_DECISIONS = new Set<string>(Object.keys(STRICTNESS));
 
@@ -130,9 +130,6 @@ export function loadConfigFile(filePath: string): ShushConfig | null {
   }
 }
 
-import { homedir } from "node:os";
-
-const DEFAULT_POLICIES = DEFAULT_POLICIES_JSON as Record<string, Decision>;
 
 /**
  * Filter project classify entries to only allow tightening.
@@ -209,7 +206,7 @@ export function loadConfig(
   const baseActions: Record<string, Decision> = { ...globalConfig.actions };
   for (const key of Object.keys(projectConfig.actions)) {
     if (!(key in baseActions)) {
-      const hardcoded = (DEFAULT_POLICIES_JSON as Record<string, Decision>)[key];
+      const hardcoded = DEFAULT_POLICIES[key];
       if (hardcoded) baseActions[key] = hardcoded;
     }
   }

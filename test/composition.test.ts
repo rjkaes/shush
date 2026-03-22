@@ -3,7 +3,7 @@ import { checkComposition } from "../src/composition";
 import type { StageResult, Stage } from "../src/types";
 
 function makeStageResult(tokens: string[], actionType: string): StageResult {
-  return { tokens, actionType, defaultPolicy: "allow", decision: "allow", reason: "" };
+  return { tokens, actionType, decision: "allow", reason: "" };
 }
 function makeStage(tokens: string[], op: string): Stage {
   return { tokens, operator: op };

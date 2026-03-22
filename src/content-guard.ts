@@ -1,11 +1,13 @@
 // src/content-guard.ts
 
+import type { Decision } from "./types.js";
+
 /** A single content match from scanning. */
 export interface ContentMatch {
   category: string;
   patternDesc: string;
   matchedText: string;
-  policy: string;
+  policy: Decision;
 }
 
 // Compiled regexes by category. Each entry: [regex, description].
@@ -56,7 +58,9 @@ const CREDENTIAL_SEARCH_PATTERNS: RegExp[] = [
   /BEGIN.*PRIVATE/i,
 ];
 
-/** Scan content for dangerous patterns. Returns matches (empty = safe). */
+/** Scan content for dangerous patterns. Returns matches (empty = safe).
+ *  Collects at most one match per category for the reason string, then
+ *  stops scanning remaining categories once all have been checked. */
 export function scanContent(content: string): ContentMatch[] {
   if (!content) return [];
 
@@ -71,6 +75,7 @@ export function scanContent(content: string): ContentMatch[] {
           matchedText: m[0].slice(0, 80),
           policy: "ask",
         });
+        break; // one match per category is enough
       }
     }
   }

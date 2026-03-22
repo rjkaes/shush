@@ -25,6 +25,10 @@ const SENSITIVE_DIRS: Array<[string, string, Decision]> = [
 ];
 
 // Sensitive basenames: [basename, display_name, policy]
+// Tool sets for hook-path protection (hoisted to avoid per-call allocation).
+const HOOK_BLOCK_TOOLS = new Set(["Write", "Edit"]);
+const HOOK_READONLY_TOOLS = new Set(["Read", "Glob", "Grep"]);
+
 const SENSITIVE_BASENAMES: Array<[string, string, Decision]> = [
   [".env", ".env", "ask"],
   [".env.local", ".env.local", "ask"],
@@ -36,7 +40,10 @@ const SENSITIVE_BASENAMES: Array<[string, string, Decision]> = [
 /** Expand ~ and resolve to absolute canonical path. */
 export function resolvePath(raw: string): string {
   if (!raw) return "";
-  const expanded = raw.startsWith("~") ? path.join(HOME, raw.slice(1)) : raw;
+  // Only expand ~ or ~/... (not ~user paths, which need OS lookup).
+  const expanded = (raw === "~" || raw.startsWith("~/"))
+    ? path.join(HOME, raw.slice(1))
+    : raw;
   return path.resolve(expanded);
 }
 
@@ -99,16 +106,14 @@ export function checkPath(
 
   // Hook self-protection: Write/Edit get block
   if (isHookPath(resolved)) {
-    const hookBlockTools = new Set(["Write", "Edit"]);
-    if (hookBlockTools.has(toolName)) {
+    if (HOOK_BLOCK_TOOLS.has(toolName)) {
       return {
         decision: "block",
         reason: `${toolName} targets hook directory: ~/.claude/hooks/ (self-modification blocked)`,
       };
     }
     // Read-only tools can inspect hooks without prompting
-    const readOnlyTools = new Set(["Read", "Glob", "Grep"]);
-    if (readOnlyTools.has(toolName)) {
+    if (HOOK_READONLY_TOOLS.has(toolName)) {
       return null;
     }
     return {

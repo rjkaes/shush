@@ -17,6 +17,25 @@ function unquote(s: string): string {
 }
 
 /**
+ * Strip a trailing comment from a raw YAML line, respecting quotes.
+ * A `#` only starts a comment when preceded by whitespace and not
+ * inside single or double quotes.
+ */
+function stripComment(raw: string): string {
+  let inSQ = false;
+  let inDQ = false;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (ch === "'" && !inDQ) { inSQ = !inSQ; continue; }
+    if (ch === '"' && !inSQ) { inDQ = !inDQ; continue; }
+    if (ch === "#" && !inSQ && !inDQ && (i === 0 || raw[i - 1] === " " || raw[i - 1] === "\t")) {
+      return raw.slice(0, i);
+    }
+  }
+  return raw;
+}
+
+/**
  * Parse a simple YAML document into a plain object.
  *
  * Supported structure (two indent levels max):
@@ -36,7 +55,7 @@ export function parseSimpleYaml(text: string): Record<string, Record<string, str
   let array: string[] | null = null;
 
   for (const raw of text.split("\n")) {
-    const line = raw.replace(/#.*$/, "").trimEnd();
+    const line = stripComment(raw).trimEnd();
     if (line === "" || line === "---") continue;
 
     const indent = line.length - line.trimStart().length;

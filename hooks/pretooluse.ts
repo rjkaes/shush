@@ -49,5 +49,14 @@ async function main() {
 
 main().catch((err) => {
   process.stderr.write(`shush: ${err}\n`);
-  process.exit(2);
+  // Write a deny decision so Claude Code does not treat a crash as "allow".
+  const failsafe: HookOutput = {
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: `shush: internal error: ${err}`,
+    },
+  };
+  process.stdout.write(JSON.stringify(failsafe));
+  process.exit(0);
 });

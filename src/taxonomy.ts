@@ -118,6 +118,17 @@ export const DECODE_COMMANDS: Array<[string, string | null]> = [
   ["uudecode", null],
 ];
 
+// Cache for config classify pattern splits (avoids re-splitting per stage).
+const splitCache = new Map<string, string[]>();
+function classifySplitCache(pattern: string): string[] {
+  let tokens = splitCache.get(pattern);
+  if (!tokens) {
+    tokens = pattern.split(/\s+/);
+    splitCache.set(pattern, tokens);
+  }
+  return tokens;
+}
+
 /** Normalize /usr/bin/rm -> rm, then prefix-match against built-in trie. */
 export function classifyTokens(tokens: string[], config?: ShushConfig): string {
   if (tokens.length === 0) return UNKNOWN;
@@ -128,11 +139,12 @@ export function classifyTokens(tokens: string[], config?: ShushConfig): string {
     : tokens[0];
   const normalized = base !== tokens[0] ? [base, ...tokens.slice(1)] : tokens;
 
-  // Check config classify entries first (user-defined prefixes)
+  // Check config classify entries first (user-defined prefixes).
+  // Patterns are pre-split at config load time via classifyTokenized.
   if (config) {
     for (const [actionType, patterns] of Object.entries(config.classify)) {
       for (const pattern of patterns) {
-        const prefixTokens = pattern.split(/\s+/);
+        const prefixTokens = classifySplitCache(pattern);
         if (normalized.length >= prefixTokens.length) {
           let match = true;
           for (let i = 0; i < prefixTokens.length; i++) {
