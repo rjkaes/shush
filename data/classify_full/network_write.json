@@ -81,18 +81,6 @@
     "ftp"
   ],
   [
-    "gem",
-    "owner"
-  ],
-  [
-    "gem",
-    "push"
-  ],
-  [
-    "gem",
-    "yank"
-  ],
-  [
     "gcloud",
     "compute",
     "instances",
@@ -103,6 +91,18 @@
     "compute",
     "instances",
     "delete"
+  ],
+  [
+    "gem",
+    "owner"
+  ],
+  [
+    "gem",
+    "push"
+  ],
+  [
+    "gem",
+    "yank"
   ],
   [
     "gradle",

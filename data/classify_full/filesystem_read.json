@@ -1038,6 +1038,55 @@
     "finger"
   ],
   [
+    "flutter",
+    "--version"
+  ],
+  [
+    "flutter",
+    "config",
+    "--list"
+  ],
+  [
+    "flutter",
+    "devices"
+  ],
+  [
+    "flutter",
+    "doctor"
+  ],
+  [
+    "fmt"
+  ],
+  [
+    "fnm",
+    "--version"
+  ],
+  [
+    "fnm",
+    "current"
+  ],
+  [
+    "fnm",
+    "list"
+  ],
+  [
+    "fold"
+  ],
+  [
+    "free"
+  ],
+  [
+    "fx"
+  ],
+  [
+    "g++",
+    "--version"
+  ],
+  [
+    "gcc",
+    "--version"
+  ],
+  [
     "gcloud",
     "--version"
   ],
@@ -1090,59 +1139,6 @@
   [
     "gcloud",
     "version"
-  ],
-  [
-    "flutter",
-    "--version"
-  ],
-  [
-    "flutter",
-    "config",
-    "--list"
-  ],
-  [
-    "flutter",
-    "devices"
-  ],
-  [
-    "flutter",
-    "doctor"
-  ],
-  [
-    "fmt"
-  ],
-  [
-    "fnm",
-    "--version"
-  ],
-  [
-    "fnm",
-    "current"
-  ],
-  [
-    "fnm",
-    "default"
-  ],
-  [
-    "fnm",
-    "list"
-  ],
-  [
-    "fold"
-  ],
-  [
-    "free"
-  ],
-  [
-    "fx"
-  ],
-  [
-    "g++",
-    "--version"
-  ],
-  [
-    "gcc",
-    "--version"
   ],
   [
     "gem",
@@ -1560,10 +1556,6 @@
   [
     "lein",
     "classpath"
-  ],
-  [
-    "lein",
-    "deps"
   ],
   [
     "lein",

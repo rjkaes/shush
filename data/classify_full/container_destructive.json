@@ -15,24 +15,9 @@
     "delete-db-instance"
   ],
   [
-    "aws",
-    "s3",
-    "rm"
-  ],
-  [
-    "az",
-    "group",
-    "delete"
-  ],
-  [
     "az",
     "sql",
     "server",
-    "delete"
-  ],
-  [
-    "az",
-    "vm",
     "delete"
   ],
   [
@@ -92,12 +77,6 @@
     "docker",
     "volume",
     "rm"
-  ],
-  [
-    "gcloud",
-    "compute",
-    "instances",
-    "delete"
   ],
   [
     "gcloud",

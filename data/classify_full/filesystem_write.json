@@ -19,6 +19,9 @@
     "--install"
   ],
   [
+    "cp"
+  ],
+  [
     "dotnet",
     "dev-certs",
     "https"
@@ -43,9 +46,6 @@
     "dotnet",
     "user-secrets",
     "set"
-  ],
-  [
-    "cp"
   ],
   [
     "gh",
