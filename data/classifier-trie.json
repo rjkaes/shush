@@ -3024,6 +3024,9 @@
     "doc": {
       "_": "filesystem_read"
     },
+    "env": {
+      "_": "filesystem_read"
+    },
     "help": {
       "_": "filesystem_read"
     },
