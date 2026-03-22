@@ -881,6 +881,9 @@
   "ack": {
     "_": "filesystem_read"
   },
+  "actionlint": {
+    "_": "filesystem_read"
+  },
   "ag": {
     "_": "filesystem_read"
   },
