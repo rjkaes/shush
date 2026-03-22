@@ -31,6 +31,57 @@ describe("scanContent", () => {
     expect(matches[0].category).toBe("obfuscation");
   });
 
+  test("detects GITHUB_TOKEN assignment", () => {
+    const matches = scanContent("GITHUB_TOKEN=ghp_abc123def456");
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches[0].category).toBe("secret");
+    expect(matches[0].patternDesc).toBe("token env var assignment");
+  });
+
+  test("detects GH_TOKEN assignment", () => {
+    const matches = scanContent("export GH_TOKEN=somevalue123");
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.some((m) => m.patternDesc === "token env var assignment")).toBe(true);
+  });
+
+  test("detects GITLAB_TOKEN assignment", () => {
+    const matches = scanContent("GITLAB_TOKEN=glpat-xxxxxxxxxxxxxxxxxxxx");
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.some((m) => m.patternDesc === "token env var assignment")).toBe(true);
+  });
+
+  test("detects ANTHROPIC_API_KEY assignment", () => {
+    const matches = scanContent("ANTHROPIC_API_KEY=sk-ant-abc123");
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.some((m) => m.patternDesc === "token env var assignment")).toBe(true);
+  });
+
+  test("detects OPENAI_API_KEY assignment", () => {
+    const matches = scanContent("OPENAI_API_KEY=sk-proj-abc123def456");
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.some((m) => m.patternDesc === "token env var assignment")).toBe(true);
+  });
+
+  test("detects JWT tokens", () => {
+    const jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ";
+    const matches = scanContent(jwt);
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches.some((m) => m.patternDesc === "JWT token")).toBe(true);
+  });
+
+  test("does not flag short eyJ strings as JWT", () => {
+    // Only one segment, not the two-segment header.payload format
+    const matches = scanContent("eyJhbGciOiJIUzI1NiJ9");
+    const jwtMatches = matches.filter((m) => m.patternDesc === "JWT token");
+    expect(jwtMatches.length).toBe(0);
+  });
+
+  test("does not flag bare token variable names without assignment", () => {
+    const matches = scanContent("echo $GITHUB_TOKEN");
+    const tokenMatches = matches.filter((m) => m.patternDesc === "token env var assignment");
+    expect(tokenMatches.length).toBe(0);
+  });
+
   test("returns empty for safe content", () => {
     expect(scanContent("console.log('hello')")).toEqual([]);
   });

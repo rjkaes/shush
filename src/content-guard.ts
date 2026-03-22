@@ -40,6 +40,8 @@ const CONTENT_PATTERNS: Record<string, Array<[RegExp, string]>> = {
     [/\bghp_[0-9a-zA-Z]{36}\b/, "GitHub personal access token"],
     [/\bsk-[0-9a-zA-Z]{20,}\b/, "secret key token (sk-)"],
     [/(?:api_key|apikey|api_secret)\s*[=:]\s*['"][^'"]{8,}['"]/, "hardcoded API key"],
+    [/\b(?:GITHUB_TOKEN|GH_TOKEN|GITLAB_TOKEN|ANTHROPIC_API_KEY|OPENAI_API_KEY)\s*=\s*\S+/, "token env var assignment"],
+    [/eyJ[A-Za-z0-9_-]{20,}\.eyJ[A-Za-z0-9_-]{20,}/, "JWT token"],
   ],
 };
 
