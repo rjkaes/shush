@@ -1204,6 +1204,15 @@
     "_": "filesystem_read"
   },
   "bun": {
+    "--revision": {
+      "_": "filesystem_read"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-v": {
+      "_": "filesystem_read"
+    },
     "completions": {
       "_": "filesystem_read"
     },

@@ -264,6 +264,18 @@
   ],
   [
     "bun",
+    "--revision"
+  ],
+  [
+    "bun",
+    "--version"
+  ],
+  [
+    "bun",
+    "-v"
+  ],
+  [
+    "bun",
     "completions"
   ],
   [
