@@ -141,6 +141,12 @@ const EXEC_SINK_ENV_VARS = new Set([
  * Tries flag-aware classifiers first, falls back to prefix table.
  */
 function classifyStage(tokens: string[], config?: ShushConfig): { actionType: string; decision: Decision } {
+  // Bare assignments (e.g., `FOO=bar`) produce empty tokens. The assignment
+  // itself is harmless; any command substitution in the value is extracted
+  // and classified separately by bash-guard's cmdSubs handling.
+  if (tokens.length === 0) {
+    return { actionType: "filesystem_read", decision: "allow" };
+  }
   // Flag-aware classifiers (git, curl, wget, etc.)
   const flagResult = classifyWithFlags(tokens);
   if (flagResult) {
