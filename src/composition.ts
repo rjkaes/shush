@@ -4,6 +4,27 @@ import type { Decision, Stage, StageResult, ShushConfig } from "./types.js";
 import { EXEC_SINKS, DECODE_COMMANDS } from "./taxonomy.js";
 import { isHookPath, isSensitive, resolvePath } from "./path-guard.js";
 
+// Exec sinks and the flags that make them run inline code (from the
+// argument) rather than reading code from stdin. When an exec sink has
+// one of these flags, piped input is just data, not code to execute.
+const INLINE_CODE_FLAGS: Record<string, Set<string>> = {
+  bash: new Set(["-c"]),
+  sh: new Set(["-c"]),
+  dash: new Set(["-c"]),
+  zsh: new Set(["-c"]),
+  fish: new Set(["-c"]),
+  python: new Set(["-c"]),
+  python3: new Set(["-c"]),
+  node: new Set(["-e", "--eval"]),
+  bun: new Set(["-e", "--eval"]),
+  deno: new Set(["eval"]),
+  ruby: new Set(["-e"]),
+  perl: new Set(["-e", "-E"]),
+  php: new Set(["-r"]),
+  pwsh: new Set(["-Command", "-c"]),
+  powershell: new Set(["-Command", "-c"]),
+};
+
 /** Check if a stage reads from a sensitive path. */
 function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
   if (sr.actionType !== "filesystem_read") return false;
@@ -19,6 +40,17 @@ function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
 /** Check if a stage is an exec sink (bash, python, etc.). */
 function isExecSinkStage(sr: StageResult): boolean {
   return sr.tokens.length > 0 && EXEC_SINKS.has(sr.tokens[0]);
+}
+
+/**
+ * Check if an exec sink stage has an inline code flag (-e, -c, etc.).
+ * When present, the interpreter runs code from the argument rather than
+ * stdin, so piped input is data, not executable code.
+ */
+function hasInlineCodeFlag(sr: StageResult): boolean {
+  const flags = INLINE_CODE_FLAGS[sr.tokens[0]];
+  if (!flags) return false;
+  return sr.tokens.some(tok => flags.has(tok));
 }
 
 /** Check if tokens represent a decode command (base64 -d, xxd -r, etc.). */
@@ -87,7 +119,8 @@ export function checkComposition(
     }
 
     // network | exec -> block (remote code execution)
-    if (seenNetworkSource && isExecSinkStage(right)) {
+    // Skip when exec has inline code flag: stdin is data, not code.
+    if (seenNetworkSource && isExecSinkStage(right) && !hasInlineCodeFlag(right)) {
       return [
         "block",
         `remote code execution: ${right.tokens[0]} receives network input`,
@@ -96,7 +129,8 @@ export function checkComposition(
     }
 
     // decode | exec -> block (obfuscation)
-    if (seenDecode && isExecSinkStage(right)) {
+    // Skip when exec has inline code flag: stdin is data, not code.
+    if (seenDecode && isExecSinkStage(right) && !hasInlineCodeFlag(right)) {
       return [
         "block",
         `obfuscated execution: ${right.tokens[0]} receives decoded input`,
@@ -105,7 +139,8 @@ export function checkComposition(
     }
 
     // any_read | exec -> ask
-    if (seenAnyRead && isExecSinkStage(right)) {
+    // Skip when exec has inline code flag: stdin is data, not code.
+    if (seenAnyRead && isExecSinkStage(right) && !hasInlineCodeFlag(right)) {
       return [
         "ask",
         `local code execution: ${right.tokens[0]} receives file input`,
