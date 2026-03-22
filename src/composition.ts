@@ -44,16 +44,39 @@ export function checkComposition(
 ): [Decision | "", string, string] {
   if (stageResults.length < 2) return ["", "", ""];
 
-  for (let i = 0; i < stageResults.length - 1; i++) {
-    // Only check pipe compositions (not && or ||)
-    if (i < stages.length && stages[i].operator !== "|") continue;
+  // Track data-flow properties across the entire pipe chain.
+  // Non-pipe operators (&&, ;, ||) break the chain since they don't
+  // carry data between stages.
+  let seenSensitiveRead = false;
+  let seenNetworkSource = false;
+  let seenDecode = false;
+  let seenAnyRead = false;
 
+  for (let i = 0; i < stageResults.length - 1; i++) {
     const left = stageResults[i];
+
+    // Only check pipe compositions (not && or ||)
+    if (i < stages.length && stages[i].operator !== "|") {
+      // Non-pipe operator: reset pipeline tracking
+      seenSensitiveRead = false;
+      seenNetworkSource = false;
+      seenDecode = false;
+      seenAnyRead = false;
+      continue;
+    }
+
+    // Accumulate properties from the left stage
+    if (isSensitiveRead(left, config)) seenSensitiveRead = true;
+    if (left.actionType === "network_outbound" || left.actionType === "network_write")
+      seenNetworkSource = true;
+    if (isDecodeStage(left.tokens)) seenDecode = true;
+    if (left.actionType === "filesystem_read") seenAnyRead = true;
+
     const right = stageResults[i + 1];
 
-    // sensitive_read | network -> block (exfiltration)
+    // sensitive_read | ... | network -> block (exfiltration)
     if (
-      isSensitiveRead(left, config) &&
+      seenSensitiveRead &&
       (right.actionType === "network_outbound" || right.actionType === "network_write")
     ) {
       return [
@@ -64,10 +87,7 @@ export function checkComposition(
     }
 
     // network | exec -> block (remote code execution)
-    if (
-      (left.actionType === "network_outbound" || left.actionType === "network_write") &&
-      isExecSinkStage(right)
-    ) {
+    if (seenNetworkSource && isExecSinkStage(right)) {
       return [
         "block",
         `remote code execution: ${right.tokens[0]} receives network input`,
@@ -76,7 +96,7 @@ export function checkComposition(
     }
 
     // decode | exec -> block (obfuscation)
-    if (isDecodeStage(left.tokens) && isExecSinkStage(right)) {
+    if (seenDecode && isExecSinkStage(right)) {
       return [
         "block",
         `obfuscated execution: ${right.tokens[0]} receives decoded input`,
@@ -85,7 +105,7 @@ export function checkComposition(
     }
 
     // any_read | exec -> ask
-    if (left.actionType === "filesystem_read" && isExecSinkStage(right)) {
+    if (seenAnyRead && isExecSinkStage(right)) {
       return [
         "ask",
         `local code execution: ${right.tokens[0]} receives file input`,
