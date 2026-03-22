@@ -286,6 +286,10 @@ describe("env var exec-sink detection", () => {
     const result = classifyCommand("LD_PRELOAD=/evil.so ls");
     expect(result.finalDecision).toBe("ask");
   });
+  test("GIT_ASKPASS=evil git fetch → ask (exec sink)", () => {
+    const result = classifyCommand("GIT_ASKPASS=evil git fetch");
+    expect(result.finalDecision).toBe("ask");
+  });
 });
 
 describe("gh api integration", () => {
