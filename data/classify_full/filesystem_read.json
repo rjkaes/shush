@@ -1272,6 +1272,39 @@
     "jq"
   ],
   [
+    "kubectl",
+    "api-resources"
+  ],
+  [
+    "kubectl",
+    "config",
+    "view"
+  ],
+  [
+    "kubectl",
+    "describe"
+  ],
+  [
+    "kubectl",
+    "explain"
+  ],
+  [
+    "kubectl",
+    "get"
+  ],
+  [
+    "kubectl",
+    "logs"
+  ],
+  [
+    "kubectl",
+    "top"
+  ],
+  [
+    "kubectl",
+    "version"
+  ],
+  [
     "last"
   ],
   [

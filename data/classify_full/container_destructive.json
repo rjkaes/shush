@@ -115,7 +115,51 @@
   ],
   [
     "kubectl",
+    "apply"
+  ],
+  [
+    "kubectl",
+    "cordon"
+  ],
+  [
+    "kubectl",
+    "create"
+  ],
+  [
+    "kubectl",
     "delete"
+  ],
+  [
+    "kubectl",
+    "drain"
+  ],
+  [
+    "kubectl",
+    "edit"
+  ],
+  [
+    "kubectl",
+    "patch"
+  ],
+  [
+    "kubectl",
+    "replace"
+  ],
+  [
+    "kubectl",
+    "rollout"
+  ],
+  [
+    "kubectl",
+    "scale"
+  ],
+  [
+    "kubectl",
+    "set"
+  ],
+  [
+    "kubectl",
+    "taint"
   ],
   [
     "podman",

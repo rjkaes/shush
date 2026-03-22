@@ -179,26 +179,26 @@ describe("classifyCommand", () => {
     expect(classifyCommand("docker inspect alpine && rm -rf /").finalDecision).not.toBe("allow");
   });
 
-  // kubectl read commands (db_read)
-  test("kubectl get pods → allow (db_read)", () => {
+  // kubectl read commands (filesystem_read)
+  test("kubectl get pods → allow (filesystem_read)", () => {
     const result = classifyCommand("kubectl get pods");
     expect(result.finalDecision).toBe("allow");
-    expect(result.stages[0].actionType).toBe("db_read");
+    expect(result.stages[0].actionType).toBe("filesystem_read");
   });
-  test("kubectl describe pod foo → allow (db_read)", () => {
+  test("kubectl describe pod foo → allow (filesystem_read)", () => {
     const result = classifyCommand("kubectl describe pod foo");
     expect(result.finalDecision).toBe("allow");
-    expect(result.stages[0].actionType).toBe("db_read");
+    expect(result.stages[0].actionType).toBe("filesystem_read");
   });
-  test("kubectl logs my-pod → allow (db_read)", () => {
+  test("kubectl logs my-pod → allow (filesystem_read)", () => {
     const result = classifyCommand("kubectl logs my-pod");
     expect(result.finalDecision).toBe("allow");
-    expect(result.stages[0].actionType).toBe("db_read");
+    expect(result.stages[0].actionType).toBe("filesystem_read");
   });
-  test("kubectl config view → allow (db_read)", () => {
+  test("kubectl config view → allow (filesystem_read)", () => {
     const result = classifyCommand("kubectl config view");
     expect(result.finalDecision).toBe("allow");
-    expect(result.stages[0].actionType).toBe("db_read");
+    expect(result.stages[0].actionType).toBe("filesystem_read");
   });
   test("kubectl delete pod foo → not allow (mutations stay guarded)", () => {
     expect(classifyCommand("kubectl delete pod foo").finalDecision).not.toBe("allow");

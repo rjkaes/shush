@@ -352,11 +352,47 @@
     }
   },
   "kubectl": {
+    "apply": {
+      "_": "container_destructive"
+    },
+    "cordon": {
+      "_": "container_destructive"
+    },
+    "create": {
+      "_": "container_destructive"
+    },
     "delete": {
       "_": "container_destructive"
     },
-    "api-resources": {
-      "_": "db_read"
+    "drain": {
+      "_": "container_destructive"
+    },
+    "edit": {
+      "_": "container_destructive"
+    },
+    "patch": {
+      "_": "container_destructive"
+    },
+    "replace": {
+      "_": "container_destructive"
+    },
+    "rollout": {
+      "_": "container_destructive",
+      "history": {
+        "_": "db_read"
+      },
+      "status": {
+        "_": "db_read"
+      }
+    },
+    "scale": {
+      "_": "container_destructive"
+    },
+    "set": {
+      "_": "container_destructive"
+    },
+    "taint": {
+      "_": "container_destructive"
     },
     "api-versions": {
       "_": "db_read"
@@ -386,49 +422,41 @@
         "_": "db_read"
       },
       "view": {
-        "_": "db_read"
+        "_": "filesystem_read"
       }
-    },
-    "describe": {
-      "_": "db_read"
     },
     "diff": {
       "_": "db_read"
     },
-    "explain": {
-      "_": "db_read"
-    },
-    "get": {
-      "_": "db_read"
-    },
-    "logs": {
-      "_": "db_read"
-    },
-    "rollout": {
-      "history": {
-        "_": "db_read"
-      },
-      "status": {
-        "_": "db_read"
-      }
-    },
-    "top": {
-      "_": "db_read"
-    },
-    "version": {
-      "_": "db_read"
-    },
     "wait": {
       "_": "db_read"
+    },
+    "api-resources": {
+      "_": "filesystem_read"
+    },
+    "describe": {
+      "_": "filesystem_read"
+    },
+    "explain": {
+      "_": "filesystem_read"
+    },
+    "get": {
+      "_": "filesystem_read"
+    },
+    "logs": {
+      "_": "filesystem_read"
+    },
+    "top": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
     },
     "exec": {
       "_": "lang_exec"
     },
     "run": {
       "_": "lang_exec"
-    },
-    "apply": {
-      "_": "package_install"
     }
   },
   "podman": {

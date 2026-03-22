@@ -1,10 +1,6 @@
 [
   [
     "kubectl",
-    "api-resources"
-  ],
-  [
-    "kubectl",
     "api-versions"
   ],
   [
@@ -43,28 +39,7 @@
   ],
   [
     "kubectl",
-    "config",
-    "view"
-  ],
-  [
-    "kubectl",
-    "describe"
-  ],
-  [
-    "kubectl",
     "diff"
-  ],
-  [
-    "kubectl",
-    "explain"
-  ],
-  [
-    "kubectl",
-    "get"
-  ],
-  [
-    "kubectl",
-    "logs"
   ],
   [
     "kubectl",
@@ -75,14 +50,6 @@
     "kubectl",
     "rollout",
     "status"
-  ],
-  [
-    "kubectl",
-    "top"
-  ],
-  [
-    "kubectl",
-    "version"
   ],
   [
     "kubectl",
