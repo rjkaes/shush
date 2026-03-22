@@ -334,6 +334,21 @@
   ],
   [
     "git",
+    "config",
+    "--get"
+  ],
+  [
+    "git",
+    "config",
+    "--get-all"
+  ],
+  [
+    "git",
+    "config",
+    "--list"
+  ],
+  [
+    "git",
     "count-objects"
   ],
   [
@@ -466,6 +481,10 @@
   ],
   [
     "git",
+    "reflog"
+  ],
+  [
+    "git",
     "remote"
   ],
   [
@@ -527,6 +546,11 @@
     "git",
     "stash",
     "list"
+  ],
+  [
+    "git",
+    "stash",
+    "show"
   ],
   [
     "git",
