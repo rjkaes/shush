@@ -1,0 +1,14 @@
+[
+  [
+    "mvn",
+    "deploy"
+  ],
+  [
+    "mvn",
+    "release:perform"
+  ],
+  [
+    "mvn",
+    "site-deploy"
+  ]
+]

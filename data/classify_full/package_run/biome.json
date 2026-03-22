@@ -1,0 +1,14 @@
+[
+  [
+    "biome",
+    "check"
+  ],
+  [
+    "biome",
+    "format"
+  ],
+  [
+    "biome",
+    "lint"
+  ]
+]

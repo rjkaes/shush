@@ -1,0 +1,17 @@
+[
+  [
+    "dart",
+    "pub",
+    "add"
+  ],
+  [
+    "dart",
+    "pub",
+    "get"
+  ],
+  [
+    "dart",
+    "pub",
+    "upgrade"
+  ]
+]

@@ -1,0 +1,22 @@
+[
+  [
+    "asdf",
+    "--version"
+  ],
+  [
+    "asdf",
+    "current"
+  ],
+  [
+    "asdf",
+    "list"
+  ],
+  [
+    "asdf",
+    "where"
+  ],
+  [
+    "asdf",
+    "which"
+  ]
+]

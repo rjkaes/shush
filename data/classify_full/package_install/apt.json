@@ -1,0 +1,30 @@
+[
+  [
+    "apt",
+    "download"
+  ],
+  [
+    "apt",
+    "full-upgrade"
+  ],
+  [
+    "apt",
+    "install"
+  ],
+  [
+    "apt",
+    "reinstall"
+  ],
+  [
+    "apt",
+    "satisfy"
+  ],
+  [
+    "apt",
+    "update"
+  ],
+  [
+    "apt",
+    "upgrade"
+  ]
+]

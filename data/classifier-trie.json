@@ -932,13 +932,13 @@
   "fdisk": {
     "_": "disk_destructive"
   },
-  "mkfs": {
-    "_": "disk_destructive"
-  },
   "mkfs.btrfs": {
     "_": "disk_destructive"
   },
   "mkfs.ext4": {
+    "_": "disk_destructive"
+  },
+  "mkfs": {
     "_": "disk_destructive"
   },
   "mkfs.xfs": {
@@ -965,80 +965,6 @@
   "unlink": {
     "_": "filesystem_delete"
   },
-  "./gradlew": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "dependencies": {
-      "_": "filesystem_read"
-    },
-    "dependencyInsight": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "projects": {
-      "_": "filesystem_read"
-    },
-    "properties": {
-      "_": "filesystem_read"
-    },
-    "tasks": {
-      "_": "filesystem_read"
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "uploadArchives": {
-      "_": "network_write"
-    },
-    "assemble": {
-      "_": "package_install"
-    },
-    "bootJar": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "compileJava": {
-      "_": "package_install"
-    },
-    "compileKotlin": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "jar": {
-      "_": "package_install"
-    },
-    "publishToMavenLocal": {
-      "_": "package_install"
-    },
-    "war": {
-      "_": "package_install"
-    },
-    "bootRun": {
-      "_": "package_run"
-    },
-    "check": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    }
-  },
   "[": {
     "_": "filesystem_read"
   },
@@ -1056,6 +982,50 @@
   },
   "apropos": {
     "_": "filesystem_read"
+  },
+  "apt-get": {
+    "changelog": {
+      "_": "filesystem_read"
+    },
+    "check": {
+      "_": "filesystem_read"
+    },
+    "build-dep": {
+      "_": "package_install"
+    },
+    "dist-upgrade": {
+      "_": "package_install"
+    },
+    "download": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "source": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    },
+    "autoclean": {
+      "_": "package_uninstall"
+    },
+    "autoremove": {
+      "_": "package_uninstall"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    },
+    "purge": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    }
   },
   "apt": {
     "changelog": {
@@ -1095,50 +1065,6 @@
       "_": "package_install"
     },
     "satisfy": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    },
-    "autoclean": {
-      "_": "package_uninstall"
-    },
-    "autoremove": {
-      "_": "package_uninstall"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    },
-    "purge": {
-      "_": "package_uninstall"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    }
-  },
-  "apt-get": {
-    "changelog": {
-      "_": "filesystem_read"
-    },
-    "check": {
-      "_": "filesystem_read"
-    },
-    "build-dep": {
-      "_": "package_install"
-    },
-    "dist-upgrade": {
-      "_": "package_install"
-    },
-    "download": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "source": {
       "_": "package_install"
     },
     "update": {
@@ -1714,12 +1640,12 @@
   "cksum": {
     "_": "filesystem_read"
   },
-  "clang": {
+  "clang++": {
     "--version": {
       "_": "filesystem_read"
     }
   },
-  "clang++": {
+  "clang": {
     "--version": {
       "_": "filesystem_read"
     }

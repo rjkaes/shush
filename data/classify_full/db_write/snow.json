@@ -1,0 +1,26 @@
+[
+  [
+    "snow",
+    "sql"
+  ],
+  [
+    "snow",
+    "sql",
+    "--filename"
+  ],
+  [
+    "snow",
+    "sql",
+    "--query"
+  ],
+  [
+    "snow",
+    "sql",
+    "-f"
+  ],
+  [
+    "snow",
+    "sql",
+    "-q"
+  ]
+]

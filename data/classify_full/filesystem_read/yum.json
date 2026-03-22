@@ -1,0 +1,26 @@
+[
+  [
+    "yum",
+    "check-update"
+  ],
+  [
+    "yum",
+    "deplist"
+  ],
+  [
+    "yum",
+    "info"
+  ],
+  [
+    "yum",
+    "list"
+  ],
+  [
+    "yum",
+    "provides"
+  ],
+  [
+    "yum",
+    "search"
+  ]
+]

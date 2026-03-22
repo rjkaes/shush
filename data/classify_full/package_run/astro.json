@@ -1,0 +1,10 @@
+[
+  [
+    "astro",
+    "build"
+  ],
+  [
+    "astro",
+    "dev"
+  ]
+]

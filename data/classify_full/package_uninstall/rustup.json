@@ -1,0 +1,22 @@
+[
+  [
+    "rustup",
+    "component",
+    "remove"
+  ],
+  [
+    "rustup",
+    "self",
+    "uninstall"
+  ],
+  [
+    "rustup",
+    "target",
+    "remove"
+  ],
+  [
+    "rustup",
+    "toolchain",
+    "uninstall"
+  ]
+]

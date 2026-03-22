@@ -1,0 +1,30 @@
+[
+  [
+    "gradlew",
+    "--version"
+  ],
+  [
+    "gradlew",
+    "dependencies"
+  ],
+  [
+    "gradlew",
+    "dependencyInsight"
+  ],
+  [
+    "gradlew",
+    "help"
+  ],
+  [
+    "gradlew",
+    "projects"
+  ],
+  [
+    "gradlew",
+    "properties"
+  ],
+  [
+    "gradlew",
+    "tasks"
+  ]
+]

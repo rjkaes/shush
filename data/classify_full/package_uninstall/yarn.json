@@ -1,0 +1,24 @@
+[
+  [
+    "yarn",
+    "autoclean"
+  ],
+  [
+    "yarn",
+    "cache",
+    "clean"
+  ],
+  [
+    "yarn",
+    "plugin",
+    "remove"
+  ],
+  [
+    "yarn",
+    "remove"
+  ],
+  [
+    "yarn",
+    "unlink"
+  ]
+]

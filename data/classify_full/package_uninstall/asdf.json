@@ -1,0 +1,11 @@
+[
+  [
+    "asdf",
+    "plugin",
+    "remove"
+  ],
+  [
+    "asdf",
+    "uninstall"
+  ]
+]

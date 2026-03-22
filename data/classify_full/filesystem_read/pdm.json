@@ -1,0 +1,14 @@
+[
+  [
+    "pdm",
+    "--version"
+  ],
+  [
+    "pdm",
+    "list"
+  ],
+  [
+    "pdm",
+    "show"
+  ]
+]

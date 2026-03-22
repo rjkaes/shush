@@ -1,0 +1,15 @@
+[
+  [
+    "docker",
+    "build"
+  ],
+  [
+    "docker",
+    "compose",
+    "pull"
+  ],
+  [
+    "docker",
+    "pull"
+  ]
+]

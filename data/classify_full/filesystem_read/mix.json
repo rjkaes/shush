@@ -1,0 +1,14 @@
+[
+  [
+    "mix",
+    "deps.tree"
+  ],
+  [
+    "mix",
+    "help"
+  ],
+  [
+    "mix",
+    "hex.info"
+  ]
+]

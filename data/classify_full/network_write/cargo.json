@@ -1,0 +1,14 @@
+[
+  [
+    "cargo",
+    "owner"
+  ],
+  [
+    "cargo",
+    "publish"
+  ],
+  [
+    "cargo",
+    "yank"
+  ]
+]

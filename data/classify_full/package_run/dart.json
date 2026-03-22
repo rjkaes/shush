@@ -1,0 +1,26 @@
+[
+  [
+    "dart",
+    "analyze"
+  ],
+  [
+    "dart",
+    "compile"
+  ],
+  [
+    "dart",
+    "fix"
+  ],
+  [
+    "dart",
+    "format"
+  ],
+  [
+    "dart",
+    "run"
+  ],
+  [
+    "dart",
+    "test"
+  ]
+]

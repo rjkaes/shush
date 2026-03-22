@@ -1,0 +1,15 @@
+[
+  [
+    "hatch",
+    "--version"
+  ],
+  [
+    "hatch",
+    "env",
+    "show"
+  ],
+  [
+    "hatch",
+    "version"
+  ]
+]

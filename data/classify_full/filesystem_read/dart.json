@@ -1,0 +1,10 @@
+[
+  [
+    "dart",
+    "--version"
+  ],
+  [
+    "dart",
+    "info"
+  ]
+]

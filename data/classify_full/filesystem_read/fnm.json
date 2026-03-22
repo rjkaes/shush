@@ -1,0 +1,14 @@
+[
+  [
+    "fnm",
+    "--version"
+  ],
+  [
+    "fnm",
+    "current"
+  ],
+  [
+    "fnm",
+    "list"
+  ]
+]

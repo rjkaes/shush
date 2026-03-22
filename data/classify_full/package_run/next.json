@@ -1,0 +1,18 @@
+[
+  [
+    "next",
+    "build"
+  ],
+  [
+    "next",
+    "dev"
+  ],
+  [
+    "next",
+    "lint"
+  ],
+  [
+    "next",
+    "start"
+  ]
+]

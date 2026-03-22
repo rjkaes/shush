@@ -1,0 +1,17 @@
+[
+  [
+    "aws",
+    "cloudformation",
+    "delete-stack"
+  ],
+  [
+    "aws",
+    "ec2",
+    "terminate-instances"
+  ],
+  [
+    "aws",
+    "rds",
+    "delete-db-instance"
+  ]
+]

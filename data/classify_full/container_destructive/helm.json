@@ -1,0 +1,10 @@
+[
+  [
+    "helm",
+    "delete"
+  ],
+  [
+    "helm",
+    "uninstall"
+  ]
+]

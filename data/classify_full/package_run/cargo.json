@@ -1,0 +1,22 @@
+[
+  [
+    "cargo",
+    "bench"
+  ],
+  [
+    "cargo",
+    "fix"
+  ],
+  [
+    "cargo",
+    "fmt"
+  ],
+  [
+    "cargo",
+    "run"
+  ],
+  [
+    "cargo",
+    "test"
+  ]
+]

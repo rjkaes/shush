@@ -1,0 +1,10 @@
+[
+  [
+    "gradlew",
+    "publish"
+  ],
+  [
+    "gradlew",
+    "uploadArchives"
+  ]
+]

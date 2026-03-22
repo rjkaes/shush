@@ -1,0 +1,14 @@
+[
+  [
+    "gcloud",
+    "compute",
+    "instances",
+    "create"
+  ],
+  [
+    "gcloud",
+    "compute",
+    "instances",
+    "delete"
+  ]
+]

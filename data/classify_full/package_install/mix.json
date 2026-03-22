@@ -1,0 +1,14 @@
+[
+  [
+    "mix",
+    "deps.get"
+  ],
+  [
+    "mix",
+    "deps.update"
+  ],
+  [
+    "mix",
+    "hex.install"
+  ]
+]

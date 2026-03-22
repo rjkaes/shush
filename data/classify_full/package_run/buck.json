@@ -1,0 +1,14 @@
+[
+  [
+    "buck",
+    "build"
+  ],
+  [
+    "buck",
+    "run"
+  ],
+  [
+    "buck",
+    "test"
+  ]
+]

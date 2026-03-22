@@ -1,0 +1,10 @@
+[
+  [
+    "scala",
+    "--version"
+  ],
+  [
+    "scala",
+    "-version"
+  ]
+]

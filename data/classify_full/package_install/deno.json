@@ -1,0 +1,10 @@
+[
+  [
+    "deno",
+    "add"
+  ],
+  [
+    "deno",
+    "install"
+  ]
+]

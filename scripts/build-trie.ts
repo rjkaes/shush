@@ -1,13 +1,17 @@
 // build-trie.ts
 //
-// Compiles data/classify_full/*.json into a pre-built trie at
-// data/classifier-trie.json. Run at build time so the trie does not
+// Compiles data/classify_full/<action_type>/<command>.json into a pre-built
+// trie at data/classifier-trie.json. Run at build time so the trie does not
 // need to be reconstructed on every CLI invocation.
+//
+// Each action type is a directory under data/classify_full/. Inside each
+// directory, per-command JSON files contain arrays of string-array prefixes
+// (e.g. [["git", "status"], ["git", "log", "--oneline"]]).
 //
 // Usage: bun run scripts/build-trie.ts
 
-import { readdir } from "node:fs/promises";
-import { basename, resolve } from "node:path";
+import { readdirSync, statSync } from "node:fs";
+import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dir, "..");
 const INPUT_DIR = resolve(ROOT, "data", "classify_full");
@@ -19,41 +23,52 @@ interface TrieNode {
 }
 
 async function main(): Promise<void> {
-  const entries = await readdir(INPUT_DIR);
-  const files = entries.filter((f) => f.endsWith(".json")).sort();
+  const actionDirs = readdirSync(INPUT_DIR)
+    .filter((d) => statSync(resolve(INPUT_DIR, d)).isDirectory())
+    .sort();
 
   const root: TrieNode = {};
+  let totalFiles = 0;
 
-  for (const file of files) {
-    const actionType = basename(file, ".json");
-    const raw = await Bun.file(resolve(INPUT_DIR, file)).json();
+  for (const actionType of actionDirs) {
+    const dir = resolve(INPUT_DIR, actionType);
+    const cmdFiles = readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .sort();
 
-    if (
-      !Array.isArray(raw) ||
-      !raw.every(
-        (arr: unknown) =>
-          Array.isArray(arr) && arr.every((s: unknown) => typeof s === "string"),
-      )
-    ) {
-      throw new Error(`${file}: expected JSON array of string arrays`);
-    }
+    for (const cmdFile of cmdFiles) {
+      const raw = await Bun.file(resolve(dir, cmdFile)).json();
 
-    for (const prefix of raw as string[][]) {
-      let node = root;
-      for (const token of prefix) {
-        if (!(token in node) || typeof node[token] === "string") {
-          node[token] = {};
-        }
-        node = node[token] as TrieNode;
+      if (
+        !Array.isArray(raw) ||
+        !raw.every(
+          (arr: unknown) =>
+            Array.isArray(arr) && arr.every((s: unknown) => typeof s === "string"),
+        )
+      ) {
+        throw new Error(`${actionType}/${cmdFile}: expected JSON array of string arrays`);
       }
-      node._ = actionType;
+
+      for (const prefix of raw as string[][]) {
+        let node = root;
+        for (const token of prefix) {
+          if (!(token in node) || typeof node[token] === "string") {
+            node[token] = {};
+          }
+          node = node[token] as TrieNode;
+        }
+        node._ = actionType;
+      }
+
+      totalFiles++;
     }
   }
 
   await Bun.write(OUTPUT_FILE, JSON.stringify(root, null, 2) + "\n");
 
-  const count = files.length;
-  console.log(`Built ${OUTPUT_FILE} from ${count} source files.`);
+  console.log(
+    `Built ${OUTPUT_FILE} from ${totalFiles} command files across ${actionDirs.length} action types.`,
+  );
 }
 
 await main();

@@ -1,0 +1,26 @@
+[
+  [
+    "bun",
+    "create"
+  ],
+  [
+    "bun",
+    "exec"
+  ],
+  [
+    "bun",
+    "repl"
+  ],
+  [
+    "bun",
+    "run"
+  ],
+  [
+    "bun",
+    "test"
+  ],
+  [
+    "bun",
+    "x"
+  ]
+]

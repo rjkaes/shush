@@ -1,0 +1,18 @@
+[
+  [
+    "stack",
+    "build"
+  ],
+  [
+    "stack",
+    "exec"
+  ],
+  [
+    "stack",
+    "run"
+  ],
+  [
+    "stack",
+    "test"
+  ]
+]

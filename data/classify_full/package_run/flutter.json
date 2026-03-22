@@ -1,0 +1,27 @@
+[
+  [
+    "flutter",
+    "analyze"
+  ],
+  [
+    "flutter",
+    "build"
+  ],
+  [
+    "flutter",
+    "gen-l10n"
+  ],
+  [
+    "flutter",
+    "pub",
+    "run"
+  ],
+  [
+    "flutter",
+    "run"
+  ],
+  [
+    "flutter",
+    "test"
+  ]
+]

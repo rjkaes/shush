@@ -1,0 +1,22 @@
+[
+  [
+    "apt",
+    "autoclean"
+  ],
+  [
+    "apt",
+    "autoremove"
+  ],
+  [
+    "apt",
+    "clean"
+  ],
+  [
+    "apt",
+    "purge"
+  ],
+  [
+    "apt",
+    "remove"
+  ]
+]

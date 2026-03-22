@@ -1,0 +1,19 @@
+[
+  [
+    "npm",
+    "cache",
+    "clean"
+  ],
+  [
+    "npm",
+    "prune"
+  ],
+  [
+    "npm",
+    "uninstall"
+  ],
+  [
+    "npm",
+    "unlink"
+  ]
+]

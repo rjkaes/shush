@@ -1,0 +1,14 @@
+[
+  [
+    "cmake",
+    "--help"
+  ],
+  [
+    "cmake",
+    "--system-information"
+  ],
+  [
+    "cmake",
+    "--version"
+  ]
+]

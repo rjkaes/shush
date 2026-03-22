@@ -1,0 +1,14 @@
+[
+  [
+    "cabal",
+    "--version"
+  ],
+  [
+    "cabal",
+    "info"
+  ],
+  [
+    "cabal",
+    "list"
+  ]
+]

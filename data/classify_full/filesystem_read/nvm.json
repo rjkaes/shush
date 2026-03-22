@@ -1,0 +1,26 @@
+[
+  [
+    "nvm",
+    "--version"
+  ],
+  [
+    "nvm",
+    "current"
+  ],
+  [
+    "nvm",
+    "list"
+  ],
+  [
+    "nvm",
+    "ls"
+  ],
+  [
+    "nvm",
+    "version"
+  ],
+  [
+    "nvm",
+    "which"
+  ]
+]

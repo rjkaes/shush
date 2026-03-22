@@ -1,0 +1,18 @@
+[
+  [
+    "yum",
+    "autoremove"
+  ],
+  [
+    "yum",
+    "clean"
+  ],
+  [
+    "yum",
+    "erase"
+  ],
+  [
+    "yum",
+    "remove"
+  ]
+]

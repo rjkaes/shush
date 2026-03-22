@@ -1,0 +1,10 @@
+[
+  [
+    "javac",
+    "--version"
+  ],
+  [
+    "javac",
+    "-version"
+  ]
+]

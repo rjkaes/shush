@@ -1,0 +1,17 @@
+[
+  [
+    "snowsql"
+  ],
+  [
+    "snowsql",
+    "--query"
+  ],
+  [
+    "snowsql",
+    "-f"
+  ],
+  [
+    "snowsql",
+    "-q"
+  ]
+]

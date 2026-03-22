@@ -1,0 +1,10 @@
+[
+  [
+    "lein",
+    "classpath"
+  ],
+  [
+    "lein",
+    "version"
+  ]
+]

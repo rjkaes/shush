@@ -1,0 +1,10 @@
+[
+  [
+    "terraform",
+    "get"
+  ],
+  [
+    "terraform",
+    "init"
+  ]
+]

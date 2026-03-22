@@ -1,0 +1,17 @@
+[
+  [
+    "xcodebuild"
+  ],
+  [
+    "xcodebuild",
+    "build"
+  ],
+  [
+    "xcodebuild",
+    "clean"
+  ],
+  [
+    "xcodebuild",
+    "test"
+  ]
+]

@@ -1,0 +1,10 @@
+[
+  [
+    "git",
+    "daemon"
+  ],
+  [
+    "git",
+    "http-backend"
+  ]
+]

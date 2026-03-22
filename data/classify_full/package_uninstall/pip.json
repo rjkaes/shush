@@ -1,0 +1,16 @@
+[
+  [
+    "pip",
+    "cache",
+    "purge"
+  ],
+  [
+    "pip",
+    "cache",
+    "remove"
+  ],
+  [
+    "pip",
+    "uninstall"
+  ]
+]

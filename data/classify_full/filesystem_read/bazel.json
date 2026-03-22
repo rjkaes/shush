@@ -1,0 +1,18 @@
+[
+  [
+    "bazel",
+    "help"
+  ],
+  [
+    "bazel",
+    "info"
+  ],
+  [
+    "bazel",
+    "query"
+  ],
+  [
+    "bazel",
+    "version"
+  ]
+]

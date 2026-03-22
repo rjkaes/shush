@@ -1,0 +1,32 @@
+[
+  [
+    "rustup",
+    "--version"
+  ],
+  [
+    "rustup",
+    "completions"
+  ],
+  [
+    "rustup",
+    "doc"
+  ],
+  [
+    "rustup",
+    "show"
+  ],
+  [
+    "rustup",
+    "target",
+    "list"
+  ],
+  [
+    "rustup",
+    "toolchain",
+    "list"
+  ],
+  [
+    "rustup",
+    "which"
+  ]
+]

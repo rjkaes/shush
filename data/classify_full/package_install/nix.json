@@ -1,0 +1,15 @@
+[
+  [
+    "nix",
+    "build"
+  ],
+  [
+    "nix",
+    "develop"
+  ],
+  [
+    "nix",
+    "profile",
+    "install"
+  ]
+]

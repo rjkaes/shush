@@ -1,0 +1,18 @@
+[
+  [
+    "pdm",
+    "add"
+  ],
+  [
+    "pdm",
+    "install"
+  ],
+  [
+    "pdm",
+    "lock"
+  ],
+  [
+    "pdm",
+    "update"
+  ]
+]

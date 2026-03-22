@@ -1,0 +1,21 @@
+[
+  [
+    "swift",
+    "--version"
+  ],
+  [
+    "swift",
+    "package",
+    "describe"
+  ],
+  [
+    "swift",
+    "package",
+    "dump-package"
+  ],
+  [
+    "swift",
+    "package",
+    "show-dependencies"
+  ]
+]

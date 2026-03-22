@@ -1,0 +1,18 @@
+[
+  [
+    "deno",
+    "--version"
+  ],
+  [
+    "deno",
+    "doc"
+  ],
+  [
+    "deno",
+    "info"
+  ],
+  [
+    "deno",
+    "types"
+  ]
+]

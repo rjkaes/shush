@@ -1,0 +1,18 @@
+[
+  [
+    "buf",
+    "breaking"
+  ],
+  [
+    "buf",
+    "build"
+  ],
+  [
+    "buf",
+    "generate"
+  ],
+  [
+    "buf",
+    "lint"
+  ]
+]

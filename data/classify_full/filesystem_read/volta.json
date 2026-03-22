@@ -1,0 +1,14 @@
+[
+  [
+    "volta",
+    "--version"
+  ],
+  [
+    "volta",
+    "list"
+  ],
+  [
+    "volta",
+    "which"
+  ]
+]

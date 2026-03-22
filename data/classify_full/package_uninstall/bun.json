@@ -1,0 +1,16 @@
+[
+  [
+    "bun",
+    "pm",
+    "cache",
+    "rm"
+  ],
+  [
+    "bun",
+    "remove"
+  ],
+  [
+    "bun",
+    "unlink"
+  ]
+]

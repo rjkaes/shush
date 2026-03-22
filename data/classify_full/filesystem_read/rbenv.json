@@ -1,0 +1,22 @@
+[
+  [
+    "rbenv",
+    "--version"
+  ],
+  [
+    "rbenv",
+    "commands"
+  ],
+  [
+    "rbenv",
+    "version"
+  ],
+  [
+    "rbenv",
+    "versions"
+  ],
+  [
+    "rbenv",
+    "which"
+  ]
+]

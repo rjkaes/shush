@@ -1,0 +1,10 @@
+[
+  [
+    "apt-get",
+    "changelog"
+  ],
+  [
+    "apt-get",
+    "check"
+  ]
+]

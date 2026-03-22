@@ -1,0 +1,15 @@
+[
+  [
+    "podman",
+    "build"
+  ],
+  [
+    "podman",
+    "compose",
+    "pull"
+  ],
+  [
+    "podman",
+    "pull"
+  ]
+]

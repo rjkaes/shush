@@ -1,0 +1,13 @@
+[
+  [
+    "mysql"
+  ],
+  [
+    "mysql",
+    "--execute"
+  ],
+  [
+    "mysql",
+    "-e"
+  ]
+]

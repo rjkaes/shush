@@ -1,0 +1,24 @@
+[
+  [
+    "poetry",
+    "--version"
+  ],
+  [
+    "poetry",
+    "check"
+  ],
+  [
+    "poetry",
+    "env",
+    "info"
+  ],
+  [
+    "poetry",
+    "env",
+    "list"
+  ],
+  [
+    "poetry",
+    "show"
+  ]
+]

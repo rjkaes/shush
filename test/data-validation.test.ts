@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { readdirSync, readFileSync } from "fs";
-import { join, basename } from "path";
+import { readdirSync, readFileSync, statSync } from "fs";
+import { join } from "path";
 import type { Decision } from "../src/types";
 
 const DATA_DIR = join(import.meta.dir, "..", "data");
@@ -15,8 +15,9 @@ const policiesJson: Record<string, string> = JSON.parse(
 
 const VALID_DECISIONS: Decision[] = ["allow", "context", "ask", "block"];
 
-const classifyFiles = readdirSync(CLASSIFY_DIR).filter((f) =>
-  f.endsWith(".json"),
+/** All action-type directories under classify_full/. */
+const actionDirs = readdirSync(CLASSIFY_DIR).filter((d) =>
+  statSync(join(CLASSIFY_DIR, d)).isDirectory(),
 );
 
 /** Compare two string arrays element-by-element (lexicographic). */
@@ -29,27 +30,24 @@ function compareEntries(a: string[], b: string[]): number {
   return a.length - b.length;
 }
 
-describe("classify_full JSON structure", () => {
-  for (const file of classifyFiles) {
-    test(`${file} parses as an array of string arrays`, () => {
-      const raw = readFileSync(join(CLASSIFY_DIR, file), "utf-8");
-      const parsed = JSON.parse(raw);
-      expect(Array.isArray(parsed)).toBe(true);
-      for (const entry of parsed) {
-        expect(Array.isArray(entry)).toBe(true);
-        for (const element of entry) {
-          expect(typeof element).toBe("string");
-        }
-      }
-    });
-  }
-});
+/** Read all entries from a per-command JSON file. */
+function readCommandFile(actionType: string, file: string): string[][] {
+  return JSON.parse(
+    readFileSync(join(CLASSIFY_DIR, actionType, file), "utf-8"),
+  );
+}
 
-describe("classify_full filenames match types.json keys", () => {
-  for (const file of classifyFiles) {
-    const actionType = basename(file, ".json");
-    test(`${actionType} exists in types.json`, () => {
-      expect(typesJson).toHaveProperty(actionType);
+/** List all command JSON files in an action-type directory. */
+function commandFiles(actionType: string): string[] {
+  return readdirSync(join(CLASSIFY_DIR, actionType))
+    .filter((f) => f.endsWith(".json"))
+    .sort();
+}
+
+describe("action-type directories match types.json keys", () => {
+  for (const dir of actionDirs) {
+    test(`${dir} exists in types.json`, () => {
+      expect(typesJson).toHaveProperty(dir);
     });
   }
 });
@@ -76,62 +74,92 @@ describe("policies.json values are valid Decisions", () => {
   }
 });
 
-describe("no duplicate prefix entries within a single file", () => {
-  for (const file of classifyFiles) {
-    test(`${file} has no internal duplicates`, () => {
-      const parsed: string[][] = JSON.parse(
-        readFileSync(join(CLASSIFY_DIR, file), "utf-8"),
-      );
-      const seen = new Set<string>();
-      const duplicates: string[] = [];
-      for (const entry of parsed) {
-        const key = JSON.stringify(entry);
-        if (seen.has(key)) {
-          duplicates.push(key);
+describe("command files are valid JSON arrays of string arrays", () => {
+  for (const actionType of actionDirs) {
+    for (const file of commandFiles(actionType)) {
+      test(`${actionType}/${file} is valid`, () => {
+        const parsed = readCommandFile(actionType, file);
+        expect(Array.isArray(parsed)).toBe(true);
+        for (const entry of parsed) {
+          expect(Array.isArray(entry)).toBe(true);
+          for (const element of entry) {
+            expect(typeof element).toBe("string");
+          }
         }
-        seen.add(key);
-      }
-      expect(duplicates).toEqual([]);
-    });
+      });
+    }
   }
 });
 
-describe("no duplicate prefix entries across files", () => {
-  test("each prefix appears in exactly one file", () => {
+describe("command filenames match top-level command in entries", () => {
+  for (const actionType of actionDirs) {
+    for (const file of commandFiles(actionType)) {
+      test(`${actionType}/${file} entries start with "${file.replace(".json", "")}"`, () => {
+        const cmd = file.replace(".json", "");
+        const parsed = readCommandFile(actionType, file);
+        for (const entry of parsed) {
+          expect(entry[0]).toBe(cmd);
+        }
+      });
+    }
+  }
+});
+
+describe("no duplicate prefix entries within a command file", () => {
+  for (const actionType of actionDirs) {
+    for (const file of commandFiles(actionType)) {
+      test(`${actionType}/${file} has no internal duplicates`, () => {
+        const parsed = readCommandFile(actionType, file);
+        const seen = new Set<string>();
+        const duplicates: string[] = [];
+        for (const entry of parsed) {
+          const key = JSON.stringify(entry);
+          if (seen.has(key)) duplicates.push(key);
+          seen.add(key);
+        }
+        expect(duplicates).toEqual([]);
+      });
+    }
+  }
+});
+
+describe("no duplicate prefix entries across action types", () => {
+  test("each prefix appears in exactly one action type", () => {
     const seen = new Map<string, string>();
     const duplicates: string[] = [];
-    for (const file of classifyFiles) {
-      const parsed: string[][] = JSON.parse(
-        readFileSync(join(CLASSIFY_DIR, file), "utf-8"),
-      );
-      for (const entry of parsed) {
-        const key = JSON.stringify(entry);
-        const prev = seen.get(key);
-        if (prev !== undefined) {
-          duplicates.push(`${key} in both ${prev} and ${file}`);
+    for (const actionType of actionDirs) {
+      for (const file of commandFiles(actionType)) {
+        const parsed = readCommandFile(actionType, file);
+        for (const entry of parsed) {
+          const key = JSON.stringify(entry);
+          const prev = seen.get(key);
+          if (prev !== undefined) {
+            duplicates.push(`${key} in both ${prev} and ${actionType}/${file}`);
+          }
+          seen.set(key, `${actionType}/${file}`);
         }
-        seen.set(key, file);
       }
     }
     expect(duplicates).toEqual([]);
   });
 });
 
-describe("entries within each file are sorted", () => {
-  for (const file of classifyFiles) {
-    test(`${file} entries are in alphabetical order`, () => {
-      const parsed: string[][] = JSON.parse(
-        readFileSync(join(CLASSIFY_DIR, file), "utf-8"),
-      );
-      const unsorted: string[] = [];
-      for (let i = 1; i < parsed.length; i++) {
-        if (compareEntries(parsed[i - 1], parsed[i]) > 0) {
-          unsorted.push(
-            `${JSON.stringify(parsed[i - 1])} should come after ${JSON.stringify(parsed[i])}`,
-          );
+describe("entries within each command file are sorted", () => {
+  for (const actionType of actionDirs) {
+    for (const file of commandFiles(actionType)) {
+      test(`${actionType}/${file} entries are in alphabetical order`, () => {
+        const parsed = readCommandFile(actionType, file);
+        const unsorted: string[] = [];
+        for (let i = 1; i < parsed.length; i++) {
+          if (compareEntries(parsed[i - 1], parsed[i]) > 0) {
+            unsorted.push(
+              `${JSON.stringify(parsed[i])} should come before ${JSON.stringify(parsed[i - 1])}`,
+            );
+          }
         }
-      }
-      expect(unsorted).toEqual([]);
-    });
+        expect(unsorted).toEqual([]);
+      });
+    }
   }
 });
+

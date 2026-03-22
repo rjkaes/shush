@@ -1,0 +1,26 @@
+[
+  [
+    "bundle",
+    "check"
+  ],
+  [
+    "bundle",
+    "info"
+  ],
+  [
+    "bundle",
+    "list"
+  ],
+  [
+    "bundle",
+    "outdated"
+  ],
+  [
+    "bundle",
+    "show"
+  ],
+  [
+    "bundle",
+    "version"
+  ]
+]

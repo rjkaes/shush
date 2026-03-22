@@ -1,0 +1,7 @@
+[
+  [
+    "dotnet",
+    "build-server",
+    "shutdown"
+  ]
+]

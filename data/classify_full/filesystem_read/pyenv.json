@@ -1,0 +1,22 @@
+[
+  [
+    "pyenv",
+    "--version"
+  ],
+  [
+    "pyenv",
+    "commands"
+  ],
+  [
+    "pyenv",
+    "version"
+  ],
+  [
+    "pyenv",
+    "versions"
+  ],
+  [
+    "pyenv",
+    "which"
+  ]
+]

@@ -1,0 +1,28 @@
+[
+  [
+    "pnpm",
+    "env",
+    "remove"
+  ],
+  [
+    "pnpm",
+    "patch-remove"
+  ],
+  [
+    "pnpm",
+    "prune"
+  ],
+  [
+    "pnpm",
+    "remove"
+  ],
+  [
+    "pnpm",
+    "store",
+    "prune"
+  ],
+  [
+    "pnpm",
+    "unlink"
+  ]
+]

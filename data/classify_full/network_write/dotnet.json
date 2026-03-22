@@ -1,0 +1,12 @@
+[
+  [
+    "dotnet",
+    "nuget",
+    "delete"
+  ],
+  [
+    "dotnet",
+    "nuget",
+    "push"
+  ]
+]

@@ -1,0 +1,10 @@
+[
+  [
+    "stack",
+    "install"
+  ],
+  [
+    "stack",
+    "setup"
+  ]
+]

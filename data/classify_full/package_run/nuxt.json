@@ -1,0 +1,14 @@
+[
+  [
+    "nuxt",
+    "build"
+  ],
+  [
+    "nuxt",
+    "dev"
+  ],
+  [
+    "nuxt",
+    "generate"
+  ]
+]

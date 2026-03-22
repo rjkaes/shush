@@ -1,0 +1,23 @@
+[
+  [
+    "yarn",
+    "npm",
+    "publish"
+  ],
+  [
+    "yarn",
+    "npm",
+    "tag",
+    "add"
+  ],
+  [
+    "yarn",
+    "npm",
+    "tag",
+    "remove"
+  ],
+  [
+    "yarn",
+    "publish"
+  ]
+]

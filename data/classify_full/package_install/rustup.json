@@ -1,0 +1,29 @@
+[
+  [
+    "rustup",
+    "component",
+    "add"
+  ],
+  [
+    "rustup",
+    "default"
+  ],
+  [
+    "rustup",
+    "install"
+  ],
+  [
+    "rustup",
+    "override",
+    "set"
+  ],
+  [
+    "rustup",
+    "target",
+    "add"
+  ],
+  [
+    "rustup",
+    "update"
+  ]
+]

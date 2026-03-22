@@ -1,0 +1,30 @@
+[
+  [
+    "brew",
+    "autoremove"
+  ],
+  [
+    "brew",
+    "cleanup"
+  ],
+  [
+    "brew",
+    "remove"
+  ],
+  [
+    "brew",
+    "uninstall"
+  ],
+  [
+    "brew",
+    "unlink"
+  ],
+  [
+    "brew",
+    "untap"
+  ],
+  [
+    "brew",
+    "update-reset"
+  ]
+]

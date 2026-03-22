@@ -1,0 +1,14 @@
+[
+  [
+    "cabal",
+    "build"
+  ],
+  [
+    "cabal",
+    "run"
+  ],
+  [
+    "cabal",
+    "test"
+  ]
+]

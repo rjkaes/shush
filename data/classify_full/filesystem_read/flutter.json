@@ -1,0 +1,19 @@
+[
+  [
+    "flutter",
+    "--version"
+  ],
+  [
+    "flutter",
+    "config",
+    "--list"
+  ],
+  [
+    "flutter",
+    "devices"
+  ],
+  [
+    "flutter",
+    "doctor"
+  ]
+]

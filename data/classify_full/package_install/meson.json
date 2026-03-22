@@ -1,0 +1,12 @@
+[
+  [
+    "meson",
+    "subprojects",
+    "download"
+  ],
+  [
+    "meson",
+    "wrap",
+    "install"
+  ]
+]

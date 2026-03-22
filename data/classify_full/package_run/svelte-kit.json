@@ -1,0 +1,10 @@
+[
+  [
+    "svelte-kit",
+    "build"
+  ],
+  [
+    "svelte-kit",
+    "dev"
+  ]
+]

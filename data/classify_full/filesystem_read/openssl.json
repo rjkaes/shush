@@ -1,0 +1,18 @@
+[
+  [
+    "openssl",
+    "dgst"
+  ],
+  [
+    "openssl",
+    "md5"
+  ],
+  [
+    "openssl",
+    "sha1"
+  ],
+  [
+    "openssl",
+    "sha256"
+  ]
+]

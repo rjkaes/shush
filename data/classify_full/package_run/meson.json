@@ -1,0 +1,14 @@
+[
+  [
+    "meson",
+    "compile"
+  ],
+  [
+    "meson",
+    "setup"
+  ],
+  [
+    "meson",
+    "test"
+  ]
+]

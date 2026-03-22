@@ -1,0 +1,10 @@
+[
+  [
+    "diskutil",
+    "info"
+  ],
+  [
+    "diskutil",
+    "list"
+  ]
+]

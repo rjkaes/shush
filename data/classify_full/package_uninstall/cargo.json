@@ -1,0 +1,14 @@
+[
+  [
+    "cargo",
+    "clean"
+  ],
+  [
+    "cargo",
+    "remove"
+  ],
+  [
+    "cargo",
+    "uninstall"
+  ]
+]

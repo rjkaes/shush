@@ -1,0 +1,10 @@
+[
+  [
+    "remix",
+    "build"
+  ],
+  [
+    "remix",
+    "dev"
+  ]
+]

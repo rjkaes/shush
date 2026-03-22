@@ -1,0 +1,10 @@
+[
+  [
+    "bazel",
+    "fetch"
+  ],
+  [
+    "bazel",
+    "sync"
+  ]
+]

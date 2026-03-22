@@ -1,0 +1,34 @@
+[
+  [
+    "mvn",
+    "archetype:generate"
+  ],
+  [
+    "mvn",
+    "compile"
+  ],
+  [
+    "mvn",
+    "install"
+  ],
+  [
+    "mvn",
+    "package"
+  ],
+  [
+    "mvn",
+    "release:prepare"
+  ],
+  [
+    "mvn",
+    "site"
+  ],
+  [
+    "mvn",
+    "test-compile"
+  ],
+  [
+    "mvn",
+    "versions:set"
+  ]
+]

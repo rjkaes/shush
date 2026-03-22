@@ -1,0 +1,10 @@
+[
+  [
+    "java",
+    "--version"
+  ],
+  [
+    "java",
+    "-version"
+  ]
+]

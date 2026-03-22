@@ -1,0 +1,30 @@
+[
+  [
+    "pnpm",
+    "create"
+  ],
+  [
+    "pnpm",
+    "dlx"
+  ],
+  [
+    "pnpm",
+    "exec"
+  ],
+  [
+    "pnpm",
+    "install-test"
+  ],
+  [
+    "pnpm",
+    "run"
+  ],
+  [
+    "pnpm",
+    "start"
+  ],
+  [
+    "pnpm",
+    "test"
+  ]
+]

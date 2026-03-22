@@ -1,0 +1,10 @@
+[
+  [
+    "python3",
+    "--version"
+  ],
+  [
+    "python3",
+    "-V"
+  ]
+]

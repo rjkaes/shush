@@ -1,0 +1,35 @@
+[
+  [
+    "az",
+    "--version"
+  ],
+  [
+    "az",
+    "account",
+    "list"
+  ],
+  [
+    "az",
+    "account",
+    "show"
+  ],
+  [
+    "az",
+    "aks",
+    "list"
+  ],
+  [
+    "az",
+    "group",
+    "list"
+  ],
+  [
+    "az",
+    "version"
+  ],
+  [
+    "az",
+    "vm",
+    "list"
+  ]
+]

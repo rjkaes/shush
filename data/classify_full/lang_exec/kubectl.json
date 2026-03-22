@@ -1,0 +1,10 @@
+[
+  [
+    "kubectl",
+    "exec"
+  ],
+  [
+    "kubectl",
+    "run"
+  ]
+]

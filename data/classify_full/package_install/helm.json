@@ -1,0 +1,30 @@
+[
+  [
+    "helm",
+    "dependency",
+    "build"
+  ],
+  [
+    "helm",
+    "dependency",
+    "update"
+  ],
+  [
+    "helm",
+    "install"
+  ],
+  [
+    "helm",
+    "repo",
+    "add"
+  ],
+  [
+    "helm",
+    "repo",
+    "update"
+  ],
+  [
+    "helm",
+    "upgrade"
+  ]
+]

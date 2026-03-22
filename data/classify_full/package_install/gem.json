@@ -1,0 +1,26 @@
+[
+  [
+    "gem",
+    "build"
+  ],
+  [
+    "gem",
+    "fetch"
+  ],
+  [
+    "gem",
+    "install"
+  ],
+  [
+    "gem",
+    "pristine"
+  ],
+  [
+    "gem",
+    "unpack"
+  ],
+  [
+    "gem",
+    "update"
+  ]
+]

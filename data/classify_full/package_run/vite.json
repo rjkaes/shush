@@ -1,0 +1,13 @@
+[
+  [
+    "vite"
+  ],
+  [
+    "vite",
+    "build"
+  ],
+  [
+    "vite",
+    "preview"
+  ]
+]

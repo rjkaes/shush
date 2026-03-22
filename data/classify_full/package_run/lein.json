@@ -1,0 +1,22 @@
+[
+  [
+    "lein",
+    "compile"
+  ],
+  [
+    "lein",
+    "repl"
+  ],
+  [
+    "lein",
+    "run"
+  ],
+  [
+    "lein",
+    "test"
+  ],
+  [
+    "lein",
+    "uberjar"
+  ]
+]

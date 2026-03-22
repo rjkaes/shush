@@ -1,0 +1,17 @@
+[
+  [
+    "az",
+    "group",
+    "delete"
+  ],
+  [
+    "az",
+    "vm",
+    "create"
+  ],
+  [
+    "az",
+    "vm",
+    "delete"
+  ]
+]

@@ -1,0 +1,14 @@
+[
+  [
+    "bazel",
+    "build"
+  ],
+  [
+    "bazel",
+    "run"
+  ],
+  [
+    "bazel",
+    "test"
+  ]
+]

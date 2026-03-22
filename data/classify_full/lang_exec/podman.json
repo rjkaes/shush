@@ -1,0 +1,10 @@
+[
+  [
+    "podman",
+    "exec"
+  ],
+  [
+    "podman",
+    "run"
+  ]
+]

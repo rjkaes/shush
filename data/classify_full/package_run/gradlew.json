@@ -1,0 +1,18 @@
+[
+  [
+    "gradlew",
+    "bootRun"
+  ],
+  [
+    "gradlew",
+    "check"
+  ],
+  [
+    "gradlew",
+    "run"
+  ],
+  [
+    "gradlew",
+    "test"
+  ]
+]

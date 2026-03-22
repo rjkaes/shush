@@ -1,0 +1,24 @@
+[
+  [
+    "swift",
+    "build"
+  ],
+  [
+    "swift",
+    "package",
+    "generate-xcodeproj"
+  ],
+  [
+    "swift",
+    "package",
+    "update"
+  ],
+  [
+    "swift",
+    "run"
+  ],
+  [
+    "swift",
+    "test"
+  ]
+]

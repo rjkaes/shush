@@ -1,0 +1,22 @@
+[
+  [
+    "systemctl",
+    "disable"
+  ],
+  [
+    "systemctl",
+    "kill"
+  ],
+  [
+    "systemctl",
+    "restart"
+  ],
+  [
+    "systemctl",
+    "start"
+  ],
+  [
+    "systemctl",
+    "stop"
+  ]
+]

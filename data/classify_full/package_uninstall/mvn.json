@@ -1,0 +1,10 @@
+[
+  [
+    "mvn",
+    "clean"
+  ],
+  [
+    "mvn",
+    "dependency:purge-local-repository"
+  ]
+]

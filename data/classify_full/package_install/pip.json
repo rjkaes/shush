@@ -1,0 +1,18 @@
+[
+  [
+    "pip",
+    "download"
+  ],
+  [
+    "pip",
+    "install"
+  ],
+  [
+    "pip",
+    "lock"
+  ],
+  [
+    "pip",
+    "wheel"
+  ]
+]

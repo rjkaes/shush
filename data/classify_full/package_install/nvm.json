@@ -1,0 +1,14 @@
+[
+  [
+    "nvm",
+    "alias"
+  ],
+  [
+    "nvm",
+    "install"
+  ],
+  [
+    "nvm",
+    "use"
+  ]
+]

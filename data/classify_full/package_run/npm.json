@@ -1,0 +1,34 @@
+[
+  [
+    "npm",
+    "exec"
+  ],
+  [
+    "npm",
+    "install-ci-test"
+  ],
+  [
+    "npm",
+    "install-test"
+  ],
+  [
+    "npm",
+    "restart"
+  ],
+  [
+    "npm",
+    "run"
+  ],
+  [
+    "npm",
+    "start"
+  ],
+  [
+    "npm",
+    "stop"
+  ],
+  [
+    "npm",
+    "test"
+  ]
+]

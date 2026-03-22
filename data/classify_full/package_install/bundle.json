@@ -1,0 +1,14 @@
+[
+  [
+    "bundle",
+    "add"
+  ],
+  [
+    "bundle",
+    "install"
+  ],
+  [
+    "bundle",
+    "update"
+  ]
+]

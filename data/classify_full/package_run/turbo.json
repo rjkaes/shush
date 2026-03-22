@@ -1,0 +1,17 @@
+[
+  [
+    "turbo"
+  ],
+  [
+    "turbo",
+    "build"
+  ],
+  [
+    "turbo",
+    "run"
+  ],
+  [
+    "turbo",
+    "test"
+  ]
+]

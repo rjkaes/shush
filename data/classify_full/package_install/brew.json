@@ -1,0 +1,30 @@
+[
+  [
+    "brew",
+    "fetch"
+  ],
+  [
+    "brew",
+    "install"
+  ],
+  [
+    "brew",
+    "link"
+  ],
+  [
+    "brew",
+    "migrate"
+  ],
+  [
+    "brew",
+    "reinstall"
+  ],
+  [
+    "brew",
+    "update"
+  ],
+  [
+    "brew",
+    "upgrade"
+  ]
+]

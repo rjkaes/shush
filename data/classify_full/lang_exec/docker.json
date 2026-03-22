@@ -1,0 +1,10 @@
+[
+  [
+    "docker",
+    "exec"
+  ],
+  [
+    "docker",
+    "run"
+  ]
+]

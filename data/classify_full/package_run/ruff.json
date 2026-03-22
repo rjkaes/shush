@@ -1,0 +1,10 @@
+[
+  [
+    "ruff",
+    "check"
+  ],
+  [
+    "ruff",
+    "format"
+  ]
+]

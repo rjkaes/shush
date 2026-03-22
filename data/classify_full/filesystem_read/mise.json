@@ -1,0 +1,26 @@
+[
+  [
+    "mise",
+    "--version"
+  ],
+  [
+    "mise",
+    "current"
+  ],
+  [
+    "mise",
+    "list"
+  ],
+  [
+    "mise",
+    "ls"
+  ],
+  [
+    "mise",
+    "where"
+  ],
+  [
+    "mise",
+    "which"
+  ]
+]
