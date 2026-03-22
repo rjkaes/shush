@@ -8,6 +8,9 @@
     "ec2": {
       "terminate-instances": {
         "_": "container_destructive"
+      },
+      "describe-instances": {
+        "_": "filesystem_read"
       }
     },
     "rds": {
@@ -17,14 +20,76 @@
     },
     "s3": {
       "rm": {
-        "_": "container_destructive"
+        "_": "network_write"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      },
+      "cp": {
+        "_": "network_write"
+      },
+      "mv": {
+        "_": "network_write"
+      },
+      "sync": {
+        "_": "network_write"
+      }
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "configure": {
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "ecs": {
+      "describe-services": {
+        "_": "filesystem_read"
+      },
+      "list-clusters": {
+        "_": "filesystem_read"
+      },
+      "list-services": {
+        "_": "filesystem_read"
+      }
+    },
+    "iam": {
+      "get-user": {
+        "_": "filesystem_read"
+      },
+      "list-roles": {
+        "_": "filesystem_read"
+      }
+    },
+    "lambda": {
+      "list-functions": {
+        "_": "filesystem_read"
+      }
+    },
+    "logs": {
+      "describe-log-groups": {
+        "_": "filesystem_read"
+      }
+    },
+    "s3api": {
+      "list-buckets": {
+        "_": "filesystem_read"
+      }
+    },
+    "sts": {
+      "get-caller-identity": {
+        "_": "filesystem_read"
       }
     }
   },
   "az": {
     "group": {
       "delete": {
-        "_": "container_destructive"
+        "_": "network_write"
+      },
+      "list": {
+        "_": "filesystem_read"
       }
     },
     "sql": {
@@ -36,8 +101,33 @@
     },
     "vm": {
       "delete": {
-        "_": "container_destructive"
+        "_": "network_write"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "create": {
+        "_": "network_write"
       }
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "account": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "aks": {
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "version": {
+      "_": "filesystem_read"
     }
   },
   "docker": {
@@ -279,7 +369,13 @@
     "compute": {
       "instances": {
         "delete": {
-          "_": "container_destructive"
+          "_": "network_write"
+        },
+        "list": {
+          "_": "filesystem_read"
+        },
+        "create": {
+          "_": "network_write"
         }
       }
     },
@@ -289,6 +385,46 @@
           "_": "container_destructive"
         }
       }
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "auth": {
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "config": {
+      "get": {
+        "_": "filesystem_read"
+      },
+      "get-value": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "container": {
+      "clusters": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "projects": {
+      "describe": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "version": {
+      "_": "filesystem_read"
     }
   },
   "helm": {
@@ -1411,6 +1547,12 @@
     "_": "filesystem_read"
   },
   "cargo": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
     "clippy": {
       "_": "filesystem_read"
     },
@@ -1531,6 +1673,16 @@
   },
   "cksum": {
     "_": "filesystem_read"
+  },
+  "clang": {
+    "--version": {
+      "_": "filesystem_read"
+    }
+  },
+  "clang++": {
+    "--version": {
+      "_": "filesystem_read"
+    }
   },
   "cmake": {
     "--help": {
@@ -2168,6 +2320,16 @@
   "fx": {
     "_": "filesystem_read"
   },
+  "g++": {
+    "--version": {
+      "_": "filesystem_read"
+    }
+  },
+  "gcc": {
+    "--version": {
+      "_": "filesystem_read"
+    }
+  },
   "gem": {
     "check": {
       "_": "filesystem_read"
@@ -2249,6 +2411,9 @@
     "_": "filesystem_read"
   },
   "gh": {
+    "--version": {
+      "_": "filesystem_read"
+    },
     "alias": {
       "list": {
         "_": "filesystem_read"
@@ -2316,6 +2481,12 @@
       "exec": {
         "_": "lang_exec"
       }
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
     },
     "auth": {
       "login": {
@@ -3178,6 +3349,22 @@
   "iostat": {
     "_": "filesystem_read"
   },
+  "java": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-version": {
+      "_": "filesystem_read"
+    }
+  },
+  "javac": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-version": {
+      "_": "filesystem_read"
+    }
+  },
   "join": {
     "_": "filesystem_read"
   },
@@ -3359,6 +3546,12 @@
     "--help": {
       "_": "filesystem_read"
     },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-v": {
+      "_": "filesystem_read"
+    },
     "-version": {
       "_": "filesystem_read"
     },
@@ -3453,11 +3646,38 @@
   "nice": {
     "_": "filesystem_read"
   },
+  "nix": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "develop": {
+      "_": "package_install"
+    },
+    "profile": {
+      "install": {
+        "_": "package_install"
+      }
+    }
+  },
   "nl": {
     "_": "filesystem_read"
   },
   "nm": {
     "_": "filesystem_read"
+  },
+  "node": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-v": {
+      "_": "filesystem_read"
+    },
+    "-e": {
+      "_": "lang_exec"
+    }
   },
   "nohup": {
     "_": "filesystem_read"
@@ -3711,6 +3931,12 @@
     "_": "filesystem_read"
   },
   "pip": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
     "cache": {
       "dir": {
         "_": "filesystem_read"
@@ -3791,6 +4017,12 @@
     }
   },
   "pip3": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
     "check": {
       "_": "filesystem_read"
     },
@@ -4040,6 +4272,99 @@
   "pwd": {
     "_": "filesystem_read"
   },
+  "python": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "-c": {
+      "_": "lang_exec"
+    },
+    "-m": {
+      "build": {
+        "_": "package_install"
+      },
+      "pip": {
+        "install": {
+          "_": "package_install"
+        }
+      },
+      "venv": {
+        "_": "package_install"
+      },
+      "bandit": {
+        "_": "package_run"
+      },
+      "black": {
+        "_": "package_run"
+      },
+      "flake8": {
+        "_": "package_run"
+      },
+      "isort": {
+        "_": "package_run"
+      },
+      "mypy": {
+        "_": "package_run"
+      },
+      "pylint": {
+        "_": "package_run"
+      },
+      "pytest": {
+        "_": "package_run"
+      },
+      "ruff": {
+        "_": "package_run"
+      },
+      "unittest": {
+        "_": "package_run"
+      }
+    }
+  },
+  "python3": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "-c": {
+      "_": "lang_exec"
+    },
+    "-m": {
+      "pip": {
+        "install": {
+          "_": "package_install"
+        }
+      },
+      "bandit": {
+        "_": "package_run"
+      },
+      "black": {
+        "_": "package_run"
+      },
+      "flake8": {
+        "_": "package_run"
+      },
+      "isort": {
+        "_": "package_run"
+      },
+      "mypy": {
+        "_": "package_run"
+      },
+      "pylint": {
+        "_": "package_run"
+      },
+      "ruff": {
+        "_": "package_run"
+      },
+      "unittest": {
+        "_": "package_run"
+      }
+    }
+  },
   "rails": {
     "--version": {
       "_": "filesystem_read"
@@ -4090,6 +4415,14 @@
     },
     "-e": {
       "_": "lang_exec"
+    }
+  },
+  "rustc": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
     }
   },
   "sbt": {
@@ -4288,6 +4621,12 @@
     "_": "filesystem_read"
   },
   "uv": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
     "cache": {
       "dir": {
         "_": "filesystem_read"
@@ -4801,6 +5140,9 @@
       "list": {
         "_": "git_safe"
       },
+      "show": {
+        "_": "git_safe"
+      },
       "_": "git_write"
     },
     "annotate": {
@@ -4835,6 +5177,17 @@
     },
     "cherry": {
       "_": "git_safe"
+    },
+    "config": {
+      "--get": {
+        "_": "git_safe"
+      },
+      "--get-all": {
+        "_": "git_safe"
+      },
+      "--list": {
+        "_": "git_safe"
+      }
     },
     "column": {
       "_": "git_safe"
@@ -4936,6 +5289,9 @@
       "_": "git_safe"
     },
     "range-diff": {
+      "_": "git_safe"
+    },
+    "reflog": {
       "_": "git_safe"
     },
     "remote": {
@@ -5167,11 +5523,6 @@
   "crontab": {
     "_": "lang_exec"
   },
-  "node": {
-    "-e": {
-      "_": "lang_exec"
-    }
-  },
   "perl": {
     "-e": {
       "_": "lang_exec"
@@ -5180,87 +5531,6 @@
   "php": {
     "-r": {
       "_": "lang_exec"
-    }
-  },
-  "python": {
-    "-c": {
-      "_": "lang_exec"
-    },
-    "-m": {
-      "build": {
-        "_": "package_install"
-      },
-      "pip": {
-        "install": {
-          "_": "package_install"
-        }
-      },
-      "venv": {
-        "_": "package_install"
-      },
-      "bandit": {
-        "_": "package_run"
-      },
-      "black": {
-        "_": "package_run"
-      },
-      "flake8": {
-        "_": "package_run"
-      },
-      "isort": {
-        "_": "package_run"
-      },
-      "mypy": {
-        "_": "package_run"
-      },
-      "pylint": {
-        "_": "package_run"
-      },
-      "pytest": {
-        "_": "package_run"
-      },
-      "ruff": {
-        "_": "package_run"
-      },
-      "unittest": {
-        "_": "package_run"
-      }
-    }
-  },
-  "python3": {
-    "-c": {
-      "_": "lang_exec"
-    },
-    "-m": {
-      "pip": {
-        "install": {
-          "_": "package_install"
-        }
-      },
-      "bandit": {
-        "_": "package_run"
-      },
-      "black": {
-        "_": "package_run"
-      },
-      "flake8": {
-        "_": "package_run"
-      },
-      "isort": {
-        "_": "package_run"
-      },
-      "mypy": {
-        "_": "package_run"
-      },
-      "pylint": {
-        "_": "package_run"
-      },
-      "ruff": {
-        "_": "package_run"
-      },
-      "unittest": {
-        "_": "package_run"
-      }
     }
   },
   "sudo": {
@@ -5359,19 +5629,6 @@
     },
     "test": {
       "_": "package_run"
-    }
-  },
-  "nix": {
-    "build": {
-      "_": "package_install"
-    },
-    "develop": {
-      "_": "package_install"
-    },
-    "profile": {
-      "install": {
-        "_": "package_install"
-      }
     }
   },
   "nix-env": {

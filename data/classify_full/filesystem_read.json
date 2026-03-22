@@ -92,6 +92,103 @@
     "awk"
   ],
   [
+    "aws",
+    "--version"
+  ],
+  [
+    "aws",
+    "configure",
+    "list"
+  ],
+  [
+    "aws",
+    "ec2",
+    "describe-instances"
+  ],
+  [
+    "aws",
+    "ecs",
+    "describe-services"
+  ],
+  [
+    "aws",
+    "ecs",
+    "list-clusters"
+  ],
+  [
+    "aws",
+    "ecs",
+    "list-services"
+  ],
+  [
+    "aws",
+    "iam",
+    "get-user"
+  ],
+  [
+    "aws",
+    "iam",
+    "list-roles"
+  ],
+  [
+    "aws",
+    "lambda",
+    "list-functions"
+  ],
+  [
+    "aws",
+    "logs",
+    "describe-log-groups"
+  ],
+  [
+    "aws",
+    "s3",
+    "ls"
+  ],
+  [
+    "aws",
+    "s3api",
+    "list-buckets"
+  ],
+  [
+    "aws",
+    "sts",
+    "get-caller-identity"
+  ],
+  [
+    "az",
+    "--version"
+  ],
+  [
+    "az",
+    "account",
+    "list"
+  ],
+  [
+    "az",
+    "account",
+    "show"
+  ],
+  [
+    "az",
+    "aks",
+    "list"
+  ],
+  [
+    "az",
+    "group",
+    "list"
+  ],
+  [
+    "az",
+    "version"
+  ],
+  [
+    "az",
+    "vm",
+    "list"
+  ],
+  [
     "b2sum"
   ],
   [
@@ -365,6 +462,14 @@
   ],
   [
     "cargo",
+    "--version"
+  ],
+  [
+    "cargo",
+    "-V"
+  ],
+  [
+    "cargo",
     "clippy"
   ],
   [
@@ -422,6 +527,14 @@
   ],
   [
     "cksum"
+  ],
+  [
+    "clang",
+    "--version"
+  ],
+  [
+    "clang++",
+    "--version"
   ],
   [
     "cmake",
@@ -905,6 +1018,60 @@
     "finger"
   ],
   [
+    "gcloud",
+    "--version"
+  ],
+  [
+    "gcloud",
+    "auth",
+    "list"
+  ],
+  [
+    "gcloud",
+    "compute",
+    "instances",
+    "list"
+  ],
+  [
+    "gcloud",
+    "config",
+    "get"
+  ],
+  [
+    "gcloud",
+    "config",
+    "get-value"
+  ],
+  [
+    "gcloud",
+    "config",
+    "list"
+  ],
+  [
+    "gcloud",
+    "container",
+    "clusters",
+    "list"
+  ],
+  [
+    "gcloud",
+    "info"
+  ],
+  [
+    "gcloud",
+    "projects",
+    "describe"
+  ],
+  [
+    "gcloud",
+    "projects",
+    "list"
+  ],
+  [
+    "gcloud",
+    "version"
+  ],
+  [
     "flutter",
     "--version"
   ],
@@ -932,6 +1099,14 @@
   ],
   [
     "fx"
+  ],
+  [
+    "g++",
+    "--version"
+  ],
+  [
+    "gcc",
+    "--version"
   ],
   [
     "gem",
@@ -994,6 +1169,10 @@
   ],
   [
     "gh",
+    "--version"
+  ],
+  [
+    "gh",
     "alias",
     "list"
   ],
@@ -1020,6 +1199,14 @@
     "gh",
     "extension",
     "list"
+  ],
+  [
+    "gh",
+    "help"
+  ],
+  [
+    "gh",
+    "version"
   ],
   [
     "ghc",
@@ -1266,6 +1453,22 @@
     "iostat"
   ],
   [
+    "java",
+    "--version"
+  ],
+  [
+    "java",
+    "-version"
+  ],
+  [
+    "javac",
+    "--version"
+  ],
+  [
+    "javac",
+    "-version"
+  ],
+  [
     "join"
   ],
   [
@@ -1415,6 +1618,14 @@
   ],
   [
     "mvn",
+    "--version"
+  ],
+  [
+    "mvn",
+    "-v"
+  ],
+  [
+    "mvn",
     "-version"
   ],
   [
@@ -1468,10 +1679,22 @@
     "nice"
   ],
   [
+    "nix",
+    "--version"
+  ],
+  [
     "nl"
   ],
   [
     "nm"
+  ],
+  [
+    "node",
+    "--version"
+  ],
+  [
+    "node",
+    "-v"
   ],
   [
     "nohup"
@@ -1643,6 +1866,14 @@
   ],
   [
     "pip",
+    "--version"
+  ],
+  [
+    "pip",
+    "-V"
+  ],
+  [
+    "pip",
     "cache",
     "dir"
   ],
@@ -1715,6 +1946,14 @@
   [
     "pip",
     "show"
+  ],
+  [
+    "pip3",
+    "--version"
+  ],
+  [
+    "pip3",
+    "-V"
   ],
   [
     "pip3",
@@ -2004,6 +2243,22 @@
     "pwd"
   ],
   [
+    "python",
+    "--version"
+  ],
+  [
+    "python",
+    "-V"
+  ],
+  [
+    "python3",
+    "--version"
+  ],
+  [
+    "python3",
+    "-V"
+  ],
+  [
     "rails",
     "--version"
   ],
@@ -2025,6 +2280,14 @@
   [
     "ruby",
     "--version"
+  ],
+  [
+    "rustc",
+    "--version"
+  ],
+  [
+    "rustc",
+    "-V"
   ],
   [
     "sbt",
@@ -2201,6 +2464,14 @@
   ],
   [
     "uptime"
+  ],
+  [
+    "uv",
+    "--version"
+  ],
+  [
+    "uv",
+    "-V"
   ],
   [
     "uv",
