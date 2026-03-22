@@ -153,6 +153,64 @@ describe("node -e dangerous payloads → lang_exec (ask)", () => {
 });
 
 // ==============================================================================
+// Bun -e
+// ==============================================================================
+
+describe("bun -e safe payloads → package_run (allow)", () => {
+  const safe = [
+    `bun -e "console.log(JSON.parse('{\"a\":1}'))"`,
+    `bun -e "console.log(JSON.stringify({a:1}, null, 2))"`,
+    `bun -e "console.log(process.version)"`,
+    `bun -e "console.log(process.env.HOME)"`,
+    `bun -e "const p = require('path'); console.log(p.join('a','b'))"`,
+    `bun -e "console.log(Buffer.from('test').toString('base64'))"`,
+    `bun -e "console.log(require('os').platform())"`,
+    `bun -e "console.log(require('url').parse('http://x.com'))"`,
+    `bun -e "console.log(require('util').format('%s', 'hi'))"`,
+    `bun -e "console.log(require('crypto').randomUUID())"`,
+    `bun -e "console.log(1 + 2)"`,
+    `bun -e "const x = [1,2,3]; console.log(x.map(n => n*2))"`,
+    // --eval long form
+    `bun --eval "console.log(42)"`,
+    `bun --eval "console.log(require('path').join('a','b'))"`,
+  ];
+
+  for (const cmd of safe) {
+    test(cmd, () => {
+      const result = classifyCommand(cmd);
+      expect(result.stages[0]?.actionType).toBe("package_run");
+      expect(result.finalDecision).toBe("allow");
+    });
+  }
+});
+
+describe("bun -e dangerous payloads → lang_exec (ask)", () => {
+  const dangerous = [
+    [`bun -e "require('child_process').execSync('whoami')"`, "child_process"],
+    [`bun -e "require('fs').writeFileSync('/tmp/x', 'pwned')"`, "fs"],
+    [`bun -e "require('net').createServer()"`, "net"],
+    [`bun -e "require('http').createServer()"`, "http"],
+    [`bun -e "require('https').get('https://evil')"`, "https"],
+    [`bun -e "require('dns').resolve('evil.com')"`, "dns"],
+    [`bun -e "eval('console.log(1)')"`, "eval()"],
+    [`bun -e "new Function('return 1')()"`, "Function()"],
+    [`bun -e "import('fs').then(m => m.writeFileSync('/tmp/x','y'))"`, "dynamic import"],
+    // Variable expansion
+    [`bun -e "$CODE"`, "variable expansion"],
+    // --eval long form with dangerous payload
+    [`bun --eval "require('child_process').execSync('whoami')"`, "--eval child_process"],
+  ];
+
+  for (const [cmd, reason] of dangerous) {
+    test(`${reason}: ${cmd}`, () => {
+      const result = classifyCommand(cmd);
+      expect(result.stages[0]?.actionType).toBe("lang_exec");
+      expect(result.finalDecision).toBe("ask");
+    });
+  }
+});
+
+// ==============================================================================
 // Ruby -e
 // ==============================================================================
 
@@ -251,6 +309,24 @@ describe("inline code edge cases", () => {
 
   test("no-require ruby one-liner is safe", () => {
     const result = classifyCommand(`ruby -e "puts 42"`);
+    expect(result.stages[0]?.actionType).toBe("package_run");
+    expect(result.finalDecision).toBe("allow");
+  });
+
+  test("no-require bun one-liner is safe", () => {
+    const result = classifyCommand(`bun -e "console.log(42)"`);
+    expect(result.stages[0]?.actionType).toBe("package_run");
+    expect(result.finalDecision).toBe("allow");
+  });
+
+  test("bun --eval one-liner is safe", () => {
+    const result = classifyCommand(`bun --eval "console.log(42)"`);
+    expect(result.stages[0]?.actionType).toBe("package_run");
+    expect(result.finalDecision).toBe("allow");
+  });
+
+  test("node --eval one-liner is safe", () => {
+    const result = classifyCommand(`node --eval "console.log(42)"`);
     expect(result.stages[0]?.actionType).toBe("package_run");
     expect(result.finalDecision).toBe("allow");
   });

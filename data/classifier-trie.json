@@ -1446,6 +1446,12 @@
         "_": "package_install"
       }
     },
+    "--eval": {
+      "_": "lang_exec"
+    },
+    "-e": {
+      "_": "lang_exec"
+    },
     "publish": {
       "_": "network_write"
     },
@@ -3763,6 +3769,9 @@
     },
     "-v": {
       "_": "filesystem_read"
+    },
+    "--eval": {
+      "_": "lang_exec"
     },
     "-e": {
       "_": "lang_exec"

@@ -651,11 +651,12 @@ function classifyTee(tokens: string[]): string | null {
 // ==============================================================================
 
 // Maps command → flag that introduces inline code, so we can extract the payload.
-const INLINE_CODE_CMDS: Record<string, string> = {
-  python: "-c",
-  python3: "-c",
-  node: "-e",
-  ruby: "-e",
+const INLINE_CODE_CMDS: Record<string, string[]> = {
+  python: ["-c"],
+  python3: ["-c"],
+  node: ["-e", "--eval"],
+  bun: ["-e", "--eval"],
+  ruby: ["-e"],
 };
 
 // Python modules that are safe to import (no filesystem mutation, no network,
@@ -735,7 +736,7 @@ const RUBY_DANGEROUS = [
 ];
 
 /**
- * Classify inline code execution (python -c, node -e, ruby -e).
+ * Classify inline code execution (python -c, node -e, bun -e, ruby -e).
  *
  * If the payload only uses known-safe modules and avoids dangerous patterns,
  * returns PACKAGE_RUN (allow). This covers the common LLM pattern of running
@@ -754,7 +755,11 @@ function classifyInlineCode(tokens: string[]): string | null {
   if (!expectedFlag) return null;
 
   // Find the inline flag and extract the payload.
-  const flagIdx = tokens.indexOf(expectedFlag);
+  let flagIdx = -1;
+  for (const flag of expectedFlag) {
+    flagIdx = tokens.indexOf(flag);
+    if (flagIdx >= 0) break;
+  }
   if (flagIdx < 0 || flagIdx + 1 >= tokens.length) return null;
 
   const payload = tokens[flagIdx + 1];
@@ -766,7 +771,7 @@ function classifyInlineCode(tokens: string[]): string | null {
   if (cmd === "python" || cmd === "python3") {
     return classifyPythonPayload(payload);
   }
-  if (cmd === "node") {
+  if (cmd === "node" || cmd === "bun") {
     return classifyNodePayload(payload);
   }
   if (cmd === "ruby") {

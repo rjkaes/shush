@@ -1,5 +1,13 @@
 [
   [
+    "bun",
+    "--eval"
+  ],
+  [
+    "bun",
+    "-e"
+  ],
+  [
     "crontab"
   ],
   [
@@ -22,6 +30,10 @@
   [
     "kubectl",
     "run"
+  ],
+  [
+    "node",
+    "--eval"
   ],
   [
     "node",
