@@ -71,19 +71,128 @@ export function extractProcessSubs(command: string): { cleaned: string; subs: st
 
 /**
  * Parse a bash command and extract flat pipeline stages.
- * Falls back to simple splitting when bash-parser can't handle the syntax.
- * Process substitutions >(cmd)/<(cmd) are extracted first since bash-parser
- * does not support them.
+ *
+ * When bash-parser fails (typically due to nested quoting inside command
+ * substitutions), we extract $(...) blocks, replace them with harmless
+ * variable references, and retry the parse. The extracted sub-commands are
+ * returned alongside the stages so the caller can classify them separately.
+ *
+ * Falls back to simple token splitting only when both attempts fail.
  */
-export function extractStages(command: string): Stage[] {
-  if (!command.trim()) return [];
+export function extractStages(command: string): { stages: Stage[]; cmdSubs: string[] } {
+  if (!command.trim()) return { stages: [], cmdSubs: [] };
 
+  // First attempt: parse the original command as-is.
   try {
     const ast = parse(command, { mode: "bash" });
-    return walkScript(ast);
+    return { stages: walkScript(ast), cmdSubs: [] };
   } catch {
-    return fallbackSplit(command);
+    // bash-parser failed. Try extracting command substitutions first.
   }
+
+  // Second attempt: replace $(...) with placeholders and retry.
+  const { cleaned, subs } = extractCommandSubs(command);
+  if (subs.length > 0 && cleaned !== command) {
+    try {
+      const ast = parse(cleaned, { mode: "bash" });
+      return { stages: walkScript(ast), cmdSubs: subs };
+    } catch {
+      // Still failed even after extraction; fall through.
+    }
+  }
+
+  return { stages: fallbackSplit(command), cmdSubs: subs };
+}
+
+/**
+ * Extract $(...) command substitutions from a command string.
+ * Returns the cleaned command (with $__SHUSH_CMD_n variable placeholders)
+ * and the inner command strings. Respects quoting: substitutions inside
+ * single quotes are left alone (they're literal text in bash).
+ */
+export function extractCommandSubs(command: string): { cleaned: string; subs: string[] } {
+  const subs: string[] = [];
+  let result = "";
+  let i = 0;
+
+  while (i < command.length) {
+    const ch = command[i];
+
+    // Skip single-quoted strings (no substitutions inside)
+    if (ch === "'") {
+      const end = command.indexOf("'", i + 1);
+      if (end === -1) { result += command.slice(i); break; }
+      result += command.slice(i, end + 1);
+      i = end + 1;
+      continue;
+    }
+
+    // Track double-quoted strings but continue scanning inside them
+    // (command substitutions ARE expanded inside double quotes)
+    if (ch === "\\" && i + 1 < command.length) {
+      result += command.slice(i, i + 2);
+      i += 2;
+      continue;
+    }
+
+    // Detect $( - start of command substitution
+    if (ch === "$" && command[i + 1] === "(") {
+      let depth = 1;
+      let j = i + 2;
+      let inSQ = false;
+      let inDQ = false;
+
+      while (j < command.length && depth > 0) {
+        const c = command[j];
+        if (c === "'" && !inDQ) { inSQ = !inSQ; }
+        else if (c === '"' && !inSQ) { inDQ = !inDQ; }
+        else if (c === "\\" && !inSQ) { j++; }  // skip escaped char
+        else if (!inSQ && !inDQ) {
+          if (c === "(" && command[j - 1] === "$") depth++;
+          else if (c === "(") depth++;  // arithmetic $(( )) or nested
+          else if (c === ")") depth--;
+        }
+        j++;
+      }
+
+      if (depth === 0) {
+        const inner = command.slice(i + 2, j - 1);
+        // Skip extraction if the body contains heredoc markers or
+        // newlines with backticks, since the paren-nesting tracker
+        // can't reliably handle heredoc content.
+        if (/<<[-~]?\s*['"]?\w/.test(inner)) {
+          result += command.slice(i, j);
+          i = j;
+          continue;
+        }
+        subs.push(inner);
+        result += `$__SHUSH_CMD_${subs.length - 1}`;
+        i = j;
+        continue;
+      }
+    }
+
+    // Detect backtick command substitution
+    if (ch === "`") {
+      let j = i + 1;
+      while (j < command.length && command[j] !== "`") {
+        if (command[j] === "\\") j++;  // skip escaped char
+        j++;
+      }
+      if (j < command.length) {
+        const inner = command.slice(i + 1, j);
+        subs.push(inner);
+        result += `$__SHUSH_CMD_${subs.length - 1}`;
+        i = j + 1;
+        continue;
+      }
+    }
+
+    result += ch;
+    i++;
+  }
+
+  return { cleaned: result, subs };
 }
 
 function walkScript(ast: AstNode): Stage[] {

