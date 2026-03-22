@@ -1203,6 +1203,9 @@
   "b2sum": {
     "_": "filesystem_read"
   },
+  "b3sum": {
+    "_": "filesystem_read"
+  },
   "base32": {
     "_": "filesystem_read"
   },
@@ -3525,6 +3528,9 @@
   "man": {
     "_": "filesystem_read"
   },
+  "md5": {
+    "_": "filesystem_read"
+  },
   "md5sum": {
     "_": "filesystem_read"
   },
@@ -4024,6 +4030,23 @@
   },
   "od": {
     "_": "filesystem_read"
+  },
+  "openssl": {
+    "dgst": {
+      "_": "filesystem_read"
+    },
+    "md5": {
+      "_": "filesystem_read"
+    },
+    "sha1": {
+      "_": "filesystem_read"
+    },
+    "sha256": {
+      "_": "filesystem_read"
+    },
+    "s_client": {
+      "_": "network_outbound"
+    }
   },
   "otool": {
     "_": "filesystem_read"
@@ -4704,10 +4727,19 @@
   "sha1sum": {
     "_": "filesystem_read"
   },
+  "sha224sum": {
+    "_": "filesystem_read"
+  },
   "sha256sum": {
     "_": "filesystem_read"
   },
+  "sha384sum": {
+    "_": "filesystem_read"
+  },
   "sha512sum": {
+    "_": "filesystem_read"
+  },
+  "shasum": {
     "_": "filesystem_read"
   },
   "shellcheck": {
@@ -4764,6 +4796,9 @@
     "--help": {
       "_": "filesystem_read"
     }
+  },
+  "sum": {
+    "_": "filesystem_read"
   },
   "sw_vers": {
     "_": "filesystem_read"
@@ -5052,6 +5087,9 @@
     "_": "filesystem_read"
   },
   "xxd": {
+    "_": "filesystem_read"
+  },
+  "xxhsum": {
     "_": "filesystem_read"
   },
   "yarn": {
@@ -5830,11 +5868,6 @@
   },
   "nmap": {
     "_": "network_outbound"
-  },
-  "openssl": {
-    "s_client": {
-      "_": "network_outbound"
-    }
   },
   "rsync": {
     "_": "network_outbound"

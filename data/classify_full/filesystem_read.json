@@ -212,6 +212,9 @@
     "b2sum"
   ],
   [
+    "b3sum"
+  ],
+  [
     "base32"
   ],
   [
@@ -1615,6 +1618,9 @@
     "man"
   ],
   [
+    "md5"
+  ],
+  [
     "md5sum"
   ],
   [
@@ -1922,6 +1928,22 @@
   ],
   [
     "od"
+  ],
+  [
+    "openssl",
+    "dgst"
+  ],
+  [
+    "openssl",
+    "md5"
+  ],
+  [
+    "openssl",
+    "sha1"
+  ],
+  [
+    "openssl",
+    "sha256"
   ],
   [
     "otool"
@@ -2461,10 +2483,19 @@
     "sha1sum"
   ],
   [
+    "sha224sum"
+  ],
+  [
     "sha256sum"
   ],
   [
+    "sha384sum"
+  ],
+  [
     "sha512sum"
+  ],
+  [
+    "shasum"
   ],
   [
     "shellcheck"
@@ -2497,6 +2528,9 @@
   [
     "strip",
     "--help"
+  ],
+  [
+    "sum"
   ],
   [
     "sw_vers"
@@ -2756,6 +2790,9 @@
   ],
   [
     "xxd"
+  ],
+  [
+    "xxhsum"
   ],
   [
     "yarn",
