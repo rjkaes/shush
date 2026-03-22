@@ -269,12 +269,12 @@ describe("ruby -e dangerous payloads → lang_exec (ask)", () => {
 // ==============================================================================
 
 describe("inline code edge cases", () => {
-  test("python with no -c flag → falls through to trie (lang_exec)", () => {
+  test("python with no -c flag → script_exec (context)", () => {
     const result = classifyCommand("python3 script.py");
-    // This doesn't have -c, so classifyInlineCode returns null.
-    // The trie doesn't have bare "python3" (only "python3 -c"),
-    // so this falls through to unknown.
-    expect(result.finalDecision).toBe("ask");
+    // No -c flag, so classifyInlineCode returns null.
+    // Trie returns unknown, then classifyScriptExec catches it.
+    expect(result.stages[0]?.actionType).toBe("script_exec");
+    expect(result.finalDecision).toBe("context");
   });
 
   test("python -c with no payload → falls through", () => {
@@ -329,5 +329,62 @@ describe("inline code edge cases", () => {
     const result = classifyCommand(`node --eval "console.log(42)"`);
     expect(result.stages[0]?.actionType).toBe("package_run");
     expect(result.finalDecision).toBe("allow");
+  });
+});
+
+// ==============================================================================
+// Script Execution (interpreter + script file → script_exec)
+// ==============================================================================
+
+describe("script_exec classification", () => {
+  const scriptCases: [string, string][] = [
+    ["node script.js", "script_exec"],
+    ["node ./build.mjs", "script_exec"],
+    ["node node_modules/esbuild/bin/esbuild --bundle", "script_exec"],
+    ["python3 app.py", "script_exec"],
+    ["ruby tool.rb", "script_exec"],
+    ["perl script.pl", "script_exec"],
+    ["php server.php", "script_exec"],
+    ["bun run.ts", "script_exec"],
+  ];
+
+  for (const [cmd, expected] of scriptCases) {
+    test(`${cmd} → ${expected} (context)`, () => {
+      const result = classifyCommand(cmd);
+      expect(result.stages[0]?.actionType).toBe(expected);
+      expect(result.finalDecision).toBe("context");
+    });
+  }
+
+  test("node -e still classifies as inline code, not script_exec", () => {
+    const result = classifyCommand(`node -e "console.log(1)"`);
+    expect(result.stages[0]?.actionType).not.toBe("script_exec");
+  });
+
+  test("bare node (no script) stays unknown", () => {
+    const result = classifyCommand("node");
+    expect(result.stages[0]?.actionType).toBe("unknown");
+  });
+
+  test("deno test still classifies as package_run (trie takes precedence)", () => {
+    const result = classifyCommand("deno test");
+    expect(result.stages[0]?.actionType).toBe("package_run");
+  });
+
+  test("python -m pytest still classifies as package_run (trie takes precedence)", () => {
+    const result = classifyCommand("python -m pytest");
+    expect(result.stages[0]?.actionType).toBe("package_run");
+  });
+
+  test("absolute path stays unknown (ask) — not project-local", () => {
+    const result = classifyCommand("node /tmp/exploit.js");
+    expect(result.stages[0]?.actionType).toBe("unknown");
+    expect(result.finalDecision).toBe("ask");
+  });
+
+  test("absolute python path stays unknown (ask)", () => {
+    const result = classifyCommand("python3 /var/scripts/run.py");
+    expect(result.stages[0]?.actionType).toBe("unknown");
+    expect(result.finalDecision).toBe("ask");
   });
 });

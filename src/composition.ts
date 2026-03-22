@@ -43,11 +43,13 @@ function isExecSinkStage(sr: StageResult): boolean {
 }
 
 /**
- * Check if an exec sink stage has an inline code flag (-e, -c, etc.).
- * When present, the interpreter runs code from the argument rather than
- * stdin, so piped input is data, not executable code.
+ * Check if an exec sink already knows what code to run, meaning piped
+ * input is data, not executable code. True when the interpreter has:
+ * - an inline code flag (-e, -c, --eval), or
+ * - a script file argument (classified as script_exec)
  */
-function hasInlineCodeFlag(sr: StageResult): boolean {
+function execSinkIgnoresStdin(sr: StageResult): boolean {
+  if (sr.actionType === "script_exec") return true;
   const flags = INLINE_CODE_FLAGS[sr.tokens[0]];
   if (!flags) return false;
   return sr.tokens.some(tok => flags.has(tok));
@@ -120,7 +122,7 @@ export function checkComposition(
 
     // network | exec -> block (remote code execution)
     // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenNetworkSource && isExecSinkStage(right) && !hasInlineCodeFlag(right)) {
+    if (seenNetworkSource && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
       return [
         "block",
         `remote code execution: ${right.tokens[0]} receives network input`,
@@ -130,7 +132,7 @@ export function checkComposition(
 
     // decode | exec -> block (obfuscation)
     // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenDecode && isExecSinkStage(right) && !hasInlineCodeFlag(right)) {
+    if (seenDecode && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
       return [
         "block",
         `obfuscated execution: ${right.tokens[0]} receives decoded input`,
@@ -140,7 +142,7 @@ export function checkComposition(
 
     // any_read | exec -> ask
     // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenAnyRead && isExecSinkStage(right) && !hasInlineCodeFlag(right)) {
+    if (seenAnyRead && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
       return [
         "ask",
         `local code execution: ${right.tokens[0]} receives file input`,

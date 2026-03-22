@@ -12,6 +12,7 @@
   "package_install": "allow",
   "package_run": "allow",
   "package_uninstall": "ask",
+  "script_exec": "context",
   "lang_exec": "ask",
   "process_signal": "ask",
   "container_destructive": "ask",

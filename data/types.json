@@ -12,6 +12,7 @@
   "package_install": "Install packages (npm install, pip install)",
   "package_run": "Run package scripts (npm run, npx, just)",
   "package_uninstall": "Remove packages (npm uninstall, pip uninstall)",
+  "script_exec": "Run a script file via an interpreter (node script.js, python app.py)",
   "lang_exec": "Execute code via language runtimes (python, node)",
   "process_signal": "Send signals to processes (kill, pkill)",
   "container_destructive": "Destructive container/cloud/k8s operations (docker rm, kubectl delete)",

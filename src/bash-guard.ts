@@ -5,7 +5,7 @@
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
 import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_WRITE, LANG_EXEC } from "./taxonomy.js";
-import { classifyWithFlags, stripGitGlobalFlags, extractGitDirPaths } from "./classify.js";
+import { classifyWithFlags, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec } from "./classify.js";
 import { checkComposition } from "./composition.js";
 import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
@@ -150,7 +150,13 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
   // Prefix table fallback — use flag-stripped tokens so that e.g.
   // `git -C /path commit` matches the `["git", "commit"]` trie entry.
   const normalized = tokens[0] === "git" ? stripGitGlobalFlags(tokens) : tokens;
-  const actionType = classifyTokens(normalized, config);
+  let actionType = classifyTokens(normalized, config);
+  // When the trie has no match, check for interpreter script execution
+  // (e.g., node script.js, python app.py). Runs after the trie so that
+  // specific subcommands (deno test, python -m pytest) take precedence.
+  if (actionType === "unknown") {
+    actionType = classifyScriptExec(tokens) ?? actionType;
+  }
   const decision = getPolicy(actionType, config);
   return { actionType, decision };
 }

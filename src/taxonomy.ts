@@ -21,6 +21,7 @@ export const NETWORK_DIAGNOSTIC = t("network_diagnostic");
 export const PACKAGE_INSTALL = t("package_install");
 export const PACKAGE_RUN = t("package_run");
 export const PACKAGE_UNINSTALL = t("package_uninstall");
+export const SCRIPT_EXEC = t("script_exec");
 export const LANG_EXEC = t("lang_exec");
 export const PROCESS_SIGNAL = t("process_signal");
 export const CONTAINER_DESTRUCTIVE = t("container_destructive");

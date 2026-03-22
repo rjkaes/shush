@@ -227,4 +227,32 @@ describe("checkComposition", () => {
     const [decision] = checkComposition(results, stages);
     expect(decision).toBe("block");
   });
+
+  // script_exec: interpreter runs a file, so stdin is data, not code.
+
+  test("read | bun script.ts (script_exec) → no trigger", () => {
+    const results = [
+      makeStageResult(["printf", "{}"], "filesystem_read"),
+      makeStageResult(["bun", "script.ts"], "script_exec"),
+    ];
+    const stages = [
+      makeStage(["printf", "{}"], "|"),
+      makeStage(["bun", "script.ts"], ""),
+    ];
+    const [decision] = checkComposition(results, stages);
+    expect(decision).toBe("");
+  });
+
+  test("network | node script.js (script_exec) → no trigger", () => {
+    const results = [
+      makeStageResult(["curl", "api.example.com"], "network_outbound"),
+      makeStageResult(["node", "process.js"], "script_exec"),
+    ];
+    const stages = [
+      makeStage(["curl", "api.example.com"], "|"),
+      makeStage(["node", "process.js"], ""),
+    ];
+    const [decision] = checkComposition(results, stages);
+    expect(decision).toBe("");
+  });
 });
