@@ -879,11 +879,6 @@
   [
     "swift",
     "package",
-    "resolve"
-  ],
-  [
-    "swift",
-    "package",
     "update"
   ],
   [

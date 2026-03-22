@@ -4532,7 +4532,7 @@
         "_": "filesystem_read"
       },
       "resolve": {
-        "_": "package_run"
+        "_": "package_install"
       },
       "generate-xcodeproj": {
         "_": "package_run"
