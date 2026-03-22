@@ -37,13 +37,33 @@
   ],
   [
     "docker",
+    "builder",
+    "prune"
+  ],
+  [
+    "docker",
+    "container",
+    "prune"
+  ],
+  [
+    "docker",
     "container",
     "rm"
   ],
   [
     "docker",
     "image",
+    "prune"
+  ],
+  [
+    "docker",
+    "image",
     "rm"
+  ],
+  [
+    "docker",
+    "network",
+    "prune"
   ],
   [
     "docker",
@@ -61,6 +81,11 @@
   [
     "docker",
     "system",
+    "prune"
+  ],
+  [
+    "docker",
+    "volume",
     "prune"
   ],
   [
@@ -94,13 +119,33 @@
   ],
   [
     "podman",
+    "builder",
+    "prune"
+  ],
+  [
+    "podman",
+    "container",
+    "prune"
+  ],
+  [
+    "podman",
     "container",
     "rm"
   ],
   [
     "podman",
     "image",
+    "prune"
+  ],
+  [
+    "podman",
+    "image",
     "rm"
+  ],
+  [
+    "podman",
+    "network",
+    "prune"
   ],
   [
     "podman",
@@ -123,6 +168,15 @@
   [
     "podman",
     "volume",
+    "prune"
+  ],
+  [
+    "podman",
+    "volume",
     "rm"
+  ],
+  [
+    "terraform",
+    "apply"
   ]
 ]

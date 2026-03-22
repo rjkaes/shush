@@ -41,19 +41,84 @@
     }
   },
   "docker": {
+    "builder": {
+      "prune": {
+        "_": "container_destructive"
+      }
+    },
     "container": {
+      "prune": {
+        "_": "container_destructive"
+      },
       "rm": {
         "_": "container_destructive"
+      },
+      "diff": {
+        "_": "filesystem_read"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "logs": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      },
+      "port": {
+        "_": "filesystem_read"
+      },
+      "stats": {
+        "_": "filesystem_read"
+      },
+      "top": {
+        "_": "filesystem_read"
+      },
+      "kill": {
+        "_": "process_signal"
+      },
+      "pause": {
+        "_": "process_signal"
+      },
+      "restart": {
+        "_": "process_signal"
+      },
+      "stop": {
+        "_": "process_signal"
+      },
+      "unpause": {
+        "_": "process_signal"
       }
     },
     "image": {
+      "prune": {
+        "_": "container_destructive"
+      },
       "rm": {
         "_": "container_destructive"
+      },
+      "history": {
+        "_": "filesystem_read"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
       }
     },
     "network": {
+      "prune": {
+        "_": "container_destructive"
+      },
       "rm": {
         "_": "container_destructive"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
       }
     },
     "rm": {
@@ -65,14 +130,118 @@
     "system": {
       "prune": {
         "_": "container_destructive"
+      },
+      "df": {
+        "_": "filesystem_read"
+      },
+      "info": {
+        "_": "filesystem_read"
       }
     },
     "volume": {
+      "prune": {
+        "_": "container_destructive"
+      },
       "rm": {
         "_": "container_destructive"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
       }
     },
+    "compose": {
+      "config": {
+        "_": "filesystem_read"
+      },
+      "images": {
+        "_": "filesystem_read"
+      },
+      "logs": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      },
+      "ps": {
+        "_": "filesystem_read"
+      },
+      "top": {
+        "_": "filesystem_read"
+      },
+      "version": {
+        "_": "filesystem_read"
+      },
+      "push": {
+        "_": "network_write"
+      },
+      "pull": {
+        "_": "package_install"
+      },
+      "build": {
+        "_": "package_run"
+      },
+      "run": {
+        "_": "package_run"
+      },
+      "up": {
+        "_": "package_run"
+      },
+      "down": {
+        "_": "package_uninstall"
+      },
+      "kill": {
+        "_": "process_signal"
+      },
+      "pause": {
+        "_": "process_signal"
+      },
+      "restart": {
+        "_": "process_signal"
+      },
+      "stop": {
+        "_": "process_signal"
+      },
+      "unpause": {
+        "_": "process_signal"
+      }
+    },
+    "diff": {
+      "_": "filesystem_read"
+    },
+    "events": {
+      "_": "filesystem_read"
+    },
+    "history": {
+      "_": "filesystem_read"
+    },
+    "images": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
     "inspect": {
+      "_": "filesystem_read"
+    },
+    "logs": {
+      "_": "filesystem_read"
+    },
+    "port": {
+      "_": "filesystem_read"
+    },
+    "ps": {
+      "_": "filesystem_read"
+    },
+    "stats": {
+      "_": "filesystem_read"
+    },
+    "top": {
+      "_": "filesystem_read"
+    },
+    "version": {
       "_": "filesystem_read"
     },
     "exec": {
@@ -81,11 +250,29 @@
     "run": {
       "_": "lang_exec"
     },
+    "push": {
+      "_": "network_write"
+    },
     "build": {
       "_": "package_install"
     },
     "pull": {
       "_": "package_install"
+    },
+    "kill": {
+      "_": "process_signal"
+    },
+    "pause": {
+      "_": "process_signal"
+    },
+    "restart": {
+      "_": "process_signal"
+    },
+    "stop": {
+      "_": "process_signal"
+    },
+    "unpause": {
+      "_": "process_signal"
     }
   },
   "gcloud": {
@@ -111,6 +298,52 @@
     "uninstall": {
       "_": "container_destructive"
     },
+    "env": {
+      "_": "filesystem_read"
+    },
+    "get": {
+      "_": "filesystem_read"
+    },
+    "history": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "repo": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "add": {
+        "_": "package_install"
+      },
+      "update": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "status": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "dependency": {
+      "build": {
+        "_": "package_install"
+      },
+      "update": {
+        "_": "package_install"
+      }
+    },
     "install": {
       "_": "package_install"
     },
@@ -122,43 +355,71 @@
     "delete": {
       "_": "container_destructive"
     },
-    "get": {
-      "_": "db_read"
-    },
-    "describe": {
-      "_": "db_read"
-    },
-    "logs": {
-      "_": "db_read"
-    },
-    "top": {
-      "_": "db_read"
-    },
-    "cluster-info": {
-      "_": "db_read"
-    },
     "api-resources": {
       "_": "db_read"
     },
     "api-versions": {
       "_": "db_read"
     },
-    "version": {
+    "auth": {
+      "can-i": {
+        "_": "db_read"
+      },
+      "whoami": {
+        "_": "db_read"
+      }
+    },
+    "cluster-info": {
+      "_": "db_read"
+    },
+    "config": {
+      "current-context": {
+        "_": "db_read"
+      },
+      "get-clusters": {
+        "_": "db_read"
+      },
+      "get-contexts": {
+        "_": "db_read"
+      },
+      "get-users": {
+        "_": "db_read"
+      },
+      "view": {
+        "_": "db_read"
+      }
+    },
+    "describe": {
+      "_": "db_read"
+    },
+    "diff": {
       "_": "db_read"
     },
     "explain": {
       "_": "db_read"
     },
-    "config": {
-      "view": {
+    "get": {
+      "_": "db_read"
+    },
+    "logs": {
+      "_": "db_read"
+    },
+    "rollout": {
+      "history": {
         "_": "db_read"
       },
-      "current-context": {
-        "_": "db_read"
-      },
-      "get-contexts": {
+      "status": {
         "_": "db_read"
       }
+    },
+    "top": {
+      "_": "db_read"
+    },
+    "version": {
+      "_": "db_read"
+    },
+    "wait": {
+      "_": "db_read"
     },
     "exec": {
       "_": "lang_exec"
@@ -171,19 +432,81 @@
     }
   },
   "podman": {
+    "builder": {
+      "prune": {
+        "_": "container_destructive"
+      }
+    },
     "container": {
+      "prune": {
+        "_": "container_destructive"
+      },
       "rm": {
         "_": "container_destructive"
+      },
+      "diff": {
+        "_": "filesystem_read"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "logs": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      },
+      "stats": {
+        "_": "filesystem_read"
+      },
+      "top": {
+        "_": "filesystem_read"
+      },
+      "kill": {
+        "_": "process_signal"
+      },
+      "pause": {
+        "_": "process_signal"
+      },
+      "restart": {
+        "_": "process_signal"
+      },
+      "stop": {
+        "_": "process_signal"
+      },
+      "unpause": {
+        "_": "process_signal"
       }
     },
     "image": {
+      "prune": {
+        "_": "container_destructive"
+      },
       "rm": {
         "_": "container_destructive"
+      },
+      "history": {
+        "_": "filesystem_read"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
       }
     },
     "network": {
+      "prune": {
+        "_": "container_destructive"
+      },
       "rm": {
         "_": "container_destructive"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
       }
     },
     "rm": {
@@ -195,14 +518,106 @@
     "system": {
       "prune": {
         "_": "container_destructive"
+      },
+      "df": {
+        "_": "filesystem_read"
+      },
+      "info": {
+        "_": "filesystem_read"
       }
     },
     "volume": {
+      "prune": {
+        "_": "container_destructive"
+      },
       "rm": {
         "_": "container_destructive"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
       }
     },
+    "compose": {
+      "config": {
+        "_": "filesystem_read"
+      },
+      "logs": {
+        "_": "filesystem_read"
+      },
+      "ps": {
+        "_": "filesystem_read"
+      },
+      "push": {
+        "_": "network_write"
+      },
+      "pull": {
+        "_": "package_install"
+      },
+      "build": {
+        "_": "package_run"
+      },
+      "run": {
+        "_": "package_run"
+      },
+      "up": {
+        "_": "package_run"
+      },
+      "down": {
+        "_": "package_uninstall"
+      },
+      "kill": {
+        "_": "process_signal"
+      },
+      "pause": {
+        "_": "process_signal"
+      },
+      "restart": {
+        "_": "process_signal"
+      },
+      "stop": {
+        "_": "process_signal"
+      },
+      "unpause": {
+        "_": "process_signal"
+      }
+    },
+    "diff": {
+      "_": "filesystem_read"
+    },
+    "events": {
+      "_": "filesystem_read"
+    },
+    "history": {
+      "_": "filesystem_read"
+    },
+    "images": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
     "inspect": {
+      "_": "filesystem_read"
+    },
+    "logs": {
+      "_": "filesystem_read"
+    },
+    "port": {
+      "_": "filesystem_read"
+    },
+    "ps": {
+      "_": "filesystem_read"
+    },
+    "stats": {
+      "_": "filesystem_read"
+    },
+    "top": {
+      "_": "filesystem_read"
+    },
+    "version": {
       "_": "filesystem_read"
     },
     "exec": {
@@ -211,11 +626,72 @@
     "run": {
       "_": "lang_exec"
     },
+    "push": {
+      "_": "network_write"
+    },
     "build": {
       "_": "package_install"
     },
     "pull": {
       "_": "package_install"
+    },
+    "kill": {
+      "_": "process_signal"
+    },
+    "pause": {
+      "_": "process_signal"
+    },
+    "restart": {
+      "_": "process_signal"
+    },
+    "stop": {
+      "_": "process_signal"
+    },
+    "unpause": {
+      "_": "process_signal"
+    }
+  },
+  "terraform": {
+    "apply": {
+      "_": "container_destructive"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "graph": {
+      "_": "filesystem_read"
+    },
+    "output": {
+      "_": "filesystem_read"
+    },
+    "providers": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "state": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "validate": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "get": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "destroy": {
+      "_": "package_uninstall"
     }
   },
   "mongosh": {
@@ -402,7 +878,16 @@
   "[": {
     "_": "filesystem_read"
   },
+  "ack": {
+    "_": "filesystem_read"
+  },
+  "ag": {
+    "_": "filesystem_read"
+  },
   "alias": {
+    "_": "filesystem_read"
+  },
+  "apropos": {
     "_": "filesystem_read"
   },
   "apt": {
@@ -520,10 +1005,48 @@
   "b2sum": {
     "_": "filesystem_read"
   },
+  "base32": {
+    "_": "filesystem_read"
+  },
   "basename": {
     "_": "filesystem_read"
   },
   "bat": {
+    "_": "filesystem_read"
+  },
+  "bazel": {
+    "help": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "query": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "fetch": {
+      "_": "package_install"
+    },
+    "sync": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
+  },
+  "bc": {
     "_": "filesystem_read"
   },
   "bd": {
@@ -674,6 +1197,9 @@
       "_": "package_uninstall"
     }
   },
+  "broot": {
+    "_": "filesystem_read"
+  },
   "bun": {
     "completions": {
       "_": "filesystem_read"
@@ -768,6 +1294,76 @@
       "_": "package_uninstall"
     },
     "unlink": {
+      "_": "package_uninstall"
+    }
+  },
+  "bundle": {
+    "check": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "outdated": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "exec": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
+  },
+  "c++filt": {
+    "_": "filesystem_read"
+  },
+  "cabal": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "configure": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
       "_": "package_uninstall"
     }
   },
@@ -887,6 +1483,12 @@
   "cd": {
     "_": "filesystem_read"
   },
+  "cheat": {
+    "_": "filesystem_read"
+  },
+  "choose": {
+    "_": "filesystem_read"
+  },
   "cksum": {
     "_": "filesystem_read"
   },
@@ -910,6 +1512,9 @@
   "cmp": {
     "_": "filesystem_read"
   },
+  "colordiff": {
+    "_": "filesystem_read"
+  },
   "column": {
     "_": "filesystem_read"
   },
@@ -927,6 +1532,9 @@
   "compgen": {
     "_": "filesystem_read"
   },
+  "csvtool": {
+    "_": "filesystem_read"
+  },
   "ctest": {
     "--show-only": {
       "_": "filesystem_read"
@@ -939,14 +1547,268 @@
   "cut": {
     "_": "filesystem_read"
   },
+  "dart": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "pub": {
+      "add": {
+        "_": "package_install"
+      },
+      "get": {
+        "_": "package_install"
+      },
+      "upgrade": {
+        "_": "package_install"
+      },
+      "cache": {
+        "clean": {
+          "_": "package_uninstall"
+        }
+      }
+    },
+    "analyze": {
+      "_": "package_run"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "fix": {
+      "_": "package_run"
+    },
+    "format": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "dasel": {
+    "_": "filesystem_read"
+  },
   "date": {
     "_": "filesystem_read"
+  },
+  "dc": {
+    "_": "filesystem_read"
+  },
+  "defaults": {
+    "read": {
+      "_": "filesystem_read"
+    }
+  },
+  "delta": {
+    "_": "filesystem_read"
+  },
+  "deno": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "doc": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "types": {
+      "_": "filesystem_read"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "bench": {
+      "_": "package_run"
+    },
+    "check": {
+      "_": "package_run"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "eval": {
+      "_": "package_run"
+    },
+    "fmt": {
+      "_": "package_run"
+    },
+    "lint": {
+      "_": "package_run"
+    },
+    "repl": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "task": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    }
   },
   "df": {
     "_": "filesystem_read"
   },
   "diff": {
     "_": "filesystem_read"
+  },
+  "difft": {
+    "_": "filesystem_read"
+  },
+  "dirname": {
+    "_": "filesystem_read"
+  },
+  "dirs": {
+    "_": "filesystem_read"
+  },
+  "diskutil": {
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    }
+  },
+  "dnf": {
+    "check": {
+      "_": "filesystem_read"
+    },
+    "check-update": {
+      "_": "filesystem_read"
+    },
+    "deplist": {
+      "_": "filesystem_read"
+    },
+    "group": {
+      "info": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "history": {
+      "_": "filesystem_read",
+      "info": {
+        "_": "filesystem_read"
+      },
+      "redo": {
+        "_": "package_install"
+      },
+      "rollback": {
+        "_": "package_uninstall"
+      },
+      "undo": {
+        "_": "package_uninstall"
+      }
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "module": {
+      "info": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "provides": {
+      "_": "filesystem_read"
+    },
+    "repoinfo": {
+      "_": "filesystem_read"
+    },
+    "repolist": {
+      "_": "filesystem_read"
+    },
+    "repoquery": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "builddep": {
+      "_": "package_install"
+    },
+    "distro-sync": {
+      "_": "package_install"
+    },
+    "downgrade": {
+      "_": "package_install"
+    },
+    "download": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "makecache": {
+      "_": "package_install"
+    },
+    "reinstall": {
+      "_": "package_install"
+    },
+    "swap": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    },
+    "autoremove": {
+      "_": "package_uninstall"
+    },
+    "clean": {
+      "all": {
+        "_": "package_uninstall"
+      },
+      "dbcache": {
+        "_": "package_uninstall"
+      },
+      "metadata": {
+        "_": "package_uninstall"
+      },
+      "packages": {
+        "_": "package_uninstall"
+      }
+    },
+    "remove": {
+      "_": "package_uninstall"
+    }
   },
   "dotnet": {
     "--info": {
@@ -1154,144 +2016,32 @@
       }
     }
   },
-  "dirname": {
+  "dscacheutil": {
     "_": "filesystem_read"
   },
-  "dirs": {
-    "_": "filesystem_read"
-  },
-  "dnf": {
-    "check": {
+  "dscl": {
+    ".": {
       "_": "filesystem_read"
-    },
-    "check-update": {
-      "_": "filesystem_read"
-    },
-    "deplist": {
-      "_": "filesystem_read"
-    },
-    "group": {
-      "info": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "install": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "history": {
-      "_": "filesystem_read",
-      "info": {
-        "_": "filesystem_read"
-      },
-      "redo": {
-        "_": "package_install"
-      },
-      "rollback": {
-        "_": "package_uninstall"
-      },
-      "undo": {
-        "_": "package_uninstall"
-      }
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "module": {
-      "info": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "install": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "provides": {
-      "_": "filesystem_read"
-    },
-    "repoinfo": {
-      "_": "filesystem_read"
-    },
-    "repolist": {
-      "_": "filesystem_read"
-    },
-    "repoquery": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "builddep": {
-      "_": "package_install"
-    },
-    "distro-sync": {
-      "_": "package_install"
-    },
-    "downgrade": {
-      "_": "package_install"
-    },
-    "download": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "makecache": {
-      "_": "package_install"
-    },
-    "reinstall": {
-      "_": "package_install"
-    },
-    "swap": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    },
-    "autoremove": {
-      "_": "package_uninstall"
-    },
-    "clean": {
-      "all": {
-        "_": "package_uninstall"
-      },
-      "dbcache": {
-        "_": "package_uninstall"
-      },
-      "metadata": {
-        "_": "package_uninstall"
-      },
-      "packages": {
-        "_": "package_uninstall"
-      }
-    },
-    "remove": {
-      "_": "package_uninstall"
     }
   },
   "du": {
     "_": "filesystem_read"
   },
+  "duf": {
+    "_": "filesystem_read"
+  },
+  "dust": {
+    "_": "filesystem_read"
+  },
   "echo": {
+    "_": "filesystem_read"
+  },
+  "elixir": {
+    "--version": {
+      "_": "filesystem_read"
+    }
+  },
+  "exa": {
     "_": "filesystem_read"
   },
   "expand": {
@@ -1300,14 +2050,71 @@
   "expr": {
     "_": "filesystem_read"
   },
+  "eza": {
+    "_": "filesystem_read"
+  },
   "factor": {
     "_": "filesystem_read"
   },
   "false": {
     "_": "filesystem_read"
   },
+  "fd": {
+    "_": "filesystem_read"
+  },
+  "fdfind": {
+    "_": "filesystem_read"
+  },
   "file": {
     "_": "filesystem_read"
+  },
+  "finger": {
+    "_": "filesystem_read"
+  },
+  "flutter": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "config": {
+      "--list": {
+        "_": "filesystem_read"
+      }
+    },
+    "devices": {
+      "_": "filesystem_read"
+    },
+    "doctor": {
+      "_": "filesystem_read"
+    },
+    "pub": {
+      "get": {
+        "_": "package_install"
+      },
+      "upgrade": {
+        "_": "package_install"
+      },
+      "run": {
+        "_": "package_run"
+      }
+    },
+    "analyze": {
+      "_": "package_run"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "gen-l10n": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
   },
   "fmt": {
     "_": "filesystem_read"
@@ -1316,6 +2123,9 @@
     "_": "filesystem_read"
   },
   "free": {
+    "_": "filesystem_read"
+  },
+  "fx": {
     "_": "filesystem_read"
   },
   "gem": {
@@ -1976,6 +2786,11 @@
       }
     }
   },
+  "ghc": {
+    "--version": {
+      "_": "filesystem_read"
+    }
+  },
   "gmake": {
     "--dry-run": {
       "_": "filesystem_read"
@@ -2265,6 +3080,34 @@
   "grep": {
     "_": "filesystem_read"
   },
+  "gron": {
+    "_": "filesystem_read"
+  },
+  "groups": {
+    "_": "filesystem_read"
+  },
+  "hatch": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "env": {
+      "show": {
+        "_": "filesystem_read"
+      },
+      "create": {
+        "_": "package_install"
+      }
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
   "head": {
     "_": "filesystem_read"
   },
@@ -2280,8 +3123,63 @@
   "htop": {
     "_": "filesystem_read"
   },
+  "icdiff": {
+    "_": "filesystem_read"
+  },
+  "iconv": {
+    "_": "filesystem_read"
+  },
+  "id": {
+    "_": "filesystem_read"
+  },
+  "info": {
+    "_": "filesystem_read"
+  },
+  "iostat": {
+    "_": "filesystem_read"
+  },
   "join": {
     "_": "filesystem_read"
+  },
+  "jq": {
+    "_": "filesystem_read"
+  },
+  "last": {
+    "_": "filesystem_read"
+  },
+  "launchctl": {
+    "list": {
+      "_": "filesystem_read"
+    }
+  },
+  "ldd": {
+    "_": "filesystem_read"
+  },
+  "lein": {
+    "classpath": {
+      "_": "filesystem_read"
+    },
+    "deps": {
+      "_": "package_install"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "repl": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "uberjar": {
+      "_": "package_run"
+    }
   },
   "less": {
     "_": "filesystem_read"
@@ -2289,7 +3187,13 @@
   "locale": {
     "_": "filesystem_read"
   },
+  "logname": {
+    "_": "filesystem_read"
+  },
   "ls": {
+    "_": "filesystem_read"
+  },
+  "lsd": {
     "_": "filesystem_read"
   },
   "lsof": {
@@ -2325,7 +3229,87 @@
     },
     "_": "package_run"
   },
+  "man": {
+    "_": "filesystem_read"
+  },
   "md5sum": {
+    "_": "filesystem_read"
+  },
+  "mdfind": {
+    "_": "filesystem_read"
+  },
+  "mdls": {
+    "_": "filesystem_read"
+  },
+  "miller": {
+    "_": "filesystem_read"
+  },
+  "mix": {
+    "deps.tree": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "hex.info": {
+      "_": "filesystem_read"
+    },
+    "deps.get": {
+      "_": "package_install"
+    },
+    "deps.update": {
+      "_": "package_install"
+    },
+    "hex.install": {
+      "_": "package_install"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "credo": {
+      "_": "package_run"
+    },
+    "dialyzer": {
+      "_": "package_run"
+    },
+    "ecto.create": {
+      "_": "package_run"
+    },
+    "ecto.migrate": {
+      "_": "package_run"
+    },
+    "ecto.rollback": {
+      "_": "package_run"
+    },
+    "format": {
+      "_": "package_run"
+    },
+    "phx.gen.html": {
+      "_": "package_run"
+    },
+    "phx.gen.json": {
+      "_": "package_run"
+    },
+    "phx.gen.schema": {
+      "_": "package_run"
+    },
+    "phx.routes": {
+      "_": "package_run"
+    },
+    "phx.server": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "deps.clean": {
+      "_": "package_uninstall"
+    }
+  },
+  "mlr": {
     "_": "filesystem_read"
   },
   "more": {
@@ -2430,6 +3414,9 @@
     "_": "filesystem_read"
   },
   "nl": {
+    "_": "filesystem_read"
+  },
+  "nm": {
     "_": "filesystem_read"
   },
   "nohup": {
@@ -2639,11 +3626,46 @@
   "nproc": {
     "_": "filesystem_read"
   },
+  "numfmt": {
+    "_": "filesystem_read"
+  },
+  "objdump": {
+    "_": "filesystem_read"
+  },
   "od": {
+    "_": "filesystem_read"
+  },
+  "otool": {
     "_": "filesystem_read"
   },
   "paste": {
     "_": "filesystem_read"
+  },
+  "pdm": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "lock": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "run": {
+      "_": "package_run"
+    }
   },
   "pgrep": {
     "_": "filesystem_read"
@@ -2779,6 +3801,14 @@
       "_": "package_uninstall"
     }
   },
+  "plutil": {
+    "-lint": {
+      "_": "filesystem_read"
+    },
+    "-p": {
+      "_": "filesystem_read"
+    }
+  },
   "pnpm": {
     "audit": {
       "_": "filesystem_read"
@@ -2912,19 +3942,94 @@
       "_": "package_uninstall"
     }
   },
+  "poetry": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "check": {
+      "_": "filesystem_read"
+    },
+    "env": {
+      "info": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "lock": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "run": {
+      "_": "package_run"
+    }
+  },
   "popd": {
+    "_": "filesystem_read"
+  },
+  "printenv": {
     "_": "filesystem_read"
   },
   "printf": {
     "_": "filesystem_read"
   },
+  "procs": {
+    "_": "filesystem_read"
+  },
   "ps": {
+    "_": "filesystem_read"
+  },
+  "pstree": {
     "_": "filesystem_read"
   },
   "pushd": {
     "_": "filesystem_read"
   },
   "pwd": {
+    "_": "filesystem_read"
+  },
+  "rails": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "console": {
+      "_": "package_run"
+    },
+    "db:create": {
+      "_": "package_run"
+    },
+    "db:migrate": {
+      "_": "package_run"
+    },
+    "db:seed": {
+      "_": "package_run"
+    },
+    "generate": {
+      "_": "package_run"
+    },
+    "routes": {
+      "_": "package_run"
+    },
+    "server": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "readelf": {
     "_": "filesystem_read"
   },
   "readlink": {
@@ -2937,6 +4042,48 @@
     "_": "filesystem_read"
   },
   "rg": {
+    "_": "filesystem_read"
+  },
+  "ruby": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-e": {
+      "_": "lang_exec"
+    }
+  },
+  "sbt": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "assembly": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_run"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "scala": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-version": {
+      "_": "filesystem_read"
+    }
+  },
+  "sd": {
     "_": "filesystem_read"
   },
   "seq": {
@@ -2954,6 +4101,9 @@
   "shellcheck": {
     "_": "filesystem_read"
   },
+  "size": {
+    "_": "filesystem_read"
+  },
   "sleep": {
     "_": "filesystem_read"
   },
@@ -2963,6 +4113,32 @@
   "ss": {
     "_": "filesystem_read"
   },
+  "stack": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "setup": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "exec": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
+  },
   "stat": {
     "_": "filesystem_read"
   },
@@ -2970,6 +4146,54 @@
     "_": "filesystem_read"
   },
   "strings": {
+    "_": "filesystem_read"
+  },
+  "strip": {
+    "--help": {
+      "_": "filesystem_read"
+    }
+  },
+  "sw_vers": {
+    "_": "filesystem_read"
+  },
+  "swift": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "package": {
+      "describe": {
+        "_": "filesystem_read"
+      },
+      "dump-package": {
+        "_": "filesystem_read"
+      },
+      "show-dependencies": {
+        "_": "filesystem_read"
+      },
+      "resolve": {
+        "_": "package_run"
+      },
+      "generate-xcodeproj": {
+        "_": "package_run"
+      },
+      "update": {
+        "_": "package_run"
+      }
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "sysctl": {
+    "_": "filesystem_read"
+  },
+  "system_profiler": {
     "_": "filesystem_read"
   },
   "tac": {
@@ -2985,6 +4209,9 @@
     "_": "filesystem_read"
   },
   "timeout": {
+    "_": "filesystem_read"
+  },
+  "tldr": {
     "_": "filesystem_read"
   },
   "top": {
@@ -3003,6 +4230,9 @@
     "_": "filesystem_read"
   },
   "type": {
+    "_": "filesystem_read"
+  },
+  "ulimit": {
     "_": "filesystem_read"
   },
   "uname": {
@@ -3140,7 +4370,16 @@
       "_": "package_uninstall"
     }
   },
+  "vmstat": {
+    "_": "filesystem_read"
+  },
+  "w": {
+    "_": "filesystem_read"
+  },
   "wc": {
+    "_": "filesystem_read"
+  },
+  "whatis": {
     "_": "filesystem_read"
   },
   "whereis": {
@@ -3150,6 +4389,31 @@
     "_": "filesystem_read"
   },
   "whoami": {
+    "_": "filesystem_read"
+  },
+  "xcode-select": {
+    "--print-path": {
+      "_": "filesystem_read"
+    },
+    "-p": {
+      "_": "filesystem_read"
+    }
+  },
+  "xcrun": {
+    "--find": {
+      "_": "filesystem_read"
+    },
+    "--sdk": {
+      "_": "filesystem_read"
+    },
+    "--show-sdk-path": {
+      "_": "filesystem_read"
+    }
+  },
+  "xsv": {
+    "_": "filesystem_read"
+  },
+  "xxd": {
     "_": "filesystem_read"
   },
   "yarn": {
@@ -3317,6 +4581,9 @@
       "_": "package_uninstall"
     }
   },
+  "yq": {
+    "_": "filesystem_read"
+  },
   "yum": {
     "check-update": {
       "_": "filesystem_read"
@@ -3360,6 +4627,26 @@
   },
   "zgrep": {
     "_": "filesystem_read"
+  },
+  "zig": {
+    "env": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "fmt": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
   },
   "zless": {
     "_": "filesystem_read"
@@ -3871,7 +5158,31 @@
       "venv": {
         "_": "package_install"
       },
+      "bandit": {
+        "_": "package_run"
+      },
+      "black": {
+        "_": "package_run"
+      },
+      "flake8": {
+        "_": "package_run"
+      },
+      "isort": {
+        "_": "package_run"
+      },
+      "mypy": {
+        "_": "package_run"
+      },
+      "pylint": {
+        "_": "package_run"
+      },
       "pytest": {
+        "_": "package_run"
+      },
+      "ruff": {
+        "_": "package_run"
+      },
+      "unittest": {
         "_": "package_run"
       }
     }
@@ -3885,12 +5196,31 @@
         "install": {
           "_": "package_install"
         }
+      },
+      "bandit": {
+        "_": "package_run"
+      },
+      "black": {
+        "_": "package_run"
+      },
+      "flake8": {
+        "_": "package_run"
+      },
+      "isort": {
+        "_": "package_run"
+      },
+      "mypy": {
+        "_": "package_run"
+      },
+      "pylint": {
+        "_": "package_run"
+      },
+      "ruff": {
+        "_": "package_run"
+      },
+      "unittest": {
+        "_": "package_run"
       }
-    }
-  },
-  "ruby": {
-    "-e": {
-      "_": "lang_exec"
     }
   },
   "sudo": {
@@ -3925,6 +5255,9 @@
   },
   "whois": {
     "_": "network_diagnostic"
+  },
+  "grpcurl": {
+    "_": "network_outbound"
   },
   "nmap": {
     "_": "network_outbound"
@@ -3967,23 +5300,339 @@
   "cpack": {
     "_": "package_install"
   },
+  "meson": {
+    "subprojects": {
+      "download": {
+        "_": "package_install"
+      }
+    },
+    "wrap": {
+      "install": {
+        "_": "package_install"
+      }
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "setup": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "nix": {
+    "build": {
+      "_": "package_install"
+    },
+    "develop": {
+      "_": "package_install"
+    },
+    "profile": {
+      "install": {
+        "_": "package_install"
+      }
+    }
+  },
+  "nix-env": {
+    "--install": {
+      "_": "package_install"
+    },
+    "-i": {
+      "_": "package_install"
+    }
+  },
+  "astro": {
+    "build": {
+      "_": "package_run"
+    },
+    "dev": {
+      "_": "package_run"
+    }
+  },
+  "bandit": {
+    "_": "package_run"
+  },
+  "biome": {
+    "check": {
+      "_": "package_run"
+    },
+    "format": {
+      "_": "package_run"
+    },
+    "lint": {
+      "_": "package_run"
+    }
+  },
+  "black": {
+    "_": "package_run"
+  },
+  "buck": {
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "buck2": {
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "buf": {
+    "breaking": {
+      "_": "package_run"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "generate": {
+      "_": "package_run"
+    },
+    "lint": {
+      "_": "package_run"
+    }
+  },
   "bunx": {
+    "_": "package_run"
+  },
+  "c8": {
+    "_": "package_run"
+  },
+  "dprint": {
+    "check": {
+      "_": "package_run"
+    },
+    "fmt": {
+      "_": "package_run"
+    }
+  },
+  "entr": {
+    "_": "package_run"
+  },
+  "esbuild": {
+    "_": "package_run"
+  },
+  "eslint": {
+    "_": "package_run"
+  },
+  "flake8": {
+    "_": "package_run"
+  },
+  "gofumpt": {
+    "_": "package_run"
+  },
+  "golangci-lint": {
+    "run": {
+      "_": "package_run"
+    }
+  },
+  "govulncheck": {
+    "_": "package_run"
+  },
+  "isort": {
+    "_": "package_run"
+  },
+  "jest": {
     "_": "package_run"
   },
   "just": {
     "_": "package_run"
   },
+  "mill": {
+    "_": "package_run"
+  },
+  "mocha": {
+    "_": "package_run"
+  },
+  "mypy": {
+    "_": "package_run"
+  },
+  "next": {
+    "build": {
+      "_": "package_run"
+    },
+    "dev": {
+      "_": "package_run"
+    },
+    "lint": {
+      "_": "package_run"
+    },
+    "start": {
+      "_": "package_run"
+    }
+  },
+  "ninja": {
+    "_": "package_run"
+  },
+  "nox": {
+    "_": "package_run"
+  },
   "npx": {
+    "_": "package_run"
+  },
+  "nuxt": {
+    "build": {
+      "_": "package_run"
+    },
+    "dev": {
+      "_": "package_run"
+    },
+    "generate": {
+      "_": "package_run"
+    }
+  },
+  "nyc": {
+    "_": "package_run"
+  },
+  "prettier": {
+    "_": "package_run"
+  },
+  "protoc": {
+    "_": "package_run"
+  },
+  "pylint": {
     "_": "package_run"
   },
   "pytest": {
     "_": "package_run"
   },
+  "rake": {
+    "_": "package_run"
+  },
+  "rebar3": {
+    "compile": {
+      "_": "package_run"
+    },
+    "release": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "remix": {
+    "build": {
+      "_": "package_run"
+    },
+    "dev": {
+      "_": "package_run"
+    }
+  },
+  "rollup": {
+    "_": "package_run"
+  },
+  "rspec": {
+    "_": "package_run"
+  },
+  "rubocop": {
+    "_": "package_run"
+  },
+  "ruff": {
+    "check": {
+      "_": "package_run"
+    },
+    "format": {
+      "_": "package_run"
+    }
+  },
+  "rustfmt": {
+    "_": "package_run"
+  },
+  "standardrb": {
+    "_": "package_run"
+  },
+  "stylelint": {
+    "_": "package_run"
+  },
+  "svelte-kit": {
+    "build": {
+      "_": "package_run"
+    },
+    "dev": {
+      "_": "package_run"
+    }
+  },
   "task": {
     "_": "package_run"
   },
+  "tox": {
+    "_": "package_run"
+  },
+  "ts-node": {
+    "_": "package_run"
+  },
+  "tsc": {
+    "_": "package_run"
+  },
+  "tsx": {
+    "_": "package_run"
+  },
+  "turbo": {
+    "_": "package_run",
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
   "uvx": {
     "_": "package_run"
+  },
+  "vite": {
+    "_": "package_run",
+    "build": {
+      "_": "package_run"
+    },
+    "preview": {
+      "_": "package_run"
+    }
+  },
+  "vitest": {
+    "_": "package_run",
+    "run": {
+      "_": "package_run"
+    }
+  },
+  "wasm-pack": {
+    "build": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "watchexec": {
+    "_": "package_run"
+  },
+  "webpack": {
+    "_": "package_run"
+  },
+  "xcodebuild": {
+    "_": "package_run",
+    "build": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
   },
   "kill": {
     "-9": {
@@ -4010,6 +5659,9 @@
       "_": "process_signal"
     },
     "restart": {
+      "_": "process_signal"
+    },
+    "start": {
       "_": "process_signal"
     },
     "stop": {

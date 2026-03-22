@@ -96,6 +96,14 @@
     "upgrade"
   ],
   [
+    "bazel",
+    "fetch"
+  ],
+  [
+    "bazel",
+    "sync"
+  ],
+  [
     "brew",
     "fetch"
   ],
@@ -169,6 +177,30 @@
     "upgrade"
   ],
   [
+    "bundle",
+    "add"
+  ],
+  [
+    "bundle",
+    "install"
+  ],
+  [
+    "bundle",
+    "update"
+  ],
+  [
+    "cabal",
+    "configure"
+  ],
+  [
+    "cabal",
+    "install"
+  ],
+  [
+    "cabal",
+    "update"
+  ],
+  [
     "cargo",
     "add"
   ],
@@ -226,6 +258,97 @@
   ],
   [
     "cpack"
+  ],
+  [
+    "dart",
+    "pub",
+    "add"
+  ],
+  [
+    "dart",
+    "pub",
+    "get"
+  ],
+  [
+    "dart",
+    "pub",
+    "upgrade"
+  ],
+  [
+    "deno",
+    "add"
+  ],
+  [
+    "deno",
+    "install"
+  ],
+  [
+    "dnf",
+    "builddep"
+  ],
+  [
+    "dnf",
+    "distro-sync"
+  ],
+  [
+    "dnf",
+    "downgrade"
+  ],
+  [
+    "dnf",
+    "download"
+  ],
+  [
+    "dnf",
+    "group",
+    "install"
+  ],
+  [
+    "dnf",
+    "history",
+    "redo"
+  ],
+  [
+    "dnf",
+    "install"
+  ],
+  [
+    "dnf",
+    "makecache"
+  ],
+  [
+    "dnf",
+    "module",
+    "install"
+  ],
+  [
+    "dnf",
+    "reinstall"
+  ],
+  [
+    "dnf",
+    "swap"
+  ],
+  [
+    "dnf",
+    "update"
+  ],
+  [
+    "dnf",
+    "upgrade"
+  ],
+  [
+    "docker",
+    "build"
+  ],
+  [
+    "docker",
+    "compose",
+    "pull"
+  ],
+  [
+    "docker",
+    "pull"
   ],
   [
     "dotnet",
@@ -317,66 +440,13 @@
     "update"
   ],
   [
-    "docker",
-    "build"
+    "flutter",
+    "pub",
+    "get"
   ],
   [
-    "docker",
-    "pull"
-  ],
-  [
-    "dnf",
-    "builddep"
-  ],
-  [
-    "dnf",
-    "distro-sync"
-  ],
-  [
-    "dnf",
-    "downgrade"
-  ],
-  [
-    "dnf",
-    "download"
-  ],
-  [
-    "dnf",
-    "group",
-    "install"
-  ],
-  [
-    "dnf",
-    "history",
-    "redo"
-  ],
-  [
-    "dnf",
-    "install"
-  ],
-  [
-    "dnf",
-    "makecache"
-  ],
-  [
-    "dnf",
-    "module",
-    "install"
-  ],
-  [
-    "dnf",
-    "reinstall"
-  ],
-  [
-    "dnf",
-    "swap"
-  ],
-  [
-    "dnf",
-    "update"
-  ],
-  [
-    "dnf",
+    "flutter",
+    "pub",
     "upgrade"
   ],
   [
@@ -402,14 +472,6 @@
   [
     "gem",
     "update"
-  ],
-  [
-    "helm",
-    "install"
-  ],
-  [
-    "helm",
-    "upgrade"
   ],
   [
     "go",
@@ -554,8 +616,67 @@
     "war"
   ],
   [
+    "hatch",
+    "env",
+    "create"
+  ],
+  [
+    "helm",
+    "dependency",
+    "build"
+  ],
+  [
+    "helm",
+    "dependency",
+    "update"
+  ],
+  [
+    "helm",
+    "install"
+  ],
+  [
+    "helm",
+    "repo",
+    "add"
+  ],
+  [
+    "helm",
+    "repo",
+    "update"
+  ],
+  [
+    "helm",
+    "upgrade"
+  ],
+  [
     "kubectl",
     "apply"
+  ],
+  [
+    "lein",
+    "deps"
+  ],
+  [
+    "meson",
+    "subprojects",
+    "download"
+  ],
+  [
+    "meson",
+    "wrap",
+    "install"
+  ],
+  [
+    "mix",
+    "deps.get"
+  ],
+  [
+    "mix",
+    "deps.update"
+  ],
+  [
+    "mix",
+    "hex.install"
   ],
   [
     "mvn",
@@ -588,6 +709,27 @@
   [
     "mvn",
     "versions:set"
+  ],
+  [
+    "nix",
+    "build"
+  ],
+  [
+    "nix",
+    "develop"
+  ],
+  [
+    "nix",
+    "profile",
+    "install"
+  ],
+  [
+    "nix-env",
+    "--install"
+  ],
+  [
+    "nix-env",
+    "-i"
   ],
   [
     "npm",
@@ -631,6 +773,22 @@
     "update"
   ],
   [
+    "pdm",
+    "add"
+  ],
+  [
+    "pdm",
+    "install"
+  ],
+  [
+    "pdm",
+    "lock"
+  ],
+  [
+    "pdm",
+    "update"
+  ],
+  [
     "pip",
     "download"
   ],
@@ -661,14 +819,6 @@
   [
     "pip3",
     "wheel"
-  ],
-  [
-    "podman",
-    "build"
-  ],
-  [
-    "podman",
-    "pull"
   ],
   [
     "pnpm",
@@ -724,6 +874,35 @@
     "update"
   ],
   [
+    "podman",
+    "build"
+  ],
+  [
+    "podman",
+    "compose",
+    "pull"
+  ],
+  [
+    "podman",
+    "pull"
+  ],
+  [
+    "poetry",
+    "add"
+  ],
+  [
+    "poetry",
+    "install"
+  ],
+  [
+    "poetry",
+    "lock"
+  ],
+  [
+    "poetry",
+    "update"
+  ],
+  [
     "python",
     "-m",
     "build"
@@ -744,6 +923,31 @@
     "-m",
     "pip",
     "install"
+  ],
+  [
+    "sbt",
+    "update"
+  ],
+  [
+    "stack",
+    "install"
+  ],
+  [
+    "stack",
+    "setup"
+  ],
+  [
+    "swift",
+    "package",
+    "resolve"
+  ],
+  [
+    "terraform",
+    "get"
+  ],
+  [
+    "terraform",
+    "init"
   ],
   [
     "uv",

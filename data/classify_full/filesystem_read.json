@@ -31,7 +31,16 @@
     "["
   ],
   [
+    "ack"
+  ],
+  [
+    "ag"
+  ],
+  [
     "alias"
+  ],
+  [
+    "apropos"
   ],
   [
     "apt",
@@ -83,10 +92,32 @@
     "b2sum"
   ],
   [
+    "base32"
+  ],
+  [
     "basename"
   ],
   [
     "bat"
+  ],
+  [
+    "bazel",
+    "help"
+  ],
+  [
+    "bazel",
+    "info"
+  ],
+  [
+    "bazel",
+    "query"
+  ],
+  [
+    "bazel",
+    "version"
+  ],
+  [
+    "bc"
   ],
   [
     "bd"
@@ -226,6 +257,9 @@
     "which-formula"
   ],
   [
+    "broot"
+  ],
+  [
     "bun",
     "completions"
   ],
@@ -271,6 +305,45 @@
     "bun",
     "pm",
     "ls"
+  ],
+  [
+    "bundle",
+    "check"
+  ],
+  [
+    "bundle",
+    "info"
+  ],
+  [
+    "bundle",
+    "list"
+  ],
+  [
+    "bundle",
+    "outdated"
+  ],
+  [
+    "bundle",
+    "show"
+  ],
+  [
+    "bundle",
+    "version"
+  ],
+  [
+    "c++filt"
+  ],
+  [
+    "cabal",
+    "--version"
+  ],
+  [
+    "cabal",
+    "info"
+  ],
+  [
+    "cabal",
+    "list"
   ],
   [
     "cal"
@@ -327,6 +400,12 @@
     "cd"
   ],
   [
+    "cheat"
+  ],
+  [
+    "choose"
+  ],
+  [
     "cksum"
   ],
   [
@@ -343,6 +422,9 @@
   ],
   [
     "cmp"
+  ],
+  [
+    "colordiff"
   ],
   [
     "column"
@@ -362,6 +444,9 @@
     "compgen"
   ],
   [
+    "csvtool"
+  ],
+  [
     "ctest",
     "--show-only"
   ],
@@ -373,7 +458,44 @@
     "cut"
   ],
   [
+    "dart",
+    "--version"
+  ],
+  [
+    "dart",
+    "info"
+  ],
+  [
+    "dasel"
+  ],
+  [
     "date"
+  ],
+  [
+    "dc"
+  ],
+  [
+    "defaults",
+    "read"
+  ],
+  [
+    "delta"
+  ],
+  [
+    "deno",
+    "--version"
+  ],
+  [
+    "deno",
+    "doc"
+  ],
+  [
+    "deno",
+    "info"
+  ],
+  [
+    "deno",
+    "types"
   ],
   [
     "df"
@@ -382,8 +504,257 @@
     "diff"
   ],
   [
+    "difft"
+  ],
+  [
+    "dirname"
+  ],
+  [
+    "dirs"
+  ],
+  [
+    "diskutil",
+    "info"
+  ],
+  [
+    "diskutil",
+    "list"
+  ],
+  [
+    "dnf",
+    "check"
+  ],
+  [
+    "dnf",
+    "check-update"
+  ],
+  [
+    "dnf",
+    "deplist"
+  ],
+  [
+    "dnf",
+    "group",
+    "info"
+  ],
+  [
+    "dnf",
+    "group",
+    "list"
+  ],
+  [
+    "dnf",
+    "help"
+  ],
+  [
+    "dnf",
+    "history"
+  ],
+  [
+    "dnf",
+    "history",
+    "info"
+  ],
+  [
+    "dnf",
+    "info"
+  ],
+  [
+    "dnf",
+    "list"
+  ],
+  [
+    "dnf",
+    "module",
+    "info"
+  ],
+  [
+    "dnf",
+    "module",
+    "list"
+  ],
+  [
+    "dnf",
+    "provides"
+  ],
+  [
+    "dnf",
+    "repoinfo"
+  ],
+  [
+    "dnf",
+    "repolist"
+  ],
+  [
+    "dnf",
+    "repoquery"
+  ],
+  [
+    "dnf",
+    "search"
+  ],
+  [
+    "docker",
+    "compose",
+    "config"
+  ],
+  [
+    "docker",
+    "compose",
+    "images"
+  ],
+  [
+    "docker",
+    "compose",
+    "logs"
+  ],
+  [
+    "docker",
+    "compose",
+    "ls"
+  ],
+  [
+    "docker",
+    "compose",
+    "ps"
+  ],
+  [
+    "docker",
+    "compose",
+    "top"
+  ],
+  [
+    "docker",
+    "compose",
+    "version"
+  ],
+  [
+    "docker",
+    "container",
+    "diff"
+  ],
+  [
+    "docker",
+    "container",
+    "inspect"
+  ],
+  [
+    "docker",
+    "container",
+    "logs"
+  ],
+  [
+    "docker",
+    "container",
+    "ls"
+  ],
+  [
+    "docker",
+    "container",
+    "port"
+  ],
+  [
+    "docker",
+    "container",
+    "stats"
+  ],
+  [
+    "docker",
+    "container",
+    "top"
+  ],
+  [
+    "docker",
+    "diff"
+  ],
+  [
+    "docker",
+    "events"
+  ],
+  [
+    "docker",
+    "history"
+  ],
+  [
+    "docker",
+    "image",
+    "history"
+  ],
+  [
+    "docker",
+    "image",
+    "inspect"
+  ],
+  [
+    "docker",
+    "image",
+    "ls"
+  ],
+  [
+    "docker",
+    "images"
+  ],
+  [
+    "docker",
+    "info"
+  ],
+  [
     "docker",
     "inspect"
+  ],
+  [
+    "docker",
+    "logs"
+  ],
+  [
+    "docker",
+    "network",
+    "inspect"
+  ],
+  [
+    "docker",
+    "network",
+    "ls"
+  ],
+  [
+    "docker",
+    "port"
+  ],
+  [
+    "docker",
+    "ps"
+  ],
+  [
+    "docker",
+    "stats"
+  ],
+  [
+    "docker",
+    "system",
+    "df"
+  ],
+  [
+    "docker",
+    "system",
+    "info"
+  ],
+  [
+    "docker",
+    "top"
+  ],
+  [
+    "docker",
+    "version"
+  ],
+  [
+    "docker",
+    "volume",
+    "inspect"
+  ],
+  [
+    "docker",
+    "volume",
+    "ls"
   ],
   [
     "dotnet",
@@ -466,89 +837,30 @@
     "search"
   ],
   [
-    "dirname"
+    "dscacheutil"
   ],
   [
-    "dirs"
-  ],
-  [
-    "dnf",
-    "check"
-  ],
-  [
-    "dnf",
-    "check-update"
-  ],
-  [
-    "dnf",
-    "deplist"
-  ],
-  [
-    "dnf",
-    "group",
-    "info"
-  ],
-  [
-    "dnf",
-    "group",
-    "list"
-  ],
-  [
-    "dnf",
-    "help"
-  ],
-  [
-    "dnf",
-    "history"
-  ],
-  [
-    "dnf",
-    "history",
-    "info"
-  ],
-  [
-    "dnf",
-    "info"
-  ],
-  [
-    "dnf",
-    "list"
-  ],
-  [
-    "dnf",
-    "module",
-    "info"
-  ],
-  [
-    "dnf",
-    "module",
-    "list"
-  ],
-  [
-    "dnf",
-    "provides"
-  ],
-  [
-    "dnf",
-    "repoinfo"
-  ],
-  [
-    "dnf",
-    "repolist"
-  ],
-  [
-    "dnf",
-    "repoquery"
-  ],
-  [
-    "dnf",
-    "search"
+    "dscl",
+    "."
   ],
   [
     "du"
   ],
   [
+    "duf"
+  ],
+  [
+    "dust"
+  ],
+  [
     "echo"
+  ],
+  [
+    "elixir",
+    "--version"
+  ],
+  [
+    "exa"
   ],
   [
     "expand"
@@ -557,13 +869,42 @@
     "expr"
   ],
   [
+    "eza"
+  ],
+  [
     "factor"
   ],
   [
     "false"
   ],
   [
+    "fd"
+  ],
+  [
+    "fdfind"
+  ],
+  [
     "file"
+  ],
+  [
+    "finger"
+  ],
+  [
+    "flutter",
+    "--version"
+  ],
+  [
+    "flutter",
+    "config",
+    "--list"
+  ],
+  [
+    "flutter",
+    "devices"
+  ],
+  [
+    "flutter",
+    "doctor"
   ],
   [
     "fmt"
@@ -573,6 +914,9 @@
   ],
   [
     "free"
+  ],
+  [
+    "fx"
   ],
   [
     "gem",
@@ -661,6 +1005,10 @@
     "gh",
     "extension",
     "list"
+  ],
+  [
+    "ghc",
+    "--version"
   ],
   [
     "gmake",
@@ -817,7 +1165,63 @@
     "grep"
   ],
   [
+    "gron"
+  ],
+  [
+    "groups"
+  ],
+  [
+    "hatch",
+    "--version"
+  ],
+  [
+    "hatch",
+    "env",
+    "show"
+  ],
+  [
+    "hatch",
+    "version"
+  ],
+  [
     "head"
+  ],
+  [
+    "helm",
+    "env"
+  ],
+  [
+    "helm",
+    "get"
+  ],
+  [
+    "helm",
+    "history"
+  ],
+  [
+    "helm",
+    "list"
+  ],
+  [
+    "helm",
+    "repo",
+    "list"
+  ],
+  [
+    "helm",
+    "search"
+  ],
+  [
+    "helm",
+    "show"
+  ],
+  [
+    "helm",
+    "status"
+  ],
+  [
+    "helm",
+    "version"
   ],
   [
     "help"
@@ -832,7 +1236,47 @@
     "htop"
   ],
   [
+    "icdiff"
+  ],
+  [
+    "iconv"
+  ],
+  [
+    "id"
+  ],
+  [
+    "info"
+  ],
+  [
+    "iostat"
+  ],
+  [
     "join"
+  ],
+  [
+    "jq"
+  ],
+  [
+    "last"
+  ],
+  [
+    "launchctl",
+    "list"
+  ],
+  [
+    "ldd"
+  ],
+  [
+    "lein",
+    "classpath"
+  ],
+  [
+    "lein",
+    "deps"
+  ],
+  [
+    "lein",
+    "version"
   ],
   [
     "less"
@@ -841,7 +1285,13 @@
     "locale"
   ],
   [
+    "logname"
+  ],
+  [
     "ls"
+  ],
+  [
+    "lsd"
   ],
   [
     "lsof"
@@ -879,7 +1329,34 @@
     "-q"
   ],
   [
+    "man"
+  ],
+  [
     "md5sum"
+  ],
+  [
+    "mdfind"
+  ],
+  [
+    "mdls"
+  ],
+  [
+    "miller"
+  ],
+  [
+    "mix",
+    "deps.tree"
+  ],
+  [
+    "mix",
+    "help"
+  ],
+  [
+    "mix",
+    "hex.info"
+  ],
+  [
+    "mlr"
   ],
   [
     "more"
@@ -944,6 +1421,9 @@
   ],
   [
     "nl"
+  ],
+  [
+    "nm"
   ],
   [
     "nohup"
@@ -1084,10 +1564,31 @@
     "nproc"
   ],
   [
+    "numfmt"
+  ],
+  [
+    "objdump"
+  ],
+  [
     "od"
   ],
   [
+    "otool"
+  ],
+  [
     "paste"
+  ],
+  [
+    "pdm",
+    "--version"
+  ],
+  [
+    "pdm",
+    "list"
+  ],
+  [
+    "pdm",
+    "show"
   ],
   [
     "pgrep"
@@ -1202,6 +1703,14 @@
     "show"
   ],
   [
+    "plutil",
+    "-lint"
+  ],
+  [
+    "plutil",
+    "-p"
+  ],
+  [
     "pnpm",
     "audit"
   ],
@@ -1264,22 +1773,194 @@
   ],
   [
     "podman",
+    "compose",
+    "config"
+  ],
+  [
+    "podman",
+    "compose",
+    "logs"
+  ],
+  [
+    "podman",
+    "compose",
+    "ps"
+  ],
+  [
+    "podman",
+    "container",
+    "diff"
+  ],
+  [
+    "podman",
+    "container",
     "inspect"
+  ],
+  [
+    "podman",
+    "container",
+    "logs"
+  ],
+  [
+    "podman",
+    "container",
+    "ls"
+  ],
+  [
+    "podman",
+    "container",
+    "stats"
+  ],
+  [
+    "podman",
+    "container",
+    "top"
+  ],
+  [
+    "podman",
+    "diff"
+  ],
+  [
+    "podman",
+    "events"
+  ],
+  [
+    "podman",
+    "history"
+  ],
+  [
+    "podman",
+    "image",
+    "history"
+  ],
+  [
+    "podman",
+    "image",
+    "inspect"
+  ],
+  [
+    "podman",
+    "image",
+    "ls"
+  ],
+  [
+    "podman",
+    "images"
+  ],
+  [
+    "podman",
+    "info"
+  ],
+  [
+    "podman",
+    "inspect"
+  ],
+  [
+    "podman",
+    "logs"
+  ],
+  [
+    "podman",
+    "network",
+    "inspect"
+  ],
+  [
+    "podman",
+    "network",
+    "ls"
+  ],
+  [
+    "podman",
+    "port"
+  ],
+  [
+    "podman",
+    "ps"
+  ],
+  [
+    "podman",
+    "stats"
+  ],
+  [
+    "podman",
+    "system",
+    "df"
+  ],
+  [
+    "podman",
+    "system",
+    "info"
+  ],
+  [
+    "podman",
+    "top"
+  ],
+  [
+    "podman",
+    "version"
+  ],
+  [
+    "podman",
+    "volume",
+    "inspect"
+  ],
+  [
+    "podman",
+    "volume",
+    "ls"
+  ],
+  [
+    "poetry",
+    "--version"
+  ],
+  [
+    "poetry",
+    "check"
+  ],
+  [
+    "poetry",
+    "env",
+    "info"
+  ],
+  [
+    "poetry",
+    "env",
+    "list"
+  ],
+  [
+    "poetry",
+    "show"
   ],
   [
     "popd"
   ],
   [
+    "printenv"
+  ],
+  [
     "printf"
   ],
   [
+    "procs"
+  ],
+  [
     "ps"
+  ],
+  [
+    "pstree"
   ],
   [
     "pushd"
   ],
   [
     "pwd"
+  ],
+  [
+    "rails",
+    "--version"
+  ],
+  [
+    "readelf"
   ],
   [
     "readlink"
@@ -1292,6 +1973,25 @@
   ],
   [
     "rg"
+  ],
+  [
+    "ruby",
+    "--version"
+  ],
+  [
+    "sbt",
+    "--version"
+  ],
+  [
+    "scala",
+    "--version"
+  ],
+  [
+    "scala",
+    "-version"
+  ],
+  [
+    "sd"
   ],
   [
     "seq"
@@ -1309,6 +2009,9 @@
     "shellcheck"
   ],
   [
+    "size"
+  ],
+  [
     "sleep"
   ],
   [
@@ -1316,6 +2019,10 @@
   ],
   [
     "ss"
+  ],
+  [
+    "stack",
+    "--version"
   ],
   [
     "stat"
@@ -1327,10 +2034,80 @@
     "strings"
   ],
   [
+    "strip",
+    "--help"
+  ],
+  [
+    "sw_vers"
+  ],
+  [
+    "swift",
+    "--version"
+  ],
+  [
+    "swift",
+    "package",
+    "describe"
+  ],
+  [
+    "swift",
+    "package",
+    "dump-package"
+  ],
+  [
+    "swift",
+    "package",
+    "show-dependencies"
+  ],
+  [
+    "sysctl"
+  ],
+  [
+    "system_profiler"
+  ],
+  [
     "tac"
   ],
   [
     "tail"
+  ],
+  [
+    "terraform",
+    "--version"
+  ],
+  [
+    "terraform",
+    "graph"
+  ],
+  [
+    "terraform",
+    "output"
+  ],
+  [
+    "terraform",
+    "providers"
+  ],
+  [
+    "terraform",
+    "show"
+  ],
+  [
+    "terraform",
+    "state",
+    "list"
+  ],
+  [
+    "terraform",
+    "state",
+    "show"
+  ],
+  [
+    "terraform",
+    "validate"
+  ],
+  [
+    "terraform",
+    "version"
   ],
   [
     "test"
@@ -1340,6 +2117,9 @@
   ],
   [
     "timeout"
+  ],
+  [
+    "tldr"
   ],
   [
     "top"
@@ -1358,6 +2138,9 @@
   ],
   [
     "type"
+  ],
+  [
+    "ulimit"
   ],
   [
     "uname"
@@ -1447,7 +2230,16 @@
     "version"
   ],
   [
+    "vmstat"
+  ],
+  [
+    "w"
+  ],
+  [
     "wc"
+  ],
+  [
+    "whatis"
   ],
   [
     "whereis"
@@ -1457,6 +2249,32 @@
   ],
   [
     "whoami"
+  ],
+  [
+    "xcode-select",
+    "--print-path"
+  ],
+  [
+    "xcode-select",
+    "-p"
+  ],
+  [
+    "xcrun",
+    "--find"
+  ],
+  [
+    "xcrun",
+    "--sdk"
+  ],
+  [
+    "xcrun",
+    "--show-sdk-path"
+  ],
+  [
+    "xsv"
+  ],
+  [
+    "xxd"
   ],
   [
     "yarn",
@@ -1546,6 +2364,9 @@
     "list"
   ],
   [
+    "yq"
+  ],
+  [
     "yum",
     "check-update"
   ],
@@ -1574,6 +2395,14 @@
   ],
   [
     "zgrep"
+  ],
+  [
+    "zig",
+    "env"
+  ],
+  [
+    "zig",
+    "version"
   ],
   [
     "zless"

@@ -24,6 +24,15 @@
     "yank"
   ],
   [
+    "docker",
+    "compose",
+    "push"
+  ],
+  [
+    "docker",
+    "push"
+  ],
+  [
     "dotnet",
     "nuget",
     "delete"
@@ -132,6 +141,15 @@
   [
     "pnpm",
     "publish"
+  ],
+  [
+    "podman",
+    "compose",
+    "push"
+  ],
+  [
+    "podman",
+    "push"
   ],
   [
     "socat"

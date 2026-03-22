@@ -44,6 +44,10 @@
     "remove"
   ],
   [
+    "bazel",
+    "clean"
+  ],
+  [
     "brew",
     "autoremove"
   ],
@@ -86,6 +90,14 @@
     "unlink"
   ],
   [
+    "bundle",
+    "clean"
+  ],
+  [
+    "cabal",
+    "clean"
+  ],
+  [
     "cargo",
     "clean"
   ],
@@ -96,6 +108,16 @@
   [
     "cargo",
     "uninstall"
+  ],
+  [
+    "dart",
+    "pub",
+    "cache",
+    "clean"
+  ],
+  [
+    "deno",
+    "remove"
   ],
   [
     "dnf",
@@ -146,6 +168,11 @@
     "remove"
   ],
   [
+    "docker",
+    "compose",
+    "down"
+  ],
+  [
     "dotnet",
     "clean"
   ],
@@ -190,6 +217,10 @@
     "uninstall"
   ],
   [
+    "flutter",
+    "clean"
+  ],
+  [
     "gem",
     "cleanup"
   ],
@@ -208,6 +239,15 @@
   [
     "gradlew",
     "clean"
+  ],
+  [
+    "helm",
+    "repo",
+    "remove"
+  ],
+  [
+    "mix",
+    "deps.clean"
   ],
   [
     "mvn",
@@ -287,6 +327,19 @@
   [
     "pnpm",
     "unlink"
+  ],
+  [
+    "podman",
+    "compose",
+    "down"
+  ],
+  [
+    "stack",
+    "clean"
+  ],
+  [
+    "terraform",
+    "destroy"
   ],
   [
     "uv",

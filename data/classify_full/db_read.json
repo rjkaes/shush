@@ -1,26 +1,6 @@
 [
   [
     "kubectl",
-    "get"
-  ],
-  [
-    "kubectl",
-    "describe"
-  ],
-  [
-    "kubectl",
-    "logs"
-  ],
-  [
-    "kubectl",
-    "top"
-  ],
-  [
-    "kubectl",
-    "cluster-info"
-  ],
-  [
-    "kubectl",
     "api-resources"
   ],
   [
@@ -29,16 +9,17 @@
   ],
   [
     "kubectl",
-    "version"
+    "auth",
+    "can-i"
   ],
   [
     "kubectl",
-    "explain"
+    "auth",
+    "whoami"
   ],
   [
     "kubectl",
-    "config",
-    "view"
+    "cluster-info"
   ],
   [
     "kubectl",
@@ -48,6 +29,63 @@
   [
     "kubectl",
     "config",
+    "get-clusters"
+  ],
+  [
+    "kubectl",
+    "config",
     "get-contexts"
+  ],
+  [
+    "kubectl",
+    "config",
+    "get-users"
+  ],
+  [
+    "kubectl",
+    "config",
+    "view"
+  ],
+  [
+    "kubectl",
+    "describe"
+  ],
+  [
+    "kubectl",
+    "diff"
+  ],
+  [
+    "kubectl",
+    "explain"
+  ],
+  [
+    "kubectl",
+    "get"
+  ],
+  [
+    "kubectl",
+    "logs"
+  ],
+  [
+    "kubectl",
+    "rollout",
+    "history"
+  ],
+  [
+    "kubectl",
+    "rollout",
+    "status"
+  ],
+  [
+    "kubectl",
+    "top"
+  ],
+  [
+    "kubectl",
+    "version"
+  ],
+  [
+    "kubectl",
+    "wait"
   ]
 ]

@@ -1,5 +1,75 @@
 [
   [
+    "docker",
+    "compose",
+    "kill"
+  ],
+  [
+    "docker",
+    "compose",
+    "pause"
+  ],
+  [
+    "docker",
+    "compose",
+    "restart"
+  ],
+  [
+    "docker",
+    "compose",
+    "stop"
+  ],
+  [
+    "docker",
+    "compose",
+    "unpause"
+  ],
+  [
+    "docker",
+    "container",
+    "kill"
+  ],
+  [
+    "docker",
+    "container",
+    "pause"
+  ],
+  [
+    "docker",
+    "container",
+    "restart"
+  ],
+  [
+    "docker",
+    "container",
+    "stop"
+  ],
+  [
+    "docker",
+    "container",
+    "unpause"
+  ],
+  [
+    "docker",
+    "kill"
+  ],
+  [
+    "docker",
+    "pause"
+  ],
+  [
+    "docker",
+    "restart"
+  ],
+  [
+    "docker",
+    "stop"
+  ],
+  [
+    "docker",
+    "unpause"
+  ],
+  [
     "dotnet",
     "build-server",
     "shutdown"
@@ -23,6 +93,76 @@
     "pkill"
   ],
   [
+    "podman",
+    "compose",
+    "kill"
+  ],
+  [
+    "podman",
+    "compose",
+    "pause"
+  ],
+  [
+    "podman",
+    "compose",
+    "restart"
+  ],
+  [
+    "podman",
+    "compose",
+    "stop"
+  ],
+  [
+    "podman",
+    "compose",
+    "unpause"
+  ],
+  [
+    "podman",
+    "container",
+    "kill"
+  ],
+  [
+    "podman",
+    "container",
+    "pause"
+  ],
+  [
+    "podman",
+    "container",
+    "restart"
+  ],
+  [
+    "podman",
+    "container",
+    "stop"
+  ],
+  [
+    "podman",
+    "container",
+    "unpause"
+  ],
+  [
+    "podman",
+    "kill"
+  ],
+  [
+    "podman",
+    "pause"
+  ],
+  [
+    "podman",
+    "restart"
+  ],
+  [
+    "podman",
+    "stop"
+  ],
+  [
+    "podman",
+    "unpause"
+  ],
+  [
     "systemctl",
     "disable"
   ],
@@ -33,6 +173,10 @@
   [
     "systemctl",
     "restart"
+  ],
+  [
+    "systemctl",
+    "start"
   ],
   [
     "systemctl",

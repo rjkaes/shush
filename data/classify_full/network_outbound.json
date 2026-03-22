@@ -8,6 +8,9 @@
     "http-backend"
   ],
   [
+    "grpcurl"
+  ],
+  [
     "nmap"
   ],
   [
