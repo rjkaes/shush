@@ -1,11 +1,11 @@
-import parse from "bash-parser";
+import { parse } from "unbash";
+import type {
+  Script, Statement, Node, Command, Pipeline, AndOr,
+  CompoundList, Redirect,
+  If, While, For, Case,
+  ArithmeticFor, Select,
+} from "unbash";
 import type { Stage } from "./types.js";
-
-// AST node type aliases (bash-parser doesn't export types)
-interface AstNode {
-  type: string;
-  [key: string]: unknown;
-}
 
 /** Sentinel token replacing extracted process substitutions. */
 export const PROCSUB_PLACEHOLDER = "__PROCSUB__";
@@ -72,36 +72,25 @@ export function extractProcessSubs(command: string): { cleaned: string; subs: st
 /**
  * Parse a bash command and extract flat pipeline stages.
  *
- * When bash-parser fails (typically due to nested quoting inside command
- * substitutions), we extract $(...) blocks, replace them with harmless
- * variable references, and retry the parse. The extracted sub-commands are
- * returned alongside the stages so the caller can classify them separately.
+ * Command substitution inner strings ($(...) and backticks) are always
+ * extracted for separate recursive classification by bash-guard.ts,
+ * regardless of whether parsing succeeds.
  *
- * Falls back to simple token splitting only when both attempts fail.
+ * Falls back to simple token splitting when unbash reports parse errors.
  */
 export function extractStages(command: string): { stages: Stage[]; cmdSubs: string[] } {
   if (!command.trim()) return { stages: [], cmdSubs: [] };
 
-  // First attempt: parse the original command as-is.
-  try {
-    const ast = parse(command, { mode: "bash" });
-    return { stages: walkScript(ast), cmdSubs: [] };
-  } catch {
-    // bash-parser failed. Try extracting command substitutions first.
+  // Always extract command substitution inner strings for separate
+  // security classification (bash-guard.ts classifies these recursively).
+  const { subs: cmdSubs } = extractCommandSubs(command);
+
+  const ast = parse(command);
+  if (ast.errors?.length) {
+    return { stages: fallbackSplit(command), cmdSubs };
   }
 
-  // Second attempt: replace $(...) with placeholders and retry.
-  const { cleaned, subs } = extractCommandSubs(command);
-  if (subs.length > 0 && cleaned !== command) {
-    try {
-      const ast = parse(cleaned, { mode: "bash" });
-      return { stages: walkScript(ast), cmdSubs: subs };
-    } catch {
-      // Still failed even after extraction; fall through.
-    }
-  }
-
-  return { stages: fallbackSplit(command), cmdSubs: subs };
+  return { stages: walkScript(ast), cmdSubs };
 }
 
 /**
@@ -195,155 +184,186 @@ export function extractCommandSubs(command: string): { cleaned: string; subs: st
   return { cleaned: result, subs };
 }
 
-function walkScript(ast: AstNode): Stage[] {
-  const commands = ast.commands as AstNode[] | undefined;
-  if (!commands?.length) return [];
+// ==============================================================================
+// AST Walking
+// ==============================================================================
+
+function walkScript(ast: Script): Stage[] {
+  if (!ast.commands.length) return [];
 
   const stages: Stage[] = [];
-  for (let i = 0; i < commands.length; i++) {
-    const isLast = i === commands.length - 1;
-    stages.push(...walkNode(commands[i], isLast ? "" : ";"));
+  for (let i = 0; i < ast.commands.length; i++) {
+    const isLast = i === ast.commands.length - 1;
+    stages.push(...walkStatement(ast.commands[i], isLast ? "" : ";"));
   }
   return stages;
 }
 
-function walkNode(node: AstNode, trailingOp: string): Stage[] {
+/** Unwrap a Statement node and dispatch on its inner command. */
+function walkStatement(stmt: Statement, trailingOp: string): Stage[] {
+  return walkNode(stmt.command, trailingOp, stmt.redirects);
+}
+
+function walkNode(node: Node, trailingOp: string, stmtRedirects?: Redirect[]): Stage[] {
   switch (node.type) {
     case "Command":
-      return [commandToStage(node, trailingOp)];
+      return [commandToStage(node, trailingOp, stmtRedirects)];
 
     case "Pipeline":
       return walkPipeline(node, trailingOp);
 
-    case "LogicalExpression":
-      return walkLogical(node, trailingOp);
+    case "AndOr":
+      return walkAndOr(node, trailingOp);
 
     case "Subshell":
-      return walkCompoundList(
-        (node.list as AstNode) ?? node,
-        trailingOp,
-      );
+      return walkCompoundList(node.body, trailingOp);
+
+    case "BraceGroup":
+      return walkCompoundList(node.body, trailingOp);
 
     case "If":
+      return walkIf(node, trailingOp);
+
     case "While":
-    case "Until":
+      return walkWhile(node, trailingOp);
+
     case "For":
+    case "ArithmeticFor":
+    case "Select":
+      return walkLoop(node, trailingOp);
+
     case "Case":
-      return walkControlFlow(node, trailingOp);
+      return walkCase(node, trailingOp);
 
     case "Function":
-      return walkCompoundList(
-        (node.body as AstNode) ?? node,
-        trailingOp,
-      );
+      return walkNode(node.body, trailingOp);
+
+    case "Coproc":
+      return walkNode(node.body, trailingOp);
 
     case "CompoundList":
       return walkCompoundList(node, trailingOp);
+
+    case "Statement":
+      return walkStatement(node, trailingOp);
 
     default:
       return [];
   }
 }
 
-function walkPipeline(node: AstNode, trailingOp: string): Stage[] {
-  const commands = node.commands as AstNode[];
-  if (!commands?.length) return [];
-
+function walkPipeline(node: Pipeline, trailingOp: string): Stage[] {
   const stages: Stage[] = [];
-  for (let i = 0; i < commands.length; i++) {
-    const isLast = i === commands.length - 1;
+  for (let i = 0; i < node.commands.length; i++) {
+    const isLast = i === node.commands.length - 1;
     const op = isLast ? trailingOp : "|";
-    stages.push(...walkNode(commands[i], op));
+    stages.push(...walkNode(node.commands[i], op));
   }
   return stages;
 }
 
-function walkLogical(node: AstNode, trailingOp: string): Stage[] {
-  const op = (node.op as string) === "and" ? "&&" : "||";
-  const leftStages = walkNode(node.left as AstNode, op);
-  const rightStages = walkNode(node.right as AstNode, trailingOp);
-  return [...leftStages, ...rightStages];
-}
-
-function walkCompoundList(node: AstNode, trailingOp: string): Stage[] {
-  const commands = node.commands as AstNode[] | undefined;
-  if (!commands?.length) return [];
-
+/** AndOr uses a flat commands[] + operators[] instead of binary left/right. */
+function walkAndOr(node: AndOr, trailingOp: string): Stage[] {
   const stages: Stage[] = [];
-  for (let i = 0; i < commands.length; i++) {
-    const isLast = i === commands.length - 1;
-    stages.push(...walkNode(commands[i], isLast ? trailingOp : ";"));
+  for (let i = 0; i < node.commands.length; i++) {
+    const isLast = i === node.commands.length - 1;
+    const op = isLast ? trailingOp : node.operators[i];
+    stages.push(...walkNode(node.commands[i], op));
   }
   return stages;
 }
 
-function walkControlFlow(node: AstNode, trailingOp: string): Stage[] {
-  // Extract stages from all compound lists in control flow nodes
+function walkCompoundList(node: CompoundList, trailingOp: string): Stage[] {
+  if (!node.commands.length) return [];
+
   const stages: Stage[] = [];
-  for (const key of ["clause", "then", "else", "do", "cases"]) {
-    const child = node[key];
-    if (!child) continue;
-    if (Array.isArray(child)) {
-      // Case items
-      for (const item of child) {
-        if ((item as AstNode).body) {
-          stages.push(...walkCompoundList((item as AstNode).body as AstNode, ""));
-        }
-      }
-    } else if (typeof child === "object" && (child as AstNode).type) {
-      stages.push(...walkNode(child as AstNode, ""));
+  for (let i = 0; i < node.commands.length; i++) {
+    const isLast = i === node.commands.length - 1;
+    stages.push(...walkStatement(node.commands[i], isLast ? trailingOp : ";"));
+  }
+  return stages;
+}
+
+function walkIf(node: If, trailingOp: string): Stage[] {
+  const stages: Stage[] = [];
+  stages.push(...walkCompoundList(node.clause, ""));
+  stages.push(...walkCompoundList(node.then, ""));
+  if (node.else) {
+    if (node.else.type === "If") {
+      stages.push(...walkIf(node.else, ""));
+    } else {
+      stages.push(...walkCompoundList(node.else, ""));
     }
   }
-  // Tag the last stage with the trailing operator
   if (stages.length > 0 && trailingOp) {
     stages[stages.length - 1].operator = trailingOp;
   }
   return stages;
 }
 
-function commandToStage(node: AstNode, operator: string): Stage {
+function walkWhile(node: While, trailingOp: string): Stage[] {
+  const stages: Stage[] = [];
+  stages.push(...walkCompoundList(node.clause, ""));
+  stages.push(...walkCompoundList(node.body, ""));
+  if (stages.length > 0 && trailingOp) {
+    stages[stages.length - 1].operator = trailingOp;
+  }
+  return stages;
+}
+
+function walkLoop(node: For | ArithmeticFor | Select, trailingOp: string): Stage[] {
+  const stages = walkCompoundList(node.body, "");
+  if (stages.length > 0 && trailingOp) {
+    stages[stages.length - 1].operator = trailingOp;
+  }
+  return stages;
+}
+
+function walkCase(node: Case, trailingOp: string): Stage[] {
+  const stages: Stage[] = [];
+  for (const item of node.items) {
+    stages.push(...walkCompoundList(item.body, ""));
+  }
+  if (stages.length > 0 && trailingOp) {
+    stages[stages.length - 1].operator = trailingOp;
+  }
+  return stages;
+}
+
+// ==============================================================================
+// Command → Stage conversion
+// ==============================================================================
+
+function commandToStage(node: Command, operator: string, stmtRedirects?: Redirect[]): Stage {
   const tokens: string[] = [];
   const envAssignments: string[] = [];
   let redirectTarget: string | undefined;
   let redirectAppend: boolean | undefined;
 
-  // Extract command name
-  const name = node.name as AstNode | undefined;
-  if (name?.text) {
-    tokens.push(name.text as string);
+  // Extract command name (use .value for unquoted content)
+  if (node.name) {
+    tokens.push(node.name.value);
   }
 
-  // Extract prefix: collect env assignments and redirects
-  const prefix = node.prefix as AstNode[] | undefined;
-  if (prefix) {
-    for (const p of prefix) {
-      if (p.type === "Redirect") {
-        const file = p.file as AstNode | undefined;
-        if (file?.text) {
-          const opText = (p.op as AstNode)?.text as string | undefined;
-          redirectTarget = file.text as string;
-          redirectAppend = opText === ">>";
-        }
-      } else if (p.type === "AssignmentWord" && p.text) {
-        envAssignments.push(p.text as string);
-      }
+  // Extract prefix assignments (e.g., FOO=bar cmd)
+  // Use .text here to preserve the raw KEY=value form
+  for (const a of node.prefix) {
+    if (a.text) {
+      envAssignments.push(a.text);
     }
   }
 
-  // Extract suffix: Word nodes become args, Redirect nodes capture targets
-  const suffix = node.suffix as AstNode[] | undefined;
-  if (suffix) {
-    for (const s of suffix) {
-      if (s.type === "Word") {
-        tokens.push(s.text as string);
-      } else if (s.type === "Redirect") {
-        const file = s.file as AstNode | undefined;
-        if (file?.text) {
-          const opText = (s.op as AstNode)?.text as string | undefined;
-          redirectTarget = file.text as string;
-          redirectAppend = opText === ">>";
-        }
-      }
+  // Extract suffix (arguments; .value gives unquoted content)
+  for (const s of node.suffix) {
+    tokens.push(s.value);
+  }
+
+  // Extract redirects from Command node and parent Statement
+  const allRedirects = [...node.redirects, ...(stmtRedirects ?? [])];
+  for (const r of allRedirects) {
+    if (r.target) {
+      redirectTarget = r.target.value;
+      redirectAppend = r.operator === ">>";
     }
   }
 
@@ -356,8 +376,12 @@ function commandToStage(node: AstNode, operator: string): Stage {
   };
 }
 
+// ==============================================================================
+// Fallback (when parser reports errors)
+// ==============================================================================
+
 /**
- * Fallback when bash-parser fails: split on shell metacharacters.
+ * Fallback when the parser reports errors: split on shell metacharacters.
  * Handles basic pipes, &&, ||, ; splitting while respecting quotes.
  */
 function fallbackSplit(command: string): Stage[] {

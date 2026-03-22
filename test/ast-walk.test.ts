@@ -78,16 +78,14 @@ describe("extractStages", () => {
     expect(echoStage!.tokens).not.toContain("out.txt");
   });
 
-  test("parse failure falls back to shlex-like split", () => {
-    // bash-parser can't handle [[ ]] — should fall back gracefully
+  test("[[ ]] test commands produce no stages (harmless)", () => {
+    // unbash parses [[ ]] as TestCommand; no stages needed for classification
     const { stages } = extractStages("[[ -f file ]]");
-    expect(stages.length).toBeGreaterThanOrEqual(1);
+    expect(stages.length).toBe(0);
   });
 
-  test("fallback split respects quoted pipe symbols", () => {
-    // Force fallback by using [[ ]] syntax that bash-parser can't handle.
-    // The key assertion: grep and its arguments stay in one stage,
-    // not split on the \| inside quotes.
+  test("quoted pipe symbols stay in one stage", () => {
+    // grep and its arguments stay in one stage, not split on the \| inside quotes.
     const { stages } = extractStages("[[ -f file ]] && grep -rn 'deleteFrom\\|clearTable' .");
     const grepStage = stages.find((s) => s.tokens[0] === "grep");
     expect(grepStage).toBeDefined();
@@ -193,13 +191,13 @@ describe("extractCommandSubs", () => {
   });
 });
 
-describe("extractStages with command substitution retry", () => {
-  test("for loop with command substitution parses after extraction", () => {
+describe("extractStages with command substitutions", () => {
+  test("for loop with command substitution extracts inner commands", () => {
     const cmd = `for f in *.json; do count=$(python3 -c "import json; print(1)"); echo "$count"; done`;
     const { stages, cmdSubs } = extractStages(cmd);
-    // Should parse the for loop body after extracting $()
+    // unbash parses the for loop natively; stages come from the loop body
     expect(stages.length).toBeGreaterThanOrEqual(1);
-    // The python3 command should be extracted as a sub
+    // The python3 command should be extracted for separate classification
     expect(cmdSubs.length).toBeGreaterThanOrEqual(1);
     expect(cmdSubs[0]).toContain("python3");
   });
