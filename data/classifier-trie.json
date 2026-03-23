@@ -88,6 +88,23 @@
       "server": {
         "delete": {
           "_": "container_destructive"
+        },
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "db": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "list-usages": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
         }
       }
     },
@@ -98,12 +115,290 @@
       "list": {
         "_": "filesystem_read"
       },
+      "list-locations": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      },
+      "subscription": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "acr": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "manifest": {
+        "list-metadata": {
+          "_": "filesystem_read"
+        }
+      },
+      "repository": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        },
+        "show-tags": {
+          "_": "filesystem_read"
+        }
+      },
       "show": {
         "_": "filesystem_read"
       }
     },
+    "ad": {
+      "app": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "group": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "member": {
+          "list": {
+            "_": "filesystem_read"
+          }
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "signed-in-user": {
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "sp": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "user": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      }
+    },
     "aks": {
+      "get-upgrades": {
+        "_": "filesystem_read"
+      },
       "list": {
+        "_": "filesystem_read"
+      },
+      "nodepool": {
+        "get-upgrades": {
+          "_": "filesystem_read"
+        },
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "appservice": {
+      "list-locations": {
+        "_": "filesystem_read"
+      },
+      "plan": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "cognitiveservices": {
+      "account": {
+        "deployment": {
+          "list": {
+            "_": "filesystem_read"
+          }
+        },
+        "list": {
+          "_": "filesystem_read"
+        },
+        "list-usage": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "model": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "container": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "logs": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "containerapp": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "logs": {
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "cosmosdb": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "locations": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "show": {
+        "_": "filesystem_read"
+      },
+      "sql": {
+        "container": {
+          "list": {
+            "_": "filesystem_read"
+          },
+          "show": {
+            "_": "filesystem_read"
+          }
+        },
+        "database": {
+          "list": {
+            "_": "filesystem_read"
+          },
+          "show": {
+            "_": "filesystem_read"
+          }
+        }
+      }
+    },
+    "deployment": {
+      "group": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "operation": {
+        "group": {
+          "list": {
+            "_": "filesystem_read"
+          }
+        }
+      }
+    },
+    "disk": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "eventhubs": {
+      "eventhub": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "namespace": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "extension": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "feature": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "functionapp": {
+      "config": {
+        "appsettings": {
+          "list": {
+            "_": "filesystem_read"
+          }
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "list-runtimes": {
+        "_": "filesystem_read"
+      },
+      "plan": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "show": {
         "_": "filesystem_read"
       }
     },
@@ -111,15 +406,376 @@
       "list": {
         "_": "filesystem_read"
       },
+      "show": {
+        "_": "filesystem_read"
+      },
       "delete": {
         "_": "network_write"
+      }
+    },
+    "image": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "keyvault": {
+      "certificate": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "key": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "lock": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "monitor": {
+      "activity-log": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      },
+      "diagnostic-settings": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "log-analytics": {
+        "query": {
+          "_": "filesystem_read"
+        },
+        "workspace": {
+          "list": {
+            "_": "filesystem_read"
+          },
+          "show": {
+            "_": "filesystem_read"
+          }
+        }
+      },
+      "metrics": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "mysql": {
+      "flexible-server": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "server": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "network": {
+      "application-gateway": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "dns": {
+        "record-set": {
+          "list": {
+            "_": "filesystem_read"
+          }
+        },
+        "zone": {
+          "list": {
+            "_": "filesystem_read"
+          },
+          "show": {
+            "_": "filesystem_read"
+          }
+        }
+      },
+      "lb": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "nic": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "nsg": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "rule": {
+          "list": {
+            "_": "filesystem_read"
+          },
+          "show": {
+            "_": "filesystem_read"
+          }
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "public-ip": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "vnet": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        },
+        "subnet": {
+          "list": {
+            "_": "filesystem_read"
+          },
+          "show": {
+            "_": "filesystem_read"
+          }
+        }
+      }
+    },
+    "policy": {
+      "assignment": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "definition": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "event": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      },
+      "set-definition": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "state": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "postgres": {
+      "flexible-server": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "server": {
+        "configuration": {
+          "list": {
+            "_": "filesystem_read"
+          },
+          "show": {
+            "_": "filesystem_read"
+          }
+        },
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "provider": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "redis": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "resource": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "role": {
+      "assignment": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      },
+      "definition": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "servicebus": {
+      "namespace": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "queue": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "topic": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "snapshot": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "storage": {
+      "account": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "blob": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "container": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "tag": {
+      "list": {
+        "_": "filesystem_read"
       }
     },
     "version": {
       "_": "filesystem_read"
     },
     "vm": {
+      "image": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
       "list": {
+        "_": "filesystem_read"
+      },
+      "list-ip-addresses": {
+        "_": "filesystem_read"
+      },
+      "list-sizes": {
+        "_": "filesystem_read"
+      },
+      "list-skus": {
+        "_": "filesystem_read"
+      },
+      "list-usage": {
+        "_": "filesystem_read"
+      },
+      "show": {
         "_": "filesystem_read"
       },
       "create": {
@@ -127,6 +783,40 @@
       },
       "delete": {
         "_": "network_write"
+      }
+    },
+    "webapp": {
+      "config": {
+        "appsettings": {
+          "list": {
+            "_": "filesystem_read"
+          }
+        },
+        "show": {
+          "_": "filesystem_read"
+        }
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "log": {
+        "deployment": {
+          "list": {
+            "_": "filesystem_read"
+          },
+          "show": {
+            "_": "filesystem_read"
+          }
+        },
+        "show": {
+          "_": "filesystem_read"
+        },
+        "tail": {
+          "_": "filesystem_read"
+        }
+      },
+      "show": {
+        "_": "filesystem_read"
       }
     }
   },
