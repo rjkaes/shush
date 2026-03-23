@@ -605,6 +605,33 @@ describe("basename normalization", () => {
     const result = classifyWithFlags(["/usr/bin/git", "push", "--force"]);
     expect(result).not.toBeNull();
   });
+
+  test("absolute path /usr/bin/ls classifies as filesystem_read", () => {
+    const result = bash("/usr/bin/ls");
+    expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("filesystem_read");
+  });
+
+  test("absolute path /usr/local/bin/git status classifies as git_safe", () => {
+    const result = bash("/usr/local/bin/git status");
+    expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("git_safe");
+  });
+
+  test("absolute path /home/user/bin/curl classifies as network_outbound", () => {
+    const result = bash("/home/user/bin/curl https://example.com");
+    expect(result.actionType).toBe("network_outbound");
+  });
+
+  test("absolute path /opt/homebrew/bin/node -e classifies as package_run", () => {
+    const result = bash('/opt/homebrew/bin/node -e "console.log(1)"');
+    expect(result.actionType).toBe("package_run");
+  });
+
+  test("relative path ./node_modules/.bin/eslint classifies as package_run", () => {
+    const result = bash("./node_modules/.bin/eslint src/");
+    expect(result.actionType).toBe("package_run");
+  });
 });
 
 describe("empty and edge-case commands", () => {
@@ -640,6 +667,23 @@ describe("config classify with command that the trie returns unknown for", () =>
     };
     const actionType = classifyTokens(["ls", "-la"], config);
     expect(actionType).toBe("obfuscated");
+  });
+
+  test("pwsh classified as package_run via config", () => {
+    const config: ShushConfig = {
+      actions: {},
+      sensitivePaths: {},
+      classify: {
+        package_run: ["test.ps1"],
+      },
+    };
+    const result = bash("pwsh ./scripts/test.ps1", config);
+    expect(result.actionType).toBe("package_run");
+  });
+
+  test("pwsh without config classifies as unknown", () => {
+    const result = bash("pwsh ./scripts/test.ps1");
+    expect(result.actionType).toBe("unknown");
   });
 });
 

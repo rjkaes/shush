@@ -71,7 +71,9 @@ describe("new filesystem_read entries", () => {
 
   for (const [cmd, expected] of cases) {
     test(`${cmd} → ${expected}`, () => {
-      expect(bash(cmd).decision).toBe("allow");
+      const result = bash(cmd);
+      expect(result.decision).toBe("allow");
+      expect(result.actionType).toBe(expected);
     });
   }
 });
@@ -162,7 +164,9 @@ describe("new package_run entries", () => {
 
   for (const [cmd, expected] of cases) {
     test(`${cmd} → ${expected} (allow)`, () => {
-      expect(bash(cmd).decision).toBe("allow");
+      const result = bash(cmd);
+      expect(result.decision).toBe("allow");
+      expect(result.actionType).toBe(expected);
     });
   }
 });
@@ -193,7 +197,9 @@ describe("new package_install entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → package_install (allow)`, () => {
-      expect(bash(cmd).decision).toBe("allow");
+      const result = bash(cmd);
+      expect(result.decision).toBe("allow");
+      expect(result.actionType).toBe("package_install");
     });
   }
 });
@@ -213,7 +219,9 @@ describe("new package_uninstall entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → package_uninstall (ask)`, () => {
-      expect(bash(cmd).decision).toBe("ask");
+      const result = bash(cmd);
+      expect(result.decision).toBe("ask");
+      expect(result.actionType).toBe("package_uninstall");
     });
   }
 });
@@ -231,14 +239,18 @@ describe("new process_signal entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → process_signal (ask)`, () => {
-      expect(bash(cmd).decision).toBe("ask");
+      const result = bash(cmd);
+      expect(result.decision).toBe("ask");
+      expect(result.actionType).toBe("process_signal");
     });
   }
 });
 
 describe("new network_write entries", () => {
   test("docker push → network_write (ask)", () => {
-    expect(bash("docker push myimage:latest").decision).toBe("ask");
+    const result = bash("docker push myimage:latest");
+    expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("network_write");
   });
 });
 
@@ -252,7 +264,9 @@ describe("new container_destructive entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → container_destructive (ask)`, () => {
-      expect(bash(cmd).decision).toBe("ask");
+      const result = bash(cmd);
+      expect(result.decision).toBe("ask");
+      expect(result.actionType).toBe("container_destructive");
     });
   }
 });
@@ -267,7 +281,9 @@ describe("new db_read entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → db_read (allow)`, () => {
-      expect(bash(cmd).decision).toBe("allow");
+      const result = bash(cmd);
+      expect(result.decision).toBe("allow");
+      expect(result.actionType).toBe("db_read");
     });
   }
 });

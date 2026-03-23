@@ -162,10 +162,12 @@ describe("classifyCommand", () => {
   test("echo > file → context", () => {
     const result = bash("echo hello > output.txt");
     expect(result.decision).toBe("context");
+    expect(result.actionType).toBe("filesystem_write");
   });
   test("printf >> file → context", () => {
     const result = bash("printf 'data' >> log.txt");
     expect(result.decision).toBe("context");
+    expect(result.actionType).toBe("filesystem_write");
   });
   test("echo > ~/.ssh/key → block (sensitive path)", () => {
     const result = bash("echo 'evil' > ~/.ssh/authorized_keys");
@@ -174,6 +176,7 @@ describe("classifyCommand", () => {
   test("cat file > other → context", () => {
     const result = bash("cat input.txt > output.txt");
     expect(result.decision).toBe("context");
+    expect(result.actionType).toBe("filesystem_write");
   });
 
   // git -C with sensitive path
@@ -196,10 +199,12 @@ describe("classifyCommand", () => {
   test("docker inspect → allow", () => {
     const result = bash("docker inspect alpine");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("filesystem_read");
   });
   test("podman inspect → allow", () => {
     const result = bash("podman inspect alpine");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("filesystem_read");
   });
   test("docker inspect && rm -rf / → not allow (compound still caught)", () => {
     expect(bash("docker inspect alpine && rm -rf /").decision).not.toBe("allow");
@@ -209,18 +214,22 @@ describe("classifyCommand", () => {
   test("kubectl get pods → allow", () => {
     const result = bash("kubectl get pods");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("filesystem_read");
   });
   test("kubectl describe pod foo → allow", () => {
     const result = bash("kubectl describe pod foo");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("filesystem_read");
   });
   test("kubectl logs my-pod → allow", () => {
     const result = bash("kubectl logs my-pod");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("filesystem_read");
   });
   test("kubectl config view → allow", () => {
     const result = bash("kubectl config view");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("filesystem_read");
   });
   test("kubectl delete pod foo → not allow (mutations stay guarded)", () => {
     expect(bash("kubectl delete pod foo").decision).not.toBe("allow");
@@ -251,28 +260,34 @@ describe("classifyCommand", () => {
   test("dd if=/dev/zero of=/dev/sda → ask", () => {
     const result = bash("dd if=/dev/zero of=/dev/sda");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("disk_destructive");
   });
   test("mkfs.ext4 /dev/sda1 → ask", () => {
     const result = bash("mkfs.ext4 /dev/sda1");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("disk_destructive");
   });
   test("fdisk /dev/sda → ask", () => {
     const result = bash("fdisk /dev/sda");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("disk_destructive");
   });
 
   // Database write (policy: ask)
   test("mysql -e 'DROP TABLE users' → ask", () => {
     const result = bash("mysql -e 'DROP TABLE users'");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("db_write");
   });
   test("psql -c 'DELETE FROM users' → ask", () => {
     const result = bash("psql -c 'DELETE FROM users'");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("db_write");
   });
   test("redis-cli FLUSHALL → ask", () => {
     const result = bash("redis-cli FLUSHALL");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("db_write");
   });
 
   // Empty
@@ -351,16 +366,19 @@ describe("gh api integration", () => {
   test("gh api -X DELETE /repos/owner/repo → ask", () => {
     const result = bash("gh api -X DELETE /repos/owner/repo");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("git_history_rewrite");
   });
 
   test("gh api /repos/owner/repo → allow (default GET)", () => {
     const result = bash("gh api /repos/owner/repo");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("git_safe");
   });
 
   test("gh api -f title=Bug → allow (implicit POST)", () => {
     const result = bash("gh api -f title=Bug /repos/owner/repo/issues");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("git_write");
   });
 });
 
@@ -368,26 +386,31 @@ describe("pwsh/powershell unwrapping", () => {
   test("pwsh script.ps1 → ask (unwraps to unknown script)", () => {
     const result = bash("pwsh ./scripts/test.ps1 -- --filter-class 'Foo'");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("unknown");
     expect(result.reason).toContain("test.ps1");
   });
   test("pwsh -NoProfile script.ps1 → ask (skips boolean flags)", () => {
     const result = bash("pwsh -NoProfile ./scripts/test.ps1");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("unknown");
     expect(result.reason).toContain("test.ps1");
   });
   test("pwsh -ExecutionPolicy Bypass script.ps1 → ask (skips value flags)", () => {
     const result = bash("pwsh -ExecutionPolicy Bypass ./scripts/test.ps1");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("unknown");
     expect(result.reason).toContain("test.ps1");
   });
   test("pwsh -File script.ps1 → ask (-File treated as boolean, script is inner command)", () => {
     const result = bash("pwsh -File ./scripts/test.ps1");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("unknown");
     expect(result.reason).toContain("test.ps1");
   });
   test("pwsh -EncodedCommand <payload> → ask (payload becomes inner command)", () => {
     const result = bash("pwsh -EncodedCommand SGVsbG8=");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("unknown");
     expect(result.reason).toContain("SGVsbG8=");
   });
   test("pwsh ls → allow (unwraps to safe command)", () => {
@@ -399,6 +422,7 @@ describe("pwsh/powershell unwrapping", () => {
   test("powershell script.ps1 → ask (same as pwsh)", () => {
     const result = bash("powershell ./scripts/test.ps1");
     expect(result.decision).toBe("ask");
+    expect(result.actionType).toBe("unknown");
     expect(result.reason).toContain("test.ps1");
   });
   test("pwsh with config classify → respects user classification", () => {
@@ -409,6 +433,7 @@ describe("pwsh/powershell unwrapping", () => {
     };
     const result = bash("pwsh ./scripts/test.ps1", config);
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("package_run");
   });
 });
 
@@ -459,15 +484,18 @@ describe("fd-duplication redirects (2>&1)", () => {
     ].join("\n");
     const result = bash(cmd);
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("git_write");
   });
 
   test("simple command with 2>&1 → allow", () => {
     const result = bash("git status 2>&1");
     expect(result.decision).toBe("allow");
+    expect(result.actionType).toBe("git_safe");
   });
 
   test("command with real file redirect → context", () => {
     const result = bash("echo hello > /tmp/out.txt");
     expect(result.decision).toBe("context");
+    expect(result.actionType).toBe("filesystem_write");
   });
 });
