@@ -99,15 +99,38 @@ function initClassifiers(): void {
   // classifyInlineCode when the primary classifier returns null (handles bun -e).
 }
 
+// Dangerous git -c config keys that can execute arbitrary commands.
+const DANGEROUS_GIT_CONFIGS = new Set([
+  "core.hookspath",
+  "core.sshcommand",
+  "credential.helper",
+  "core.askpass",
+  "core.gitproxy",
+]);
+
 /** Run flag-dependent classifiers. Returns action type or null (use prefix table). */
 export function classifyWithFlags(tokens: string[]): string | null {
   if (!tokens.length) return null;
   initClassifiers();
 
-  // Git: strip global flags first
+  // Basename normalization: /usr/bin/curl -> curl
   let normalized = tokens;
-  if (tokens[0] === "git") {
-    normalized = stripGitGlobalFlags(tokens);
+  if (tokens[0].includes("/")) {
+    const base = tokens[0].split("/").pop()!;
+    normalized = [base, ...tokens.slice(1)];
+  }
+
+  // Git: check for dangerous -c config keys (before stripping them)
+  if (normalized[0] === "git") {
+    for (let i = 1; i < normalized.length; i++) {
+      if (normalized[i] === "-c" && i + 1 < normalized.length) {
+        const configKey = normalized[i + 1].split("=")[0].toLowerCase();
+        if (DANGEROUS_GIT_CONFIGS.has(configKey)) {
+          return T.LANG_EXEC;
+        }
+      }
+    }
+    normalized = stripGitGlobalFlags(normalized);
   }
 
   const classifier = FLAG_CLASSIFIERS[normalized[0]];
@@ -561,8 +584,6 @@ function classifyGit(tokens: string[]): string | null {
 
   if (sub === "branch") {
     if (!args.length) return T.GIT_SAFE;
-    // Accumulate the strictest classification across all flags so that
-    // `git branch -v -D foo` correctly returns GIT_HISTORY_REWRITE.
     let branchResult = T.GIT_WRITE;
     let hasListFlag = false;
     for (const a of args) {
@@ -570,7 +591,6 @@ function classifyGit(tokens: string[]): string | null {
       else if (a === "-d") branchResult = stricterType(branchResult, T.GIT_DISCARD);
       else if (a === "-D") branchResult = stricterType(branchResult, T.GIT_HISTORY_REWRITE);
     }
-    // List/verbose flags alone make it read-only; with destructive flags, destructive wins.
     if (hasListFlag && branchResult === T.GIT_WRITE) return T.GIT_SAFE;
     return branchResult;
   }
@@ -580,7 +600,6 @@ function classifyGit(tokens: string[]): string | null {
       if (["--get", "--list", "--get-all", "--get-regexp"].includes(a)) return T.GIT_SAFE;
       if (["--unset", "--unset-all", "--replace-all"].includes(a)) return T.GIT_WRITE;
     }
-    // Count non-flag args: 0-1 = read (get), 2+ = write (set)
     const nonFlag = args.filter((a) => !a.startsWith("-"));
     return nonFlag.length <= 1 ? T.GIT_SAFE : T.GIT_WRITE;
   }
@@ -592,7 +611,6 @@ function classifyGit(tokens: string[]): string | null {
   if (sub === "push") {
     for (const a of args) {
       if (GIT_PUSH_FORCE_FLAGS.has(a)) return T.GIT_HISTORY_REWRITE;
-      // +refspec means force push
       if (a.startsWith("+") && a.length > 1) return T.GIT_HISTORY_REWRITE;
     }
     return T.GIT_WRITE;
@@ -600,7 +618,6 @@ function classifyGit(tokens: string[]): string | null {
 
   if (sub === "add") {
     if (args.includes("--dry-run") || args.includes("-n")) return T.GIT_SAFE;
-    // --force adds ignored files to staging; it does not discard changes.
     if (args.includes("--force") || args.includes("-f")) return T.GIT_WRITE;
     return T.GIT_WRITE;
   }
@@ -642,9 +659,14 @@ function classifyGit(tokens: string[]): string | null {
     return args.includes("--amend") ? T.GIT_HISTORY_REWRITE : T.GIT_WRITE;
   }
 
-  // Read-only subcommands: return git_safe so that global-flag stripping
-  // (e.g. git -C /tmp status) produces a correct classification without
-  // needing to fall through to the prefix table.
+  // git remote add/set-url configure network endpoints
+  if (sub === "remote") {
+    if (args.length > 0 && (args[0] === "add" || args[0] === "set-url")) return T.NETWORK_WRITE;
+    if (args.length > 0 && (args[0] === "remove" || args[0] === "rm" || args[0] === "rename")) return T.GIT_WRITE;
+    return T.GIT_SAFE;
+  }
+
+  // Read-only subcommands
   if (GIT_SAFE_SUBCOMMANDS.has(sub)) {
     return T.GIT_SAFE;
   }
@@ -653,7 +675,7 @@ function classifyGit(tokens: string[]): string | null {
 }
 
 const GIT_SAFE_SUBCOMMANDS = new Set([
-  "status", "log", "diff", "show", "remote", "describe", "shortlog",
+  "status", "log", "diff", "show", "describe", "shortlog",
   "archive", "blame", "grep", "annotate", "bisect", "bugreport",
   "diagnose", "difftool", "fsck", "help", "instaweb", "gitweb", "gitk",
   "ls-files", "ls-tree", "ls-remote", "rev-parse", "rev-list",
@@ -897,6 +919,18 @@ const SCRIPT_INTERPRETERS = new Set([
   "bun", "deno", "ts-node", "tsx",
 ]);
 
+/** Normalize versioned interpreter names: python3.11 -> python3, node18 -> node. */
+function normalizeInterpreter(cmd: string): string | null {
+  if (SCRIPT_INTERPRETERS.has(cmd)) return cmd;
+  // python3.11 -> python3
+  const dotStripped = cmd.replace(/\.\d+$/, "");
+  if (SCRIPT_INTERPRETERS.has(dotStripped)) return dotStripped;
+  // node18 -> node
+  const numStripped = cmd.replace(/\d+$/, "");
+  if (SCRIPT_INTERPRETERS.has(numStripped)) return numStripped;
+  return null;
+}
+
 // Per-interpreter flags that consume a following value argument. Without
 // this, the flag's value would be misidentified as the script path.
 const INTERPRETER_VALUE_FLAGS: Record<string, Set<string>> = {
@@ -912,9 +946,10 @@ const INTERPRETER_VALUE_FLAGS: Record<string, Set<string>> = {
 
 export function classifyScriptExec(tokens: string[]): string | null {
   if (tokens.length < 2) return null;
-  if (!SCRIPT_INTERPRETERS.has(tokens[0])) return null;
+  const interpreter = normalizeInterpreter(tokens[0]);
+  if (!interpreter) return null;
 
-  const valueFlags = INTERPRETER_VALUE_FLAGS[tokens[0]];
+  const valueFlags = INTERPRETER_VALUE_FLAGS[interpreter];
 
   // Find the first non-flag argument after the command name.
   // Skip flags and their value arguments.

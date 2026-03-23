@@ -5789,6 +5789,9 @@
   "whois": {
     "_": "network_diagnostic"
   },
+  "curl": {
+    "_": "network_outbound"
+  },
   "grpcurl": {
     "_": "network_outbound"
   },

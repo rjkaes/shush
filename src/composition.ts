@@ -39,7 +39,9 @@ function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
 
 /** Check if a stage is an exec sink (bash, python, etc.). */
 function isExecSinkStage(sr: StageResult): boolean {
-  return sr.tokens.length > 0 && EXEC_SINKS.has(sr.tokens[0]);
+  if (sr.tokens.length === 0) return false;
+  const cmd = sr.tokens[0].includes("/") ? sr.tokens[0].split("/").pop()! : sr.tokens[0];
+  return EXEC_SINKS.has(cmd);
 }
 
 /**
@@ -50,9 +52,15 @@ function isExecSinkStage(sr: StageResult): boolean {
  */
 function execSinkIgnoresStdin(sr: StageResult): boolean {
   if (sr.actionType === "script_exec") return true;
-  const flags = INLINE_CODE_FLAGS[sr.tokens[0]];
+  const cmd = sr.tokens[0].includes("/") ? sr.tokens[0].split("/").pop()! : sr.tokens[0];
+  const flags = INLINE_CODE_FLAGS[cmd];
   if (!flags) return false;
-  return sr.tokens.some(tok => flags.has(tok));
+  // Only ignore stdin when the inline code flag has an actual code argument.
+  // bash -c 'code' ignores stdin; bash -c (no arg, from xargs) does not.
+  for (let i = 0; i < sr.tokens.length; i++) {
+    if (flags.has(sr.tokens[i]) && i + 1 < sr.tokens.length) return true;
+  }
+  return false;
 }
 
 /** Check if tokens represent a decode command (base64 -d, xxd -r, etc.). */
@@ -64,6 +72,10 @@ function isDecodeStage(tokens: string[]): boolean {
     if (flag === null) return true;
     if (tokens.includes(flag)) return true;
   }
+  // openssl enc -d is a decode command (equivalent to base64 -d)
+  if (cmd === "openssl" && tokens.includes("enc") && tokens.includes("-d")) return true;
+  // perl with MIME::Base64 decode
+  if (cmd === "perl" && tokens.some(t => t.includes("decode_base64") || t.includes("MIME::Base64"))) return true;
   return false;
 }
 

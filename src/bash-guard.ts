@@ -52,6 +52,10 @@ const COMMAND_WRAPPERS: Record<string, WrapperSpec> = {
   stdbuf:  { valueFlags: new Set(["-i", "--input", "-o", "--output", "-e", "--error"]) },
   ionice:  { valueFlags: new Set(["-c", "--class", "-n", "--classdata", "-t"]) },
   env:     { valueFlags: new Set(["-u", "--unset", "-C", "--chdir", "-S", "--split-string"]), skipAssignments: true },
+  command: { valueFlags: new Set([]) },
+  sudo:    { valueFlags: new Set(["-u", "--user", "-g", "--group", "-C", "--close-from", "-D", "--chdir", "-r", "--role", "-t", "--type", "--host", "--other-user"]), skipAssignments: true },
+  doas:    { valueFlags: new Set(["-u", "-C"]) },
+  busybox: { valueFlags: new Set([]) },
   pwsh:       { valueFlags: PWSH_VALUE_FLAGS },
   powershell: { valueFlags: PWSH_VALUE_FLAGS },
 };
@@ -211,8 +215,34 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   // are unwrapped to expose the inner command without mutating the original
   // stage tokens.
   const stageResults: StageResult[] = stages.map((stage) => {
-    const unwrapped = unwrapCommandWrapper(stage.tokens);
-    const tokens = unwrapped ?? stage.tokens;
+    // Iteratively unwrap command wrappers (nice, nohup, timeout, env, sudo, etc.)
+    let tokens = stage.tokens;
+    let unwrapped = unwrapCommandWrapper(tokens);
+    while (unwrapped) {
+      tokens = unwrapped;
+      unwrapped = unwrapCommandWrapper(tokens);
+    }
+
+    // Basename-normalize the command name so /usr/bin/curl -> curl
+    if (tokens.length > 0 && tokens[0].includes("/")) {
+      tokens = [tokens[0].split("/").pop()!, ...tokens.slice(1)];
+    }
+
+    // After command wrapper unwrapping, check for shell -c
+    // (handles: env bash -c '...', sudo bash -c '...', etc.)
+    if (depth < MAX_UNWRAP_DEPTH && tokens.length >= 3 && SHELL_WRAPPERS.has(tokens[0])) {
+      const cIdx = tokens.indexOf("-c");
+      if (cIdx >= 1 && cIdx + 1 < tokens.length) {
+        const innerCommand = tokens.slice(cIdx + 1).join(" ");
+        const innerResult = classifyCommand(innerCommand, depth + 1, config);
+        return {
+          tokens,
+          actionType: innerResult.stages[0]?.actionType ?? "lang_exec",
+          decision: innerResult.finalDecision,
+          reason: innerResult.reason || `shell -c: ${innerCommand}`,
+        };
+      }
+    }
 
     let { actionType, decision } = classifyStage(tokens, config);
     let reason = decision !== "allow" ? `${tokens[0]}: ${actionType}` : "";
@@ -268,7 +298,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     }
 
     return {
-      tokens: stage.tokens,
+      tokens,
       actionType,
       decision,
       reason,

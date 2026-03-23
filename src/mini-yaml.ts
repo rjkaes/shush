@@ -78,10 +78,17 @@ export function parseSimpleYaml(text: string): Record<string, Record<string, str
       if (!array) array = [];
       array.push(unquote(content.slice(2).trim()));
     } else {
-      const colonIdx = content.indexOf(":");
-      if (colonIdx < 0) continue;
-      const key = content.slice(0, colonIdx).trim();
-      const val = content.slice(colonIdx + 1).trim();
+    let colonIdx: number;
+    if (content.startsWith('"') || content.startsWith("'")) {
+      const quote = content[0];
+      const closeIdx = content.indexOf(quote, 1);
+      colonIdx = closeIdx >= 0 ? content.indexOf(":", closeIdx + 1) : content.indexOf(":");
+    } else {
+      colonIdx = content.indexOf(":");
+    }
+    if (colonIdx < 0) continue;
+    const key = unquote(content.slice(0, colonIdx).trim());
+    const val = content.slice(colonIdx + 1).trim();
       // Flush any pending array from a previous sub-key
       if (arrayKey && array && section) section[arrayKey] = array;
       if (val === "") {
