@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { classifyCommand } from "../src/bash-guard";
-import { checkPath } from "../src/path-guard";
-import { scanContent } from "../src/content-guard";
+import { bash, read, write, atLeast } from "./eval-helpers";
+import type { Decision } from "../src/types";
 
 describe("nah test battery equivalents", () => {
   // Safe commands (should all be allow)
@@ -21,12 +20,12 @@ describe("nah test battery equivalents", () => {
 
   for (const cmd of safeCommands) {
     test(`allow: ${cmd}`, () => {
-      expect(classifyCommand(cmd).finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 
   // Dangerous commands (should be ask or block)
-  const dangerousCommands: Array<[string, string]> = [
+  const dangerousCommands: Array<[string, Decision]> = [
     ["git push --force", "ask"],
     ["git reset --hard", "ask"],
     ["rm -rf /", "context"], // context because filesystem_delete
@@ -37,35 +36,31 @@ describe("nah test battery equivalents", () => {
 
   for (const [cmd, expectedMin] of dangerousCommands) {
     test(`${expectedMin}+: ${cmd}`, () => {
-      const result = classifyCommand(cmd);
-      const level = { allow: 0, context: 1, ask: 2, block: 3 };
-      expect(level[result.finalDecision]).toBeGreaterThanOrEqual(
-        level[expectedMin as keyof typeof level],
-      );
+      expect(atLeast(bash(cmd).decision, expectedMin)).toBe(true);
     });
   }
 });
 
 describe("path guard integration", () => {
   test("blocks reading SSH keys", () => {
-    expect(checkPath("Read", "~/.ssh/id_rsa")?.decision).toBe("block");
+    expect(read("~/.ssh/id_rsa").decision).toBe("block");
   });
 
   test("asks for AWS credentials", () => {
-    expect(checkPath("Read", "~/.aws/credentials")?.decision).toBe("ask");
+    expect(read("~/.aws/credentials").decision).toBe("ask");
   });
 
   test("allows normal project files", () => {
-    expect(checkPath("Read", "./src/index.ts")).toBeNull();
+    expect(read("./src/index.ts").decision).toBe("allow");
   });
 });
 
 describe("content guard integration", () => {
   test("detects secrets in Write content", () => {
-    expect(scanContent("AKIAIOSFODNN7EXAMPLE").length).toBeGreaterThan(0);
+    expect(write("/tmp/project/test.ts", "AKIAIOSFODNN7EXAMPLE").decision).not.toBe("allow");
   });
 
   test("detects obfuscation patterns", () => {
-    expect(scanContent("base64 -d | bash").length).toBeGreaterThan(0);
+    expect(write("/tmp/project/test.ts", "base64 -d | bash").decision).not.toBe("allow");
   });
 });

@@ -2,69 +2,55 @@ import { describe, expect, test } from "bun:test";
 import { homedir } from "node:os";
 import path from "node:path";
 import { checkPath, checkProjectBoundary, isHookPath, resolvePath } from "../src/path-guard";
+import { read, write } from "./eval-helpers";
 
 describe("checkPath", () => {
   test("allows normal project paths", () => {
-    expect(checkPath("Read", "./src/index.ts")).toBeNull();
+    expect(read("./src/index.ts").decision).toBe("allow");
   });
 
   test("blocks ~/.ssh access", () => {
-    const result = checkPath("Read", "~/.ssh/id_rsa");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("block");
+    expect(read("~/.ssh/id_rsa").decision).toBe("block");
   });
 
   test("asks for ~/.aws access", () => {
-    const result = checkPath("Read", "~/.aws/credentials");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("ask");
+    expect(read("~/.aws/credentials").decision).toBe("ask");
   });
 
   test("blocks /etc/shadow access", () => {
-    const result = checkPath("Read", "/etc/shadow");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("block");
+    expect(read("/etc/shadow").decision).toBe("block");
   });
 
   test("blocks /etc/master.passwd access", () => {
-    const result = checkPath("Read", "/etc/master.passwd");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("block");
+    expect(read("/etc/master.passwd").decision).toBe("block");
   });
 
   test("blocks ~/.docker/config.json access", () => {
-    const result = checkPath("Read", "~/.docker/config.json");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("block");
+    expect(read("~/.docker/config.json").decision).toBe("block");
   });
 
   test("blocks ~/.kube/config access", () => {
-    const result = checkPath("Read", "~/.kube/config");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("block");
+    expect(read("~/.kube/config").decision).toBe("block");
   });
 
   test("blocks ~/.config/gh/hosts.yml access", () => {
-    const result = checkPath("Read", "~/.config/gh/hosts.yml");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("block");
+    expect(read("~/.config/gh/hosts.yml").decision).toBe("block");
   });
 
   test("asks for .env files", () => {
-    const result = checkPath("Read", "/some/path/.env");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("ask");
+    expect(read("/some/path/.env").decision).toBe("ask");
   });
 
   test("blocks Write to hook directory", () => {
-    const result = checkPath("Write", "~/.claude/hooks/guard.py");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("block");
+    expect(write("~/.claude/hooks/guard.py", "content").decision).toBe("block");
   });
 
   test("allows Read on hook directory", () => {
-    expect(checkPath("Read", "~/.claude/hooks/guard.py")).toBeNull();
+    expect(read("~/.claude/hooks/guard.py").decision).toBe("allow");
   });
+  // Glob, Grep, and Bash on hook directory can't be fully tested through
+  // evaluate because the project boundary check fires on paths outside the
+  // project root. Keep these as internal checkPath tests.
   test("allows Glob on hook directory", () => {
     expect(checkPath("Glob", "~/.claude/hooks/")).toBeNull();
   });
@@ -137,9 +123,7 @@ describe("cross-platform path handling", () => {
   });
 
   test("sensitive path detection works with homedir", () => {
-    const result = checkPath("Read", "~/.ssh/id_rsa");
-    expect(result).not.toBeNull();
-    expect(result!.decision).toBe("block");
+    expect(read("~/.ssh/id_rsa").decision).toBe("block");
   });
 
   test("isHookPath matches native path separators", () => {

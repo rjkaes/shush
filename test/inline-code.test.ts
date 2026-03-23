@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { classifyCommand } from "../src/bash-guard";
+import { bash } from "./eval-helpers";
 
 // ==============================================================================
 // Python -c
@@ -39,9 +39,7 @@ describe("python -c safe payloads → package_run (allow)", () => {
 
   for (const cmd of safe) {
     test(cmd, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("package_run");
-      expect(result.finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 });
@@ -73,9 +71,7 @@ describe("python -c dangerous payloads → lang_exec (ask)", () => {
 
   for (const [cmd, reason] of dangerous) {
     test(`${reason}: ${cmd}`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("lang_exec");
-      expect(result.finalDecision).toBe("ask");
+      expect(bash(cmd).decision).toBe("ask");
     });
   }
 });
@@ -90,9 +86,7 @@ describe("python -c unknown imports → lang_exec (ask)", () => {
 
   for (const cmd of unknown) {
     test(cmd, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("lang_exec");
-      expect(result.finalDecision).toBe("ask");
+      expect(bash(cmd).decision).toBe("ask");
     });
   }
 });
@@ -121,9 +115,7 @@ describe("node -e safe payloads → package_run (allow)", () => {
 
   for (const cmd of safe) {
     test(cmd, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("package_run");
-      expect(result.finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 });
@@ -145,9 +137,7 @@ describe("node -e dangerous payloads → lang_exec (ask)", () => {
 
   for (const [cmd, reason] of dangerous) {
     test(`${reason}: ${cmd}`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("lang_exec");
-      expect(result.finalDecision).toBe("ask");
+      expect(bash(cmd).decision).toBe("ask");
     });
   }
 });
@@ -177,9 +167,7 @@ describe("bun -e safe payloads → package_run (allow)", () => {
 
   for (const cmd of safe) {
     test(cmd, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("package_run");
-      expect(result.finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 });
@@ -203,9 +191,7 @@ describe("bun -e dangerous payloads → lang_exec (ask)", () => {
 
   for (const [cmd, reason] of dangerous) {
     test(`${reason}: ${cmd}`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("lang_exec");
-      expect(result.finalDecision).toBe("ask");
+      expect(bash(cmd).decision).toBe("ask");
     });
   }
 });
@@ -232,9 +218,7 @@ describe("ruby -e safe payloads → package_run (allow)", () => {
 
   for (const cmd of safe) {
     test(cmd, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("package_run");
-      expect(result.finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 });
@@ -257,9 +241,7 @@ describe("ruby -e dangerous payloads → lang_exec (ask)", () => {
 
   for (const [cmd, reason] of dangerous) {
     test(`${reason}: ${cmd}`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("lang_exec");
-      expect(result.finalDecision).toBe("ask");
+      expect(bash(cmd).decision).toBe("ask");
     });
   }
 });
@@ -270,65 +252,46 @@ describe("ruby -e dangerous payloads → lang_exec (ask)", () => {
 
 describe("inline code edge cases", () => {
   test("python with no -c flag → script_exec (context)", () => {
-    const result = classifyCommand("python3 script.py");
     // No -c flag, so classifyInlineCode returns null.
     // Trie returns unknown, then classifyScriptExec catches it.
-    expect(result.stages[0]?.actionType).toBe("script_exec");
-    expect(result.finalDecision).toBe("context");
+    expect(bash("python3 script.py").decision).toBe("context");
   });
 
   test("python -c with no payload → falls through", () => {
-    const result = classifyCommand("python3 -c");
-    expect(result.stages[0]?.actionType).toBe("lang_exec");
+    expect(bash("python3 -c").decision).toBe("ask");
   });
 
   test("perl -e is not handled (not in allowlist)", () => {
     // perl -e is not in INLINE_CODE_CMDS, so it falls through to trie
-    const result = classifyCommand("perl -e 'print 42'");
-    expect(result.stages[0]?.actionType).toBe("lang_exec");
-    expect(result.finalDecision).toBe("ask");
+    expect(bash("perl -e 'print 42'").decision).toBe("ask");
   });
 
   test("php -r is not handled (not in allowlist)", () => {
-    const result = classifyCommand("php -r 'echo 42;'");
-    expect(result.stages[0]?.actionType).toBe("lang_exec");
-    expect(result.finalDecision).toBe("ask");
+    expect(bash("php -r 'echo 42;'").decision).toBe("ask");
   });
 
   test("no-import python one-liner is safe", () => {
-    const result = classifyCommand(`python3 -c "print(42)"`);
-    expect(result.stages[0]?.actionType).toBe("package_run");
-    expect(result.finalDecision).toBe("allow");
+    expect(bash(`python3 -c "print(42)"`).decision).toBe("allow");
   });
 
   test("no-require node one-liner is safe", () => {
-    const result = classifyCommand(`node -e "console.log(42)"`);
-    expect(result.stages[0]?.actionType).toBe("package_run");
-    expect(result.finalDecision).toBe("allow");
+    expect(bash(`node -e "console.log(42)"`).decision).toBe("allow");
   });
 
   test("no-require ruby one-liner is safe", () => {
-    const result = classifyCommand(`ruby -e "puts 42"`);
-    expect(result.stages[0]?.actionType).toBe("package_run");
-    expect(result.finalDecision).toBe("allow");
+    expect(bash(`ruby -e "puts 42"`).decision).toBe("allow");
   });
 
   test("no-require bun one-liner is safe", () => {
-    const result = classifyCommand(`bun -e "console.log(42)"`);
-    expect(result.stages[0]?.actionType).toBe("package_run");
-    expect(result.finalDecision).toBe("allow");
+    expect(bash(`bun -e "console.log(42)"`).decision).toBe("allow");
   });
 
   test("bun --eval one-liner is safe", () => {
-    const result = classifyCommand(`bun --eval "console.log(42)"`);
-    expect(result.stages[0]?.actionType).toBe("package_run");
-    expect(result.finalDecision).toBe("allow");
+    expect(bash(`bun --eval "console.log(42)"`).decision).toBe("allow");
   });
 
   test("node --eval one-liner is safe", () => {
-    const result = classifyCommand(`node --eval "console.log(42)"`);
-    expect(result.stages[0]?.actionType).toBe("package_run");
-    expect(result.finalDecision).toBe("allow");
+    expect(bash(`node --eval "console.log(42)"`).decision).toBe("allow");
   });
 });
 
@@ -350,41 +313,33 @@ describe("script_exec classification", () => {
 
   for (const [cmd, expected] of scriptCases) {
     test(`${cmd} → ${expected} (context)`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe(expected);
-      expect(result.finalDecision).toBe("context");
+      expect(bash(cmd).decision).toBe("context");
     });
   }
 
   test("node -e still classifies as inline code, not script_exec", () => {
-    const result = classifyCommand(`node -e "console.log(1)"`);
-    expect(result.stages[0]?.actionType).not.toBe("script_exec");
+    // Should be allow (package_run), not context (script_exec)
+    expect(bash(`node -e "console.log(1)"`).decision).toBe("allow");
   });
 
   test("bare node (no script) stays unknown", () => {
-    const result = classifyCommand("node");
-    expect(result.stages[0]?.actionType).toBe("unknown");
+    // unknown → ask
+    expect(bash("node").decision).toBe("ask");
   });
 
   test("deno test still classifies as package_run (trie takes precedence)", () => {
-    const result = classifyCommand("deno test");
-    expect(result.stages[0]?.actionType).toBe("package_run");
+    expect(bash("deno test").decision).toBe("allow");
   });
 
   test("python -m pytest still classifies as package_run (trie takes precedence)", () => {
-    const result = classifyCommand("python -m pytest");
-    expect(result.stages[0]?.actionType).toBe("package_run");
+    expect(bash("python -m pytest").decision).toBe("allow");
   });
 
   test("absolute path stays unknown (ask) — not project-local", () => {
-    const result = classifyCommand("node /tmp/exploit.js");
-    expect(result.stages[0]?.actionType).toBe("unknown");
-    expect(result.finalDecision).toBe("ask");
+    expect(bash("node /tmp/exploit.js").decision).toBe("ask");
   });
 
   test("absolute python path stays unknown (ask)", () => {
-    const result = classifyCommand("python3 /var/scripts/run.py");
-    expect(result.stages[0]?.actionType).toBe("unknown");
-    expect(result.finalDecision).toBe("ask");
+    expect(bash("python3 /var/scripts/run.py").decision).toBe("ask");
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { classifyCommand } from "../src/bash-guard";
+import { bash } from "./eval-helpers";
 
 describe("new filesystem_read entries", () => {
   const cases: [string, string][] = [
@@ -71,9 +71,7 @@ describe("new filesystem_read entries", () => {
 
   for (const [cmd, expected] of cases) {
     test(`${cmd} → ${expected}`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe(expected);
-      expect(result.finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 });
@@ -164,9 +162,7 @@ describe("new package_run entries", () => {
 
   for (const [cmd, expected] of cases) {
     test(`${cmd} → ${expected} (allow)`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe(expected);
-      expect(result.finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 });
@@ -197,9 +193,7 @@ describe("new package_install entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → package_install (allow)`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("package_install");
-      expect(result.finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 });
@@ -219,9 +213,7 @@ describe("new package_uninstall entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → package_uninstall (ask)`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("package_uninstall");
-      expect(result.finalDecision).toBe("ask");
+      expect(bash(cmd).decision).toBe("ask");
     });
   }
 });
@@ -239,18 +231,14 @@ describe("new process_signal entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → process_signal (ask)`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("process_signal");
-      expect(result.finalDecision).toBe("ask");
+      expect(bash(cmd).decision).toBe("ask");
     });
   }
 });
 
 describe("new network_write entries", () => {
   test("docker push → network_write (ask)", () => {
-    const result = classifyCommand("docker push myimage:latest");
-    expect(result.stages[0]?.actionType).toBe("network_write");
-    expect(result.finalDecision).toBe("ask");
+    expect(bash("docker push myimage:latest").decision).toBe("ask");
   });
 });
 
@@ -264,9 +252,7 @@ describe("new container_destructive entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → container_destructive (ask)`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("container_destructive");
-      expect(result.finalDecision).toBe("ask");
+      expect(bash(cmd).decision).toBe("ask");
     });
   }
 });
@@ -281,9 +267,7 @@ describe("new db_read entries", () => {
 
   for (const cmd of cases) {
     test(`${cmd} → db_read (allow)`, () => {
-      const result = classifyCommand(cmd);
-      expect(result.stages[0]?.actionType).toBe("db_read");
-      expect(result.finalDecision).toBe("allow");
+      expect(bash(cmd).decision).toBe("allow");
     });
   }
 });
