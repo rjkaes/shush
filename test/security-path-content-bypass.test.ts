@@ -12,13 +12,13 @@ const HOME = homedir();
 // =============================================================================
 
 describe("path bypass: symlink-like paths", () => {
-  test("/proc/self/root/etc/shadow is NOT caught (bypass via symlink path)", () => {
+  test("/proc/self/root/etc/shadow should be caught (symlink to /)", () => {
     // On Linux, /proc/self/root is a symlink to /. An attacker could
     // use this to reach /etc/shadow without the literal path.
-    // BYPASS: path.resolve does not follow symlinks, so the resolved path
-    // /proc/self/root/etc/shadow does not match /etc/shadow.
+    // shush should strip or resolve /proc/self/root prefix before comparison.
     const result = checkPath("Read", "/proc/self/root/etc/shadow");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
   });
 
   test("/dev/fd/3 is not caught (informational)", () => {
@@ -33,26 +33,30 @@ describe("path bypass: symlink-like paths", () => {
 describe("path bypass: case variations on macOS", () => {
   // HFS+ / APFS are case-insensitive by default. String comparison in
   // isSensitive uses exact match, so uppercase variants may slip through.
-  test("BYPASS: ~/.SSH/id_rsa is NOT caught (case-insensitive FS, case-sensitive check)", () => {
+  test("~/.SSH/id_rsa should be caught (case-insensitive FS on macOS)", () => {
     const result = checkPath("Read", "~/.SSH/id_rsa");
-    // BYPASS: HFS+/APFS is case-insensitive but string comparison is exact.
-    // resolvePath produces HOME/.SSH/id_rsa which won't match HOME/.ssh.
-    expect(result).toBeNull();
+    // On macOS (HFS+/APFS), case-insensitive FS means ~/.SSH/ is ~/.ssh/.
+    // shush should do case-insensitive comparison on macOS.
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
   });
 
-  test("BYPASS: ~/.Ssh/known_hosts is NOT caught", () => {
+  test("~/.Ssh/known_hosts should be caught (case-insensitive FS on macOS)", () => {
     const result = checkPath("Read", "~/.Ssh/known_hosts");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
   });
 
-  test("BYPASS: ~/.AWS/credentials is NOT caught", () => {
+  test("~/.AWS/credentials should be caught (case-insensitive FS on macOS)", () => {
     const result = checkPath("Read", "~/.AWS/credentials");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: /etc/Shadow (mixed case) is NOT caught", () => {
+  test("/etc/Shadow (mixed case) should be caught on macOS", () => {
     const result = checkPath("Read", "/etc/Shadow");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
   });
 });
 
@@ -119,26 +123,29 @@ describe("path bypass: dot-env variants", () => {
     expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: .env.backup is NOT caught (not in basename list)", () => {
+  test(".env.backup should be caught as sensitive env file", () => {
     // .env.backup is a common pattern for leaked secrets
     const result = checkPath("Read", "/project/.env.backup");
-    // Only .env, .env.local, .env.production are in the basename list.
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: .env.development.local is NOT caught", () => {
+  test(".env.development.local should be caught as sensitive env file", () => {
     const result = checkPath("Read", "/project/.env.development.local");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: .env.staging is NOT caught", () => {
+  test(".env.staging should be caught as sensitive env file", () => {
     const result = checkPath("Read", "/project/.env.staging");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: .env.test is NOT caught", () => {
+  test(".env.test should be caught as sensitive env file", () => {
     const result = checkPath("Read", "/project/.env.test");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
   test(".env.example (usually safe) is caught by exact basename match", () => {
@@ -170,13 +177,12 @@ describe("path bypass: unicode homoglyphs", () => {
 });
 
 describe("path bypass: null bytes and special chars", () => {
-  test("BYPASS: null byte in path evades sensitive path check", () => {
-    // Null bytes can truncate C strings but Node path.resolve handles them.
-    // BYPASS: /etc/shadow\0.txt resolves to a different string than /etc/shadow,
-    // so it doesn't match. On C-based systems that truncate at null, the OS
-    // would open /etc/shadow but shush sees a different path.
+  test("null byte in path should be stripped before comparison", () => {
+    // Null bytes can truncate C strings. shush should strip null bytes
+    // before path comparison so /etc/shadow\0.txt matches /etc/shadow.
     const result = checkPath("Read", "/etc/shadow\0.txt");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
   });
 
   test("path with embedded newline does not crash", () => {
@@ -223,37 +229,39 @@ describe("path bypass: ~user expansion", () => {
     expect(resolved).not.toBe("/root/.ssh/id_rsa");
   });
 
-  test("BYPASS: ~root/.ssh/id_rsa does not trigger sensitive path guard", () => {
-    // Since ~root is not expanded, the resolved path is <cwd>/~root/.ssh/id_rsa
-    // which does not match HOME/.ssh. This is a bypass when targeting other
-    // users' home directories.
+  test("~root/.ssh/id_rsa should trigger sensitive path guard", () => {
+    // ~root paths target other users' home directories and should be
+    // treated as suspicious even without OS-level expansion.
     const result = checkPath("Read", "~root/.ssh/id_rsa");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
   });
 });
 
 describe("path bypass: sensitive paths not in the default list", () => {
   // These are common credential stores not covered by SENSITIVE_DIRS.
-  test("BYPASS: ~/.config/op/ (1Password CLI) is not in default sensitive list", () => {
+  test("~/.config/op/ (1Password CLI) should be in sensitive list", () => {
     const result = checkPath("Read", "~/.config/op/config");
-    // Not covered by SENSITIVE_DIRS
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
-  test("~/.vault-token (HashiCorp Vault) is not in default sensitive list", () => {
+  test("~/.vault-token (HashiCorp Vault) should be in sensitive list", () => {
     const result = checkPath("Read", "~/.vault-token");
-    // Not covered by SENSITIVE_DIRS
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: ~/.config/hub (GitHub Hub CLI) is not in default sensitive list", () => {
+  test("~/.config/hub (GitHub Hub CLI) should be in sensitive list", () => {
     const result = checkPath("Read", "~/.config/hub");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: ~/.terraform.d/credentials.tfrc.json is not in default sensitive list", () => {
+  test("~/.terraform.d/credentials.tfrc.json should be in sensitive list", () => {
     const result = checkPath("Read", "~/.terraform.d/credentials.tfrc.json");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
   test("~/.config/gcloud is in the default sensitive list", () => {
@@ -269,14 +277,16 @@ describe("path bypass: sensitive paths not in the default list", () => {
     expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: ~/.local/share/keyrings/ (GNOME keyring) is not in default list", () => {
+  test("~/.local/share/keyrings/ (GNOME keyring) should be in sensitive list", () => {
     const result = checkPath("Read", "~/.local/share/keyrings/login.keyring");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 
-  test("BYPASS: ~/.password-store/ (pass) is not in default list", () => {
+  test("~/.password-store/ (pass) should be in sensitive list", () => {
     const result = checkPath("Read", "~/.password-store/email/gmail.gpg");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
   });
 });
 
@@ -378,11 +388,11 @@ describe("content bypass: regex evasion on AWS keys", () => {
     expect(awsMatches.length).toBe(0);
   });
 
-  test("ASIA temporary key is NOT caught (only AKIA pattern)", () => {
-    // AWS temporary credentials start with ASIA, not AKIA
+  test("ASIA temporary key should be caught (AWS temporary credentials)", () => {
+    // AWS temporary credentials start with ASIA, not just AKIA
     const matches = scanContent("ASIAIOSFODNN7EXAMPLE");
     const awsMatches = matches.filter((m) => m.patternDesc === "AWS access key");
-    expect(awsMatches.length).toBe(0);
+    expect(awsMatches.length).toBeGreaterThan(0);
   });
 });
 
@@ -392,28 +402,27 @@ describe("content bypass: GitHub PAT evasion", () => {
     expect(matches.some((m) => m.patternDesc === "GitHub personal access token")).toBe(true);
   });
 
-  test("gho_ (OAuth) token is NOT caught (only ghp_ pattern)", () => {
+  test("gho_ (OAuth) token should be caught as GitHub token", () => {
     // GitHub has gho_, ghu_, ghs_, ghr_ token types too
     const matches = scanContent("gho_ABCDEFghijklmnopqrstuvwxyz1234567890");
     const ghMatches = matches.filter((m) => m.patternDesc === "GitHub personal access token");
-    expect(ghMatches.length).toBe(0);
+    expect(ghMatches.length).toBeGreaterThan(0);
   });
 
-  test("ghs_ (server-to-server) token is NOT caught", () => {
+  test("ghs_ (server-to-server) token should be caught as GitHub token", () => {
     const matches = scanContent("ghs_ABCDEFghijklmnopqrstuvwxyz1234567890");
     const ghMatches = matches.filter((m) => m.patternDesc === "GitHub personal access token");
-    expect(ghMatches.length).toBe(0);
+    expect(ghMatches.length).toBeGreaterThan(0);
   });
 });
 
 describe("content bypass: large content", () => {
-  test("BYPASS: secret buried in 1MB of padding is NOT detected (regex engine limit)", () => {
-    // Large strings can cause regex exec to fail or time out.
+  test("secret buried in 1MB of padding should still be detected", () => {
+    // Large strings should not cause regex to miss matches.
     const padding = "a".repeat(1024 * 1024);
     const content = padding + "AKIAIOSFODNN7EXAMPLE" + padding;
     const matches = scanContent(content);
-    // The regex fails to find the match in very large strings.
-    expect(matches.some((m) => m.patternDesc === "AWS access key")).toBe(false);
+    expect(matches.some((m) => m.patternDesc === "AWS access key")).toBe(true);
   });
 
   test("10,000 lines of safe content returns empty matches", () => {
@@ -455,14 +464,12 @@ describe("content bypass: URL-encoded secrets", () => {
     expect(apiMatches.length).toBe(0);
   });
 
-  test("BYPASS: URL-encoded AKIA key is NOT caught", () => {
+  test("URL-encoded AKIA key should be caught", () => {
     const content = "access_key%3DAKIAIOSFODNN7EXAMPLE";
     const matches = scanContent(content);
-    // Even though AKIA is literally present, the \b word boundary doesn't
-    // match between %3D and AKIA because the regex sees it as part of a
-    // longer token. The 'D' in %3D is a word char adjacent to 'A' in AKIA.
+    // shush should detect AKIA keys even when preceded by URL-encoded chars
     const awsMatches = matches.filter((m) => m.patternDesc === "AWS access key");
-    expect(awsMatches.length).toBe(0);
+    expect(awsMatches.length).toBeGreaterThan(0);
   });
 });
 
