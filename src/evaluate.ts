@@ -69,6 +69,7 @@ export function evaluate(
   const { toolName, toolInput, cwd: projectRoot } = input;
 
   let decision: Decision = "allow";
+  let actionType: string | undefined;
   let reason = "";
 
   switch (toolName) {
@@ -76,6 +77,7 @@ export function evaluate(
       const command = (toolInput.command as string) ?? "";
       const result = classifyCommand(command, 0, config);
       decision = result.finalDecision;
+      actionType = result.actionType;
       reason = result.reason;
       break;
     }
@@ -161,5 +163,5 @@ export function evaluate(
     }
   }
 
-  return { decision, reason };
+  return { decision, actionType, reason };
 }

@@ -182,6 +182,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       command,
       stages: [],
       finalDecision: "allow",
+      actionType: "unknown",
       reason: "",
     };
   }
@@ -311,12 +312,14 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   // Aggregate: most restrictive stage decision, keeping the reason
   // from whichever stage produced the strictest decision.
   let finalDecision: Decision = "allow";
+  let actionType = stageResults[0]?.actionType ?? "unknown";
   let reason = "";
   for (const sr of stageResults) {
     if (sr.decision !== "allow") {
       const combined = stricter(finalDecision, sr.decision);
       if (combined !== finalDecision || reason === "") {
         reason = sr.reason;
+        actionType = sr.actionType;
       }
       finalDecision = combined;
     }
@@ -335,6 +338,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       const subResult = classifyCommand(sub, depth + 1, config);
       if (subResult.finalDecision !== "allow") {
         finalDecision = stricter(finalDecision, subResult.finalDecision);
+        actionType = subResult.actionType;
         reason = subResult.reason;
       }
     }
@@ -344,6 +348,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     command,
     stages: stageResults,
     finalDecision,
+    actionType,
     reason,
     compositionRule: compRule || undefined,
   };

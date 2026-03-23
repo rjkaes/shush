@@ -42,6 +42,8 @@ export interface ClassifyResult {
   command: string;
   stages: StageResult[];
   finalDecision: Decision;
+  /** The action type of the stage that drove `finalDecision`. */
+  actionType: string;
   reason: string;
   compositionRule?: string;
 }
@@ -91,5 +93,7 @@ export interface EvalInput {
 /** Classification result from the shared core. */
 export interface EvalResult {
   decision: Decision;
+  /** The action type that drove the decision (Bash tool only). */
+  actionType?: string;
   reason: string;
 }
