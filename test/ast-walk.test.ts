@@ -189,6 +189,43 @@ describe("extractCommandSubs", () => {
     expect(subs).toHaveLength(0);
     expect(cleaned).toContain("$(cat");
   });
+
+  test("skips extraction when heredoc body contains apostrophe before backticks", () => {
+    // The apostrophe in "endpoint's" was corrupting the depth tracker's
+    // quote state, causing backticks to be treated as command subs.
+    const cmd = `git commit -m "$(cat <<'EOF'\n\`FromQueryString\` skips params.\nEach endpoint's calls.\nEOF\n)"`;
+    const { cleaned, subs } = extractCommandSubs(cmd);
+    expect(subs).toHaveLength(0);
+    expect(cleaned).toContain("$(cat");
+  });
+
+  test("skips extraction when heredoc body has backticks after apostrophe", () => {
+    // Even when the apostrophe comes after the backticks, the depth
+    // tracker should correctly skip the heredoc body.
+    const cmd = `git commit -m "$(cat <<'EOF'\nEach endpoint's \`FromQueryString\` skips.\nEOF\n)"`;
+    const { cleaned, subs } = extractCommandSubs(cmd);
+    expect(subs).toHaveLength(0);
+    expect(cleaned).toContain("$(cat");
+  });
+
+  test("skips extraction for full commit message with heredoc", () => {
+    const cmd = [
+      'git commit -m "$(cat <<\'EOF\'',
+      'fix(api): tighten QueryParamBuilder',
+      '',
+      '`FromQueryString` now skips reserved parameters',
+      '(orderBy, recordLength) instead of forwarding them.',
+      "Each endpoint's explicit `.Set()` calls are the owner.",
+      '',
+      '`IsReserved` uses `StringComparison.Ordinal` instead of',
+      '`OrdinalIgnoreCase` so only exact casing is recognized.',
+      'EOF',
+      ')"',
+    ].join("\n");
+    const { cleaned, subs } = extractCommandSubs(cmd);
+    expect(subs).toHaveLength(0);
+    expect(cleaned).toContain("$(cat");
+  });
 });
 
 describe("extractStages with command substitutions", () => {

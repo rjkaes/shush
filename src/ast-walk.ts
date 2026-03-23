@@ -151,15 +151,31 @@ export function extractCommandSubs(command: string): { cleaned: string; subs: st
           if (c === "(" && command[j - 1] === "$") depth++;
           else if (c === "(") depth++;  // arithmetic $(( )) or nested
           else if (c === ")") depth--;
+          // Heredoc: skip the body so that quotes and parens inside it
+          // do not corrupt the depth/quote tracking.  Without this,
+          // an apostrophe in the body (e.g. "endpoint's") opens
+          // single-quote mode permanently and the closing ) is missed.
+          else if (c === "<" && command[j + 1] === "<") {
+            const hm = command.slice(j).match(/^<<[-~]?\s*['"]?(\w+)['"]?/);
+            if (hm) {
+              const delim = hm[1];
+              const after = command.slice(j + hm[0].length);
+              const dm = after.match(new RegExp(`\n\\t*${delim}[ \\t]*(?:\n|$)`));
+              if (dm != null && dm.index != null) {
+                j = j + hm[0].length + dm.index + dm[0].length;
+                continue;
+              }
+            }
+          }
         }
         j++;
       }
 
       if (depth === 0) {
         const inner = command.slice(i + 2, j - 1);
-        // Skip extraction if the body contains heredoc markers or
-        // newlines with backticks, since the paren-nesting tracker
-        // can't reliably handle heredoc content.
+        // Safety net: if the depth tracker matched parens but the body
+        // contains a heredoc marker, skip extraction.  The tracker above
+        // skips heredoc bodies, but this catches edge cases.
         if (/<<[-~]?\s*['"]?\w/.test(inner)) {
           result += command.slice(i, j);
           i = j;

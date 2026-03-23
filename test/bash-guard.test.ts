@@ -425,3 +425,37 @@ describe("pwsh/powershell unwrapping", () => {
     expect(result.finalDecision).toBe("allow");
   });
 });
+
+describe("heredoc in command substitution", () => {
+  test("git commit with heredoc message containing apostrophes → allow", () => {
+    // Apostrophe in heredoc body was corrupting the $(...) depth
+    // tracker's quote state, causing backticks to be misclassified.
+    const cmd = [
+      'git commit -m "$(cat <<\'EOF\'',
+      'fix(api): tighten QueryParamBuilder',
+      '',
+      '`FromQueryString` now skips reserved parameters',
+      '(orderBy, recordLength) instead of forwarding them.',
+      "Each endpoint's explicit `.Set()` calls are the owner.",
+      '',
+      '`IsReserved` uses `StringComparison.Ordinal` instead of',
+      '`OrdinalIgnoreCase` so only exact casing is recognized.',
+      'EOF',
+      ')"',
+    ].join("\n");
+    const result = classifyCommand(cmd);
+    expect(result.finalDecision).toBe("allow");
+  });
+
+  test("git commit with heredoc containing unbalanced parens and quotes → allow", () => {
+    const cmd = [
+      'git commit -m "$(cat <<\'EOF\'',
+      "it's got (unbalanced parens and `backticks`",
+      "and \"double quotes\" too",
+      'EOF',
+      ')"',
+    ].join("\n");
+    const result = classifyCommand(cmd);
+    expect(result.finalDecision).toBe("allow");
+  });
+});
