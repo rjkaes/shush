@@ -459,3 +459,34 @@ describe("heredoc in command substitution", () => {
     expect(result.finalDecision).toBe("allow");
   });
 });
+
+describe("fd-duplication redirects (2>&1)", () => {
+  test("gh pr edit with 2>&1 is git_write/allow, not unknown", () => {
+    // Regression: 2>&1 was misclassified as a separate "unknown" stage
+    // when the unbash parser fell back due to heredoc content.
+    const cmd = [
+      'gh pr edit 131 --body "$(cat <<\'PREOF\'',
+      "## Summary",
+      "- it doesn't matter",
+      "PREOF",
+      ')" 2>&1',
+    ].join("\n");
+    const result = classifyCommand(cmd);
+    expect(result.stages).toHaveLength(1);
+    expect(result.stages[0].actionType).toBe("git_write");
+    expect(result.finalDecision).toBe("allow");
+  });
+
+  test("simple command with 2>&1 does not escalate to filesystem_write", () => {
+    const result = classifyCommand("git status 2>&1");
+    expect(result.stages).toHaveLength(1);
+    expect(result.stages[0].actionType).toBe("git_safe");
+    expect(result.finalDecision).toBe("allow");
+  });
+
+  test("command with real file redirect still triggers filesystem_write", () => {
+    const result = classifyCommand("echo hello > /tmp/out.txt");
+    expect(result.stages).toHaveLength(1);
+    expect(result.stages[0].actionType).toBe("filesystem_write");
+  });
+});

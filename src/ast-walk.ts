@@ -385,10 +385,12 @@ function commandToStage(node: Command, operator: string, stmtRedirects?: Redirec
     tokens.push(s.value);
   }
 
-  // Extract redirects from Command node and parent Statement
+  // Extract redirects from Command node and parent Statement.
+  // Skip fd-duplication operators (>&, <&) — they duplicate file
+  // descriptors (e.g. 2>&1) and don't write to files.
   const allRedirects = [...node.redirects, ...(stmtRedirects ?? [])];
   for (const r of allRedirects) {
-    if (r.target) {
+    if (r.target && r.operator !== ">&" && r.operator !== "<&") {
       redirectTarget = r.target.value;
       redirectAppend = r.operator === ">>";
     }
@@ -427,7 +429,11 @@ function fallbackSplit(command: string): Stage[] {
   return stages;
 }
 
-/** Pull > / >> and their target out of a raw token list. */
+/**
+ * Pull > / >> and their target out of a raw token list.
+ * Fd-duplication redirects (N>&M, N<&M, >&N) are stripped without
+ * setting redirectTarget because they don't write to files.
+ */
 function extractRedirectFromTokens(tokens: string[]): {
   tokens: string[];
   redirectTarget?: string;
@@ -438,16 +444,27 @@ function extractRedirectFromTokens(tokens: string[]): {
   let redirectAppend: boolean | undefined;
 
   for (let i = 0; i < tokens.length; i++) {
-    if (tokens[i] === ">>" && i + 1 < tokens.length) {
+    const tok = tokens[i];
+    // Fd-duplication: 2>&1, >&2, <&3, etc. — strip without setting redirectTarget.
+    // Matches tokens like "2>&1", ">&2", "2<&-" as a single fused token.
+    if (/^\d*[<>]&\S+$/.test(tok)) {
+      continue;
+    }
+    // Split redirect operators: 2>&, >&  followed by a separate target token
+    if (/^\d*[<>]&$/.test(tok) && i + 1 < tokens.length) {
+      i++; // skip target
+      continue;
+    }
+    if (tok === ">>" && i + 1 < tokens.length) {
       redirectTarget = tokens[i + 1];
       redirectAppend = true;
       i++; // skip target
-    } else if (tokens[i] === ">" && i + 1 < tokens.length) {
+    } else if (tok === ">" && i + 1 < tokens.length) {
       redirectTarget = tokens[i + 1];
       redirectAppend = false;
       i++; // skip target
     } else {
-      clean.push(tokens[i]);
+      clean.push(tok);
     }
   }
 
@@ -479,9 +496,15 @@ function splitOnUnquotedOperators(command: string): Array<{ text: string; operat
         i++; // skip second char
         continue;
       }
-      // Single | or ; or & (background)
-      if (ch === "|" || ch === ";" || ch === "&") {
-        results.push({ text: current, operator: ch === "&" ? ";" : ch });
+      // Single | or ; or & (background).  Skip & when preceded by > or <
+      // because >& and <& are fd-duplication redirects, not background ops.
+      if (ch === "|" || ch === ";") {
+        results.push({ text: current, operator: ch });
+        current = "";
+        continue;
+      }
+      if (ch === "&" && !current.endsWith(">") && !current.endsWith("<")) {
+        results.push({ text: current, operator: ";" });
         current = "";
         continue;
       }

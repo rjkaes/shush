@@ -228,6 +228,50 @@ describe("extractCommandSubs", () => {
   });
 });
 
+describe("fd-duplication redirects (2>&1)", () => {
+  test("2>&1 does not create a separate stage", () => {
+    const { stages } = extractStages("gh pr edit 131 --body foo 2>&1");
+    expect(stages).toHaveLength(1);
+    expect(stages[0].tokens[0]).toBe("gh");
+    expect(stages[0].redirectTarget).toBeUndefined();
+  });
+
+  test("2>&1 with heredoc-containing command substitution (parser fallback)", () => {
+    // This triggers the unbash parser error and exercises fallbackSplit.
+    // The apostrophe in "doesn't" causes the parser to report
+    // "unterminated double quote", so the fallback path must still
+    // handle 2>&1 correctly.
+    const cmd = `gh pr edit 131 --body "$(cat <<'PREOF'
+line one
+it doesn't matter
+PREOF
+)" 2>&1`;
+    const { stages } = extractStages(cmd);
+    expect(stages).toHaveLength(1);
+    expect(stages[0].tokens[0]).toBe("gh");
+    expect(stages[0].redirectTarget).toBeUndefined();
+  });
+
+  test(">&2 (redirect stdout to stderr) is not a file write", () => {
+    const { stages } = extractStages("echo error >&2");
+    expect(stages).toHaveLength(1);
+    expect(stages[0].tokens[0]).toBe("echo");
+    expect(stages[0].redirectTarget).toBeUndefined();
+  });
+
+  test("real file redirect > still works", () => {
+    const { stages } = extractStages("echo hello > output.txt");
+    expect(stages).toHaveLength(1);
+    expect(stages[0].redirectTarget).toBe("output.txt");
+  });
+
+  test("real file redirect >> still works", () => {
+    const { stages } = extractStages("echo hello >> log.txt");
+    expect(stages).toHaveLength(1);
+    expect(stages[0].redirectTarget).toBe("log.txt");
+  });
+});
+
 describe("extractStages with command substitutions", () => {
   test("for loop with command substitution extracts inner commands", () => {
     const cmd = `for f in *.json; do count=$(python3 -c "import json; print(1)"); echo "$count"; done`;
