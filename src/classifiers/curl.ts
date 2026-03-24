@@ -1,7 +1,6 @@
 import {
   NETWORK_WRITE,
   NETWORK_OUTBOUND,
-  FILESYSTEM_WRITE,
 } from "../taxonomy.js";
 
 const CURL_DATA_FLAGS = new Set([

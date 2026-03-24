@@ -3,7 +3,6 @@ import {
   GIT_WRITE,
   GIT_HISTORY_REWRITE,
 } from "../taxonomy.js";
-import { WRITE_METHODS } from "./curl.js";
 
 // gh api uses --method/-X for HTTP method (default GET).
 // Body flags (-f, --field, -F, --raw-field, --input) flip the default to POST.

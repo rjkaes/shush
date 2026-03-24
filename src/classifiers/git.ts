@@ -5,9 +5,7 @@ import {
   GIT_HISTORY_REWRITE,
   LANG_EXEC,
   NETWORK_WRITE,
-  FILESYSTEM_READ,
   DEFAULT_POLICIES,
-  UNKNOWN,
 } from "../taxonomy.js";
 import { STRICTNESS } from "../types.js";
 

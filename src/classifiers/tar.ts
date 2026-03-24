@@ -1,7 +1,6 @@
 import {
   FILESYSTEM_READ,
   FILESYSTEM_WRITE,
-  FILESYSTEM_DELETE,
 } from "../taxonomy.js";
 
 export function classifyTar(tokens: string[]): string | null {
