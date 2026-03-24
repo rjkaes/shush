@@ -1,0 +1,12 @@
+[
+  {
+    "match": { "anyFlagPrefix": ["-i", "-I", "--in-place"] },
+    "type": "filesystem_write",
+    "_comment": "sed -i, -I, -i.bak, --in-place, --in-place=.bak"
+  },
+  {
+    "match": { "tokenMatches": "^-[a-zA-Z]*[iI]" },
+    "type": "filesystem_write",
+    "_comment": "combined short flags: -ni, -nI, -ein, etc."
+  }
+]

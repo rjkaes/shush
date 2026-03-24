@@ -1,0 +1,20 @@
+{
+  "sed": [
+    {
+      "match": {
+        "anyFlagPrefix": [
+          "-i",
+          "-I",
+          "--in-place"
+        ]
+      },
+      "type": "filesystem_write"
+    },
+    {
+      "match": {
+        "tokenMatches": "^-[a-zA-Z]*[iI]"
+      },
+      "type": "filesystem_write"
+    }
+  ]
+}
