@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { classifyWithFlags, extractGitDirPaths } from "../src/classify";
+import { classifyWithFlags, extractGitDirPaths } from "../src/classifiers/index";
 
 describe("git flag classifier", () => {
   test("git push → git_write", () => {

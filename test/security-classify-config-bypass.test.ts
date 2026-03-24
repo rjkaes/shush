@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { classifyWithFlags, classifyScriptExec } from "../src/classify";
+import { classifyWithFlags, classifyScriptExec } from "../src/classifiers/index";
 import { classifyTokens, prefixMatch, getPolicy, SHELL_WRAPPERS } from "../src/taxonomy";
 import { parseConfigYaml, mergeConfigs, filterClassifyTightenOnly } from "../src/config";
 import { parseSimpleYaml } from "../src/mini-yaml";

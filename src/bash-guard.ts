@@ -5,7 +5,8 @@
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
 import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_WRITE, LANG_EXEC } from "./taxonomy.js";
-import { classifyWithFlags, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec } from "./classify.js";
+import { checkFlagRules } from "./flag-rules.js";
+import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
 import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
@@ -142,7 +143,7 @@ const EXEC_SINK_ENV_VARS = new Set([
 ]);
 /**
  * Classify a single stage's tokens, returning an action type and decision.
- * Tries flag-aware classifiers first, falls back to prefix table.
+ * Pipeline: flag rules -> procedural classifiers -> trie -> script-exec fallback.
  */
 function classifyStage(tokens: string[], config?: ShushConfig): { actionType: string; decision: Decision } {
   // Bare assignments (e.g., `FOO=bar`) produce empty tokens. The assignment
@@ -151,22 +152,41 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
   if (tokens.length === 0) {
     return { actionType: "filesystem_read", decision: "allow" };
   }
-  // Flag-aware classifiers (git, curl, wget, etc.)
-  const flagResult = classifyWithFlags(tokens);
+
+  // Git: check dangerous -c config keys (must run on pre-strip tokens)
+  if (tokens[0] === "git") {
+    const dangerousConfig = checkDangerousGitConfig(tokens);
+    if (dangerousConfig) {
+      const policy = getPolicy(dangerousConfig, config);
+      return { actionType: dangerousConfig, decision: policy };
+    }
+  }
+
+  // Git: strip global flags for trie/flag-rule matching
+  const forLookup = tokens[0] === "git" ? stripGitGlobalFlags(tokens) : tokens;
+
+  // 1. Flag rules (data-driven)
+  const flagResult = checkFlagRules(forLookup[0], forLookup);
   if (flagResult) {
     const policy = getPolicy(flagResult, config);
     return { actionType: flagResult, decision: policy };
   }
-  // Prefix table fallback — use flag-stripped tokens so that e.g.
-  // `git -C /path commit` matches the `["git", "commit"]` trie entry.
-  const normalized = tokens[0] === "git" ? stripGitGlobalFlags(tokens) : tokens;
-  let actionType = classifyTokens(normalized, config);
-  // When the trie has no match, check for interpreter script execution
-  // (e.g., node script.js, python app.py). Runs after the trie so that
-  // specific subcommands (deno test, python -m pytest) take precedence.
+
+  // 2. Procedural classifiers (registry)
+  const classifierResult = lookup(forLookup[0], forLookup);
+  if (classifierResult) {
+    const policy = getPolicy(classifierResult, config);
+    return { actionType: classifierResult, decision: policy };
+  }
+
+  // 3. Trie prefix match (existing)
+  let actionType = classifyTokens(forLookup, config);
+
+  // 4. Script exec fallback (when trie has no match)
   if (actionType === "unknown") {
     actionType = classifyScriptExec(tokens) ?? actionType;
   }
+
   const decision = getPolicy(actionType, config);
   return { actionType, decision };
 }
