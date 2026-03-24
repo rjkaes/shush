@@ -1,0 +1,7 @@
+[
+  { "match": { "anyToken": "system(" }, "type": "lang_exec" },
+  { "match": { "anyToken": "| getline" }, "type": "lang_exec" },
+  { "match": { "anyToken": "|&" }, "type": "lang_exec" },
+  { "match": { "anyToken": "| \"" }, "type": "lang_exec" },
+  { "match": { "anyToken": "print >" }, "type": "lang_exec" }
+]

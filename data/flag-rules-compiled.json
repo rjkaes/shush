@@ -1,4 +1,230 @@
 {
+  "awk": [
+    {
+      "match": {
+        "anyToken": "system("
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "| getline"
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "|&"
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "| \""
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "print >"
+      },
+      "type": "lang_exec"
+    }
+  ],
+  "bun": [
+    {
+      "match": {
+        "anyFlag": [
+          "-g",
+          "--global",
+          "--system",
+          "--target",
+          "--root"
+        ]
+      },
+      "type": "unknown"
+    }
+  ],
+  "cargo": [
+    {
+      "match": {
+        "anyFlag": [
+          "-g",
+          "--global",
+          "--system",
+          "--target",
+          "--root"
+        ]
+      },
+      "type": "unknown"
+    }
+  ],
+  "gawk": [
+    {
+      "match": {
+        "anyToken": "system("
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "| getline"
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "|&"
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "| \""
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "print >"
+      },
+      "type": "lang_exec"
+    }
+  ],
+  "gem": [
+    {
+      "match": {
+        "anyFlag": [
+          "-g",
+          "--global",
+          "--system",
+          "--target",
+          "--root"
+        ]
+      },
+      "type": "unknown"
+    }
+  ],
+  "mawk": [
+    {
+      "match": {
+        "anyToken": "system("
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "| getline"
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "|&"
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "| \""
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "print >"
+      },
+      "type": "lang_exec"
+    }
+  ],
+  "nawk": [
+    {
+      "match": {
+        "anyToken": "system("
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "| getline"
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "|&"
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "| \""
+      },
+      "type": "lang_exec"
+    },
+    {
+      "match": {
+        "anyToken": "print >"
+      },
+      "type": "lang_exec"
+    }
+  ],
+  "npm": [
+    {
+      "match": {
+        "anyFlag": [
+          "-g",
+          "--global",
+          "--system",
+          "--target",
+          "--root"
+        ]
+      },
+      "type": "unknown"
+    }
+  ],
+  "pip": [
+    {
+      "match": {
+        "anyFlag": [
+          "-g",
+          "--global",
+          "--system",
+          "--target",
+          "--root"
+        ]
+      },
+      "type": "unknown"
+    }
+  ],
+  "pip3": [
+    {
+      "match": {
+        "anyFlag": [
+          "-g",
+          "--global",
+          "--system",
+          "--target",
+          "--root"
+        ]
+      },
+      "type": "unknown"
+    }
+  ],
+  "pnpm": [
+    {
+      "match": {
+        "anyFlag": [
+          "-g",
+          "--global",
+          "--system",
+          "--target",
+          "--root"
+        ]
+      },
+      "type": "unknown"
+    }
+  ],
   "sed": [
     {
       "match": {
