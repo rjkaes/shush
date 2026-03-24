@@ -1,0 +1,22 @@
+[
+  {
+    "match": { "anyFlag": ["--list-keys", "-k", "--list-secret-keys", "-K", "--fingerprint", "--list-sigs", "--check-sigs", "--verify", "--list-packets"] },
+    "type": "filesystem_read",
+    "_comment": "gpg read-only operations: listing keys, verifying signatures"
+  },
+  {
+    "match": { "anyFlag": ["--delete-key", "--delete-secret-key", "--delete-secret-and-public-key"] },
+    "type": "filesystem_delete",
+    "_comment": "gpg key deletion"
+  },
+  {
+    "match": { "anyFlag": ["--recv-keys", "--refresh-keys", "--fetch-keys", "--keyserver"] },
+    "type": "network_outbound",
+    "_comment": "gpg network operations: fetching keys from keyservers"
+  },
+  {
+    "match": { "anyFlag": ["--send-keys"] },
+    "type": "network_write",
+    "_comment": "gpg sending keys to keyservers"
+  }
+]

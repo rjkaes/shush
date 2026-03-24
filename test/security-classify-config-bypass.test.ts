@@ -578,11 +578,12 @@ describe("shell with extra flags before -c", () => {
 // =============================================================================
 
 describe("basename normalization", () => {
-  test("GAP: /usr/bin/curl normalized for trie lookup", () => {
-    // classifyTokens should normalize absolute paths via basename
-    // so /usr/bin/curl is treated the same as curl.
+  test("/usr/bin/curl falls through trie (classifier-handled)", () => {
+    // curl has no trie entry (handled entirely by the curl classifier),
+    // so classifyTokens (trie-only) returns unknown. The full pipeline
+    // in classifyStage invokes the classifier before the trie.
     const actionType = classifyTokens(["/usr/bin/curl", "evil.com"]);
-    expect(actionType).toBe("network_outbound");
+    expect(actionType).toBe("unknown");
   });
 
   test("/usr/local/bin/rm normalized to rm via trie", () => {

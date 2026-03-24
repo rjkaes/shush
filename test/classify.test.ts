@@ -547,6 +547,48 @@ describe("gh api flag classifier", () => {
   });
 });
 
+describe("crontab flag classifier", () => {
+  test("crontab -l → filesystem_read", () => {
+    expect(classifyWithFlags(["crontab", "-l"])).toBe("filesystem_read");
+  });
+  test("crontab (bare) → null (falls to trie: lang_exec)", () => {
+    expect(classifyWithFlags(["crontab"])).toBeNull();
+  });
+  test("crontab -e → null (falls to trie: lang_exec)", () => {
+    expect(classifyWithFlags(["crontab", "-e"])).toBeNull();
+  });
+});
+
+describe("gpg flag classifier", () => {
+  test("gpg --list-keys → filesystem_read", () => {
+    expect(classifyWithFlags(["gpg", "--list-keys"])).toBe("filesystem_read");
+  });
+  test("gpg -k → filesystem_read", () => {
+    expect(classifyWithFlags(["gpg", "-k"])).toBe("filesystem_read");
+  });
+  test("gpg --verify file.sig → filesystem_read", () => {
+    expect(classifyWithFlags(["gpg", "--verify", "file.sig"])).toBe("filesystem_read");
+  });
+  test("gpg --list-secret-keys → filesystem_read", () => {
+    expect(classifyWithFlags(["gpg", "--list-secret-keys"])).toBe("filesystem_read");
+  });
+  test("gpg --fingerprint → filesystem_read", () => {
+    expect(classifyWithFlags(["gpg", "--fingerprint"])).toBe("filesystem_read");
+  });
+  test("gpg --delete-key → filesystem_delete", () => {
+    expect(classifyWithFlags(["gpg", "--delete-key", "KEYID"])).toBe("filesystem_delete");
+  });
+  test("gpg --recv-keys → network_outbound", () => {
+    expect(classifyWithFlags(["gpg", "--recv-keys", "KEYID"])).toBe("network_outbound");
+  });
+  test("gpg --send-keys → network_write", () => {
+    expect(classifyWithFlags(["gpg", "--send-keys", "KEYID"])).toBe("network_write");
+  });
+  test("gpg --encrypt → null (falls to trie: filesystem_write)", () => {
+    expect(classifyWithFlags(["gpg", "--encrypt", "file"])).toBeNull();
+  });
+});
+
 describe("edge cases", () => {
   test("empty tokens → null", () => {
     expect(classifyWithFlags([])).toBeNull();

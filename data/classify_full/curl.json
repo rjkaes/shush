@@ -1,7 +1,0 @@
-{
-  "network_outbound": [
-    [
-      "curl"
-    ]
-  ]
-}

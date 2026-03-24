@@ -1,0 +1,17 @@
+{
+  "filesystem_read": [
+    [
+      "screen",
+      "-list"
+    ],
+    [
+      "screen",
+      "-ls"
+    ]
+  ],
+  "lang_exec": [
+    [
+      "screen"
+    ]
+  ]
+}

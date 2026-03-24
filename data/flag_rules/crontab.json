@@ -1,0 +1,7 @@
+[
+  {
+    "match": { "anyFlag": ["-l"] },
+    "type": "filesystem_read",
+    "_comment": "crontab -l lists the current crontab (read-only)"
+  }
+]

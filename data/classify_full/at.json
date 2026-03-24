@@ -1,0 +1,13 @@
+{
+  "filesystem_read": [
+    [
+      "at",
+      "-l"
+    ]
+  ],
+  "lang_exec": [
+    [
+      "at"
+    ]
+  ]
+}

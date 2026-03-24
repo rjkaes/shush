@@ -165,6 +165,18 @@
       "_": "package_run"
     }
   },
+  "at": {
+    "-l": {
+      "_": "filesystem_read"
+    },
+    "_": "lang_exec"
+  },
+  "atq": {
+    "_": "filesystem_read"
+  },
+  "atrm": {
+    "_": "process_signal"
+  },
   "awk": {
     "_": "filesystem_read"
   },
@@ -1650,9 +1662,6 @@
       "_": "filesystem_read"
     },
     "_": "package_run"
-  },
-  "curl": {
-    "_": "network_outbound"
   },
   "cut": {
     "_": "filesystem_read"
@@ -3832,6 +3841,9 @@
   "govulncheck": {
     "_": "package_run"
   },
+  "gpg": {
+    "_": "filesystem_write"
+  },
   "gradle": {
     "--version": {
       "_": "filesystem_read"
@@ -4157,6 +4169,9 @@
     "_": "package_run"
   },
   "join": {
+    "_": "filesystem_read"
+  },
+  "journalctl": {
     "_": "filesystem_read"
   },
   "jq": {
@@ -6038,6 +6053,15 @@
   "scp": {
     "_": "network_outbound"
   },
+  "screen": {
+    "-list": {
+      "_": "filesystem_read"
+    },
+    "-ls": {
+      "_": "filesystem_read"
+    },
+    "_": "lang_exec"
+  },
   "sd": {
     "_": "filesystem_read"
   },
@@ -6313,6 +6337,75 @@
   },
   "tldr": {
     "_": "filesystem_read"
+  },
+  "tmux": {
+    "display-message": {
+      "_": "filesystem_read"
+    },
+    "has-session": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list-clients": {
+      "_": "filesystem_read"
+    },
+    "list-commands": {
+      "_": "filesystem_read"
+    },
+    "list-keys": {
+      "_": "filesystem_read"
+    },
+    "list-panes": {
+      "_": "filesystem_read"
+    },
+    "list-sessions": {
+      "_": "filesystem_read"
+    },
+    "list-windows": {
+      "_": "filesystem_read"
+    },
+    "ls": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "show-options": {
+      "_": "filesystem_read"
+    },
+    "_": "lang_exec",
+    "new": {
+      "_": "lang_exec"
+    },
+    "new-session": {
+      "_": "lang_exec"
+    },
+    "run": {
+      "_": "lang_exec"
+    },
+    "run-shell": {
+      "_": "lang_exec"
+    },
+    "send": {
+      "_": "lang_exec"
+    },
+    "send-keys": {
+      "_": "lang_exec"
+    },
+    "kill-pane": {
+      "_": "process_signal"
+    },
+    "kill-server": {
+      "_": "process_signal"
+    },
+    "kill-session": {
+      "_": "process_signal"
+    },
+    "kill-window": {
+      "_": "process_signal"
+    }
   },
   "top": {
     "_": "filesystem_read"

@@ -57,6 +57,8 @@ const COMMAND_WRAPPERS: Record<string, WrapperSpec> = {
   sudo:    { valueFlags: new Set(["-u", "--user", "-g", "--group", "-C", "--close-from", "-D", "--chdir", "-r", "--role", "-t", "--type", "--host", "--other-user"]), skipAssignments: true },
   doas:    { valueFlags: new Set(["-u", "-C"]) },
   busybox: { valueFlags: new Set([]) },
+  entr:    { valueFlags: new Set([]) },
+  watchexec: { valueFlags: new Set(["-w", "--watch", "-e", "--exts", "-i", "--ignore", "-f", "--filter", "-d", "--debounce", "-s", "--signal", "--shell", "--project-origin", "--workdir", "--emit-events-to", "--color", "--completions"]) },
   pwsh:       { valueFlags: PWSH_VALUE_FLAGS },
   powershell: { valueFlags: PWSH_VALUE_FLAGS },
 };
