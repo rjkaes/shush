@@ -1,4 +1,4 @@
-import { type Decision, type ShushConfig } from "./types.js";
+import { type Decision, type ShushConfig, cmdBasename } from "./types.js";
 import ACTION_TYPES from "../data/types.json";
 import DEFAULT_POLICIES_JSON from "../data/policies.json";
 import classifyTrieJSON from "../data/classifier-trie.json";
@@ -134,9 +134,7 @@ export function classifyTokens(tokens: string[], config?: ShushConfig): string {
   if (tokens.length === 0) return UNKNOWN;
 
   // Basename normalization
-  const base = tokens[0].includes("/")
-    ? tokens[0].split("/").pop()!
-    : tokens[0];
+  const base = cmdBasename(tokens[0]);
   const normalized = base !== tokens[0] ? [base, ...tokens.slice(1)] : tokens;
 
   // Check config classify entries first (user-defined prefixes).

@@ -4,13 +4,13 @@
 // extractStages -> classify each stage -> check composition -> aggregate.
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
-import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_WRITE, LANG_EXEC } from "./taxonomy.js";
+import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
 import { checkFlagRules } from "./flag-rules.js";
 import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
 import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
-import { stricter } from "./types.js";
+import { stricter, cmdBasename } from "./types.js";
 
 const MAX_UNWRAP_DEPTH = 3;
 
@@ -150,7 +150,7 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
   // itself is harmless; any command substitution in the value is extracted
   // and classified separately by bash-guard's cmdSubs handling.
   if (tokens.length === 0) {
-    return { actionType: "filesystem_read", decision: "allow" };
+    return { actionType: FILESYSTEM_READ, decision: "allow" };
   }
 
   // Git: check dangerous -c config keys (must run on pre-strip tokens)
@@ -183,7 +183,7 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
   let actionType = classifyTokens(forLookup, config);
 
   // 4. Script exec fallback (when trie has no match)
-  if (actionType === "unknown") {
+  if (actionType === UNKNOWN) {
     actionType = classifyScriptExec(tokens) ?? actionType;
   }
 
@@ -202,7 +202,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       command,
       stages: [],
       finalDecision: "allow",
-      actionType: "unknown",
+      actionType: UNKNOWN,
       reason: "",
     };
   }
@@ -246,7 +246,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
 
     // Basename-normalize the command name so /usr/bin/curl -> curl
     if (tokens.length > 0 && tokens[0].includes("/")) {
-      tokens = [tokens[0].split("/").pop()!, ...tokens.slice(1)];
+      tokens = [cmdBasename(tokens[0]), ...tokens.slice(1)];
     }
 
     // After command wrapper unwrapping, check for shell -c
@@ -258,7 +258,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
         const innerResult = classifyCommand(innerCommand, depth + 1, config);
         return {
           tokens,
-          actionType: innerResult.stages[0]?.actionType ?? "lang_exec",
+          actionType: innerResult.stages[0]?.actionType ?? LANG_EXEC,
           decision: innerResult.finalDecision,
           reason: innerResult.reason || `shell -c: ${innerCommand}`,
         };
@@ -332,7 +332,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   // Aggregate: most restrictive stage decision, keeping the reason
   // from whichever stage produced the strictest decision.
   let finalDecision: Decision = "allow";
-  let actionType = stageResults[0]?.actionType ?? "unknown";
+  let actionType = stageResults[0]?.actionType ?? UNKNOWN;
   let reason = "";
   for (const sr of stageResults) {
     if (sr.decision !== "allow") {
@@ -354,12 +354,14 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   // Classify inner commands from process substitutions and command
   // substitutions. A dangerous inner command must escalate the decision.
   if (depth < MAX_UNWRAP_DEPTH) {
-    for (const sub of [...subs, ...cmdSubs]) {
-      const subResult = classifyCommand(sub, depth + 1, config);
-      if (subResult.finalDecision !== "allow") {
-        finalDecision = stricter(finalDecision, subResult.finalDecision);
-        actionType = subResult.actionType;
-        reason = subResult.reason;
+    for (const subList of [subs, cmdSubs]) {
+      for (const sub of subList) {
+        const subResult = classifyCommand(sub, depth + 1, config);
+        if (subResult.finalDecision !== "allow") {
+          finalDecision = stricter(finalDecision, subResult.finalDecision);
+          actionType = subResult.actionType;
+          reason = subResult.reason;
+        }
       }
     }
   }

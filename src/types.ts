@@ -83,6 +83,12 @@ export const EMPTY_CONFIG: ShushConfig = {
   classify: {},
 };
 
+/** Extract the basename from a possibly path-qualified command name. */
+export function cmdBasename(cmd: string): string {
+  const slash = cmd.lastIndexOf("/");
+  return slash >= 0 ? cmd.slice(slash + 1) : cmd;
+}
+
 /** Platform-agnostic input for the shared classification core. */
 export interface EvalInput {
   toolName: string;

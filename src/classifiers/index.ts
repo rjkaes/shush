@@ -6,6 +6,7 @@
 
 import { classifyGit, checkDangerousGitConfig, stripGitGlobalFlags } from "./git.js";
 import { checkFlagRules } from "../flag-rules.js";
+import { cmdBasename } from "../types.js";
 import { INLINE_CODE_CMDS } from "./inline-code.js";
 import { classifyGhApi } from "./gh-api.js";
 import { classifyTar } from "./tar.js";
@@ -103,8 +104,7 @@ export function classifyWithFlags(tokens: string[]): string | null {
   // Basename normalization: /usr/bin/curl -> curl
   let normalized = tokens;
   if (tokens[0].includes("/")) {
-    const base = tokens[0].split("/").pop()!;
-    normalized = [base, ...tokens.slice(1)];
+    normalized = [cmdBasename(tokens[0]), ...tokens.slice(1)];
   }
 
   // Git: check for dangerous -c config keys (before stripping them)

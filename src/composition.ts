@@ -1,6 +1,7 @@
 // src/composition.ts
 
 import type { Decision, Stage, StageResult, ShushConfig } from "./types.js";
+import { cmdBasename } from "./types.js";
 import { EXEC_SINKS, DECODE_COMMANDS } from "./taxonomy.js";
 import { isHookPath, isSensitive, resolvePath } from "./path-guard.js";
 
@@ -40,7 +41,7 @@ function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
 /** Check if a stage is an exec sink (bash, python, etc.). */
 function isExecSinkStage(sr: StageResult): boolean {
   if (sr.tokens.length === 0) return false;
-  const cmd = sr.tokens[0].includes("/") ? sr.tokens[0].split("/").pop()! : sr.tokens[0];
+  const cmd = cmdBasename(sr.tokens[0]);
   return EXEC_SINKS.has(cmd);
 }
 
@@ -52,7 +53,7 @@ function isExecSinkStage(sr: StageResult): boolean {
  */
 function execSinkIgnoresStdin(sr: StageResult): boolean {
   if (sr.actionType === "script_exec") return true;
-  const cmd = sr.tokens[0].includes("/") ? sr.tokens[0].split("/").pop()! : sr.tokens[0];
+  const cmd = cmdBasename(sr.tokens[0]);
   const flags = INLINE_CODE_FLAGS[cmd];
   if (!flags) return false;
   // Only ignore stdin when the inline code flag has an actual code argument.
