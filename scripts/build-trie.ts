@@ -23,6 +23,31 @@ interface TrieNode {
   _?: string; // action type, present only on terminal nodes
 }
 
+/** Compare two string arrays element-by-element (lexicographic). */
+function compareEntries(a: string[], b: string[]): number {
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    if (a[i] < b[i]) return -1;
+    if (a[i] > b[i]) return 1;
+  }
+  return a.length - b.length;
+}
+
+/**
+ * Normalize a parsed command file: sort action-type keys alphabetically,
+ * and sort prefix arrays within each action type lexicographically.
+ * Returns the sorted object (new reference).
+ */
+function normalizeCommandFile(
+  raw: Record<string, string[][]>,
+): Record<string, string[][]> {
+  const sorted: Record<string, string[][]> = {};
+  for (const key of Object.keys(raw).sort()) {
+    sorted[key] = [...raw[key]].sort(compareEntries);
+  }
+  return sorted;
+}
+
 async function main(): Promise<void> {
   // Load valid action types for validation
   const validTypes = new Set(
@@ -82,6 +107,16 @@ async function main(): Promise<void> {
       }
 
       actionTypesSeen.add(actionType);
+    }
+
+    // Normalize sort order and rewrite the source file so that
+    // contributors don't need to maintain sort order by hand.
+    const normalized = normalizeCommandFile(raw as Record<string, string[][]>);
+    const canonical = JSON.stringify(normalized, null, 2) + "\n";
+    const filePath = resolve(INPUT_DIR, cmdFile);
+    const current = await Bun.file(filePath).text();
+    if (current !== canonical) {
+      await Bun.write(filePath, canonical);
     }
   }
 
