@@ -1,8 +1,8 @@
 // build-flag-rules.ts
 //
-// Compiles data/flag_rules/*.json into data/flag-rules-compiled.json.
-// Each source file is named after the command it applies to (e.g.
-// sed.json) and contains an array of flag rule objects.
+// Extracts flag_rules from data/classify_full/*.json and compiles them
+// into data/flag-rules-compiled.json. Each command file may contain a
+// "flag_rules" key with an array of flag rule objects.
 //
 // Validation:
 //   - Each rule's `type` must exist in data/types.json
@@ -14,11 +14,11 @@
 //
 // Usage: bun run scripts/build-flag-rules.ts
 
-import { existsSync, readdirSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { basename, resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dir, "..");
-const INPUT_DIR = resolve(ROOT, "data", "flag_rules");
+const INPUT_DIR = resolve(ROOT, "data", "classify_full");
 const OUTPUT_FILE = resolve(ROOT, "data", "flag-rules-compiled.json");
 const TYPES_FILE = resolve(ROOT, "data", "types.json");
 
@@ -154,15 +154,6 @@ async function main(): Promise<void> {
   const validTypes: Record<string, string> = await Bun.file(TYPES_FILE).json();
   const typeNames = new Set(Object.keys(validTypes));
 
-  // Gracefully handle missing input directory.
-  if (!existsSync(INPUT_DIR)) {
-    await Bun.write(OUTPUT_FILE, "{}\n");
-    console.log(
-      `No flag_rules directory found. Wrote empty ${OUTPUT_FILE}.`,
-    );
-    return;
-  }
-
   const files = readdirSync(INPUT_DIR)
     .filter((f) => f.endsWith(".json"))
     .sort();
@@ -172,10 +163,17 @@ async function main(): Promise<void> {
 
   for (const file of files) {
     const command = basename(file, ".json");
-    const raw: unknown = await Bun.file(resolve(INPUT_DIR, file)).json();
+    const fullFile: unknown = await Bun.file(resolve(INPUT_DIR, file)).json();
+
+    if (typeof fullFile !== "object" || fullFile === null || Array.isArray(fullFile)) {
+      continue; // Not a valid command file
+    }
+
+    const raw = (fullFile as Record<string, unknown>).flag_rules;
+    if (raw === undefined) continue; // No flag rules in this command file
 
     if (!Array.isArray(raw)) {
-      throw new Error(`${file}: expected a JSON array of rules`);
+      throw new Error(`${file}: flag_rules must be a JSON array of rules`);
     }
 
     const rules: CleanRule[] = [];
@@ -206,8 +204,9 @@ async function main(): Promise<void> {
 
   await Bun.write(OUTPUT_FILE, JSON.stringify(compiled, null, 2) + "\n");
 
+  const ruleCount = Object.keys(compiled).length;
   console.log(
-    `Built ${OUTPUT_FILE} from ${files.length} command files (${totalRules} rules).`,
+    `Built ${OUTPUT_FILE}: ${ruleCount} commands with flag rules (${totalRules} rules total).`,
   );
 }
 

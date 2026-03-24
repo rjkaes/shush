@@ -1,9 +1,4 @@
 {
-  "filesystem_read": [
-    [
-      "awk"
-    ]
-  ],
   "flag_rules": [
     {
       "match": {

@@ -1,6 +1,0 @@
-[
-  {
-    "match": { "anyFlag": ["-g", "--global", "--system", "--target", "--root"] },
-    "type": "unknown"
-  }
-]

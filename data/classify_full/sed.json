@@ -1,0 +1,20 @@
+{
+  "flag_rules": [
+    {
+      "match": {
+        "anyFlagPrefix": [
+          "-i",
+          "-I",
+          "--in-place"
+        ]
+      },
+      "type": "filesystem_write"
+    },
+    {
+      "match": {
+        "tokenMatches": "^-[^-]*[iI]"
+      },
+      "type": "filesystem_write"
+    }
+  ]
+}

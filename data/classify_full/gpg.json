@@ -3,5 +3,52 @@
     [
       "gpg"
     ]
+  ],
+  "flag_rules": [
+    {
+      "match": {
+        "anyFlag": [
+          "--list-keys",
+          "-k",
+          "--list-secret-keys",
+          "-K",
+          "--fingerprint",
+          "--list-sigs",
+          "--check-sigs",
+          "--verify",
+          "--list-packets"
+        ]
+      },
+      "type": "filesystem_read"
+    },
+    {
+      "match": {
+        "anyFlag": [
+          "--delete-key",
+          "--delete-secret-key",
+          "--delete-secret-and-public-key"
+        ]
+      },
+      "type": "filesystem_delete"
+    },
+    {
+      "match": {
+        "anyFlag": [
+          "--recv-keys",
+          "--refresh-keys",
+          "--fetch-keys",
+          "--keyserver"
+        ]
+      },
+      "type": "network_outbound"
+    },
+    {
+      "match": {
+        "anyFlag": [
+          "--send-keys"
+        ]
+      },
+      "type": "network_write"
+    }
   ]
 }

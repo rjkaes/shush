@@ -76,5 +76,19 @@
       "pip3",
       "uninstall"
     ]
+  ],
+  "flag_rules": [
+    {
+      "match": {
+        "anyFlag": [
+          "-g",
+          "--global",
+          "--system",
+          "--target",
+          "--root"
+        ]
+      },
+      "type": "unknown"
+    }
   ]
 }

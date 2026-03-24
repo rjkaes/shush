@@ -76,7 +76,7 @@ function registerAll(): void {
   // Inline code: python, node, ruby get inline-code directly
   registerMany(["python", "python3", "node", "ruby"], classifyInlineCode);
 
-  // bun: global-install handled by flag rules (data/flag_rules/bun.json),
+  // bun: global-install handled by flag rules (classify_full/bun.json),
   // inline-code fallback for bun -e
   registerMany(["bun"], classifyInlineCode);
 }

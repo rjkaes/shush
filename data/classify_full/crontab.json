@@ -3,5 +3,15 @@
     [
       "crontab"
     ]
+  ],
+  "flag_rules": [
+    {
+      "match": {
+        "anyFlag": [
+          "-l"
+        ]
+      },
+      "type": "filesystem_read"
+    }
   ]
 }

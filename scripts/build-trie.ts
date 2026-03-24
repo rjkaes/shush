@@ -5,7 +5,9 @@
 // to be reconstructed on every CLI invocation.
 //
 // Each command file is a JSON object keyed by action type, where each value
-// is an array of string-array prefixes. Action types are validated against
+// is an array of string-array prefixes. The special key "flag_rules" is
+// reserved for flag-rule data (handled by build-flag-rules.ts) and is
+// skipped by the trie builder. Action types are validated against
 // data/types.json.
 //
 // Usage: bun run scripts/build-trie.ts
@@ -72,6 +74,9 @@ async function main(): Promise<void> {
     }
 
     for (const [actionType, prefixes] of Object.entries(raw)) {
+      // Skip flag_rules — handled by build-flag-rules.ts
+      if (actionType === "flag_rules") continue;
+
       // Validate action type against types.json
       if (!validTypes.has(actionType)) {
         throw new Error(
@@ -111,7 +116,14 @@ async function main(): Promise<void> {
 
     // Normalize sort order and rewrite the source file so that
     // contributors don't need to maintain sort order by hand.
-    const normalized = normalizeCommandFile(raw as Record<string, string[][]>);
+    // Separate flag_rules (opaque to the trie builder) from prefix entries.
+    const { flag_rules, ...prefixEntries } = raw as Record<string, unknown>;
+    const normalized: Record<string, unknown> = normalizeCommandFile(
+      prefixEntries as Record<string, string[][]>,
+    );
+    if (flag_rules !== undefined) {
+      normalized.flag_rules = flag_rules;
+    }
     const canonical = JSON.stringify(normalized, null, 2) + "\n";
     const filePath = resolve(INPUT_DIR, cmdFile);
     const current = await Bun.file(filePath).text();
