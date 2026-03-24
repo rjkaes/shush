@@ -1,0 +1,47 @@
+{
+  "filesystem_read": [
+    [
+      "gmake",
+      "--dry-run"
+    ],
+    [
+      "gmake",
+      "--help"
+    ],
+    [
+      "gmake",
+      "--print-data-base"
+    ],
+    [
+      "gmake",
+      "--question"
+    ],
+    [
+      "gmake",
+      "--version"
+    ],
+    [
+      "gmake",
+      "-n"
+    ],
+    [
+      "gmake",
+      "-p"
+    ],
+    [
+      "gmake",
+      "-q"
+    ]
+  ],
+  "filesystem_write": [
+    [
+      "gmake",
+      "install"
+    ]
+  ],
+  "package_run": [
+    [
+      "gmake"
+    ]
+  ]
+}

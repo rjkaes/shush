@@ -1,0 +1,12 @@
+{
+  "filesystem_read": [
+    [
+      "javac",
+      "--version"
+    ],
+    [
+      "javac",
+      "-version"
+    ]
+  ]
+}

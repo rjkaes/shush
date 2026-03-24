@@ -1,0 +1,12 @@
+{
+  "package_run": [
+    [
+      "astro",
+      "build"
+    ],
+    [
+      "astro",
+      "dev"
+    ]
+  ]
+}

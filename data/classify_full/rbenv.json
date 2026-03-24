@@ -1,0 +1,36 @@
+{
+  "filesystem_read": [
+    [
+      "rbenv",
+      "--version"
+    ],
+    [
+      "rbenv",
+      "commands"
+    ],
+    [
+      "rbenv",
+      "version"
+    ],
+    [
+      "rbenv",
+      "versions"
+    ],
+    [
+      "rbenv",
+      "which"
+    ]
+  ],
+  "package_install": [
+    [
+      "rbenv",
+      "install"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "rbenv",
+      "uninstall"
+    ]
+  ]
+}

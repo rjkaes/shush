@@ -1,0 +1,15 @@
+{
+  "db_write": [
+    [
+      "mysql"
+    ],
+    [
+      "mysql",
+      "--execute"
+    ],
+    [
+      "mysql",
+      "-e"
+    ]
+  ]
+}

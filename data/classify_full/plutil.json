@@ -1,0 +1,12 @@
+{
+  "filesystem_read": [
+    [
+      "plutil",
+      "-lint"
+    ],
+    [
+      "plutil",
+      "-p"
+    ]
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "package_run": [
+    [
+      "next",
+      "build"
+    ],
+    [
+      "next",
+      "dev"
+    ],
+    [
+      "next",
+      "lint"
+    ],
+    [
+      "next",
+      "start"
+    ]
+  ]
+}

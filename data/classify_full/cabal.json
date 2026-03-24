@@ -1,0 +1,50 @@
+{
+  "filesystem_read": [
+    [
+      "cabal",
+      "--version"
+    ],
+    [
+      "cabal",
+      "info"
+    ],
+    [
+      "cabal",
+      "list"
+    ]
+  ],
+  "package_install": [
+    [
+      "cabal",
+      "configure"
+    ],
+    [
+      "cabal",
+      "install"
+    ],
+    [
+      "cabal",
+      "update"
+    ]
+  ],
+  "package_run": [
+    [
+      "cabal",
+      "build"
+    ],
+    [
+      "cabal",
+      "run"
+    ],
+    [
+      "cabal",
+      "test"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "cabal",
+      "clean"
+    ]
+  ]
+}

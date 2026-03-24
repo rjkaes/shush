@@ -1,0 +1,12 @@
+{
+  "filesystem_read": [
+    [
+      "diskutil",
+      "info"
+    ],
+    [
+      "diskutil",
+      "list"
+    ]
+  ]
+}

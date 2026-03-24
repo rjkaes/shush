@@ -1,0 +1,40 @@
+{
+  "filesystem_read": [
+    [
+      "lein",
+      "classpath"
+    ],
+    [
+      "lein",
+      "version"
+    ]
+  ],
+  "package_install": [
+    [
+      "lein",
+      "deps"
+    ]
+  ],
+  "package_run": [
+    [
+      "lein",
+      "compile"
+    ],
+    [
+      "lein",
+      "repl"
+    ],
+    [
+      "lein",
+      "run"
+    ],
+    [
+      "lein",
+      "test"
+    ],
+    [
+      "lein",
+      "uberjar"
+    ]
+  ]
+}

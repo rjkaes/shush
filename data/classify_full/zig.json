@@ -1,0 +1,30 @@
+{
+  "filesystem_read": [
+    [
+      "zig",
+      "env"
+    ],
+    [
+      "zig",
+      "version"
+    ]
+  ],
+  "package_run": [
+    [
+      "zig",
+      "build"
+    ],
+    [
+      "zig",
+      "fmt"
+    ],
+    [
+      "zig",
+      "run"
+    ],
+    [
+      "zig",
+      "test"
+    ]
+  ]
+}

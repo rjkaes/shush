@@ -1,0 +1,40 @@
+{
+  "filesystem_read": [
+    [
+      "fnm",
+      "--version"
+    ],
+    [
+      "fnm",
+      "current"
+    ],
+    [
+      "fnm",
+      "list"
+    ]
+  ],
+  "package_install": [
+    [
+      "fnm",
+      "alias"
+    ],
+    [
+      "fnm",
+      "default"
+    ],
+    [
+      "fnm",
+      "install"
+    ],
+    [
+      "fnm",
+      "use"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "fnm",
+      "uninstall"
+    ]
+  ]
+}

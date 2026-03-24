@@ -1,0 +1,12 @@
+{
+  "filesystem_read": [
+    [
+      "xcode-select",
+      "--print-path"
+    ],
+    [
+      "xcode-select",
+      "-p"
+    ]
+  ]
+}

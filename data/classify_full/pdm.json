@@ -1,0 +1,40 @@
+{
+  "filesystem_read": [
+    [
+      "pdm",
+      "--version"
+    ],
+    [
+      "pdm",
+      "list"
+    ],
+    [
+      "pdm",
+      "show"
+    ]
+  ],
+  "package_install": [
+    [
+      "pdm",
+      "add"
+    ],
+    [
+      "pdm",
+      "install"
+    ],
+    [
+      "pdm",
+      "lock"
+    ],
+    [
+      "pdm",
+      "update"
+    ]
+  ],
+  "package_run": [
+    [
+      "pdm",
+      "run"
+    ]
+  ]
+}

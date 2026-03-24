@@ -1,0 +1,47 @@
+{
+  "filesystem_read": [
+    [
+      "make",
+      "--dry-run"
+    ],
+    [
+      "make",
+      "--help"
+    ],
+    [
+      "make",
+      "--print-data-base"
+    ],
+    [
+      "make",
+      "--question"
+    ],
+    [
+      "make",
+      "--version"
+    ],
+    [
+      "make",
+      "-n"
+    ],
+    [
+      "make",
+      "-p"
+    ],
+    [
+      "make",
+      "-q"
+    ]
+  ],
+  "filesystem_write": [
+    [
+      "make",
+      "install"
+    ]
+  ],
+  "package_run": [
+    [
+      "make"
+    ]
+  ]
+}

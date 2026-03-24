@@ -1,0 +1,54 @@
+{
+  "filesystem_read": [
+    [
+      "swift",
+      "--version"
+    ],
+    [
+      "swift",
+      "package",
+      "describe"
+    ],
+    [
+      "swift",
+      "package",
+      "dump-package"
+    ],
+    [
+      "swift",
+      "package",
+      "show-dependencies"
+    ]
+  ],
+  "package_install": [
+    [
+      "swift",
+      "package",
+      "resolve"
+    ]
+  ],
+  "package_run": [
+    [
+      "swift",
+      "build"
+    ],
+    [
+      "swift",
+      "package",
+      "generate-xcodeproj"
+    ],
+    [
+      "swift",
+      "package",
+      "update"
+    ],
+    [
+      "swift",
+      "run"
+    ],
+    [
+      "swift",
+      "test"
+    ]
+  ]
+}

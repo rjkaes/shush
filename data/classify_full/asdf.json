@@ -1,0 +1,46 @@
+{
+  "filesystem_read": [
+    [
+      "asdf",
+      "--version"
+    ],
+    [
+      "asdf",
+      "current"
+    ],
+    [
+      "asdf",
+      "list"
+    ],
+    [
+      "asdf",
+      "where"
+    ],
+    [
+      "asdf",
+      "which"
+    ]
+  ],
+  "package_install": [
+    [
+      "asdf",
+      "install"
+    ],
+    [
+      "asdf",
+      "plugin",
+      "add"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "asdf",
+      "plugin",
+      "remove"
+    ],
+    [
+      "asdf",
+      "uninstall"
+    ]
+  ]
+}

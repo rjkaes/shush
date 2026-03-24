@@ -1,0 +1,16 @@
+{
+  "package_run": [
+    [
+      "nuxt",
+      "build"
+    ],
+    [
+      "nuxt",
+      "dev"
+    ],
+    [
+      "nuxt",
+      "generate"
+    ]
+  ]
+}

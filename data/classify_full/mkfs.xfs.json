@@ -1,0 +1,7 @@
+{
+  "disk_destructive": [
+    [
+      "mkfs.xfs"
+    ]
+  ]
+}

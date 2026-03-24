@@ -1,0 +1,23 @@
+{
+  "db_write": [
+    [
+      "psql"
+    ],
+    [
+      "psql",
+      "--command"
+    ],
+    [
+      "psql",
+      "--file"
+    ],
+    [
+      "psql",
+      "-c"
+    ],
+    [
+      "psql",
+      "-f"
+    ]
+  ]
+}

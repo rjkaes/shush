@@ -1,0 +1,22 @@
+{
+  "filesystem_read": [
+    [
+      "node",
+      "--version"
+    ],
+    [
+      "node",
+      "-v"
+    ]
+  ],
+  "lang_exec": [
+    [
+      "node",
+      "--eval"
+    ],
+    [
+      "node",
+      "-e"
+    ]
+  ]
+}

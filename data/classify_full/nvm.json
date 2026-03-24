@@ -1,0 +1,48 @@
+{
+  "filesystem_read": [
+    [
+      "nvm",
+      "--version"
+    ],
+    [
+      "nvm",
+      "current"
+    ],
+    [
+      "nvm",
+      "list"
+    ],
+    [
+      "nvm",
+      "ls"
+    ],
+    [
+      "nvm",
+      "version"
+    ],
+    [
+      "nvm",
+      "which"
+    ]
+  ],
+  "package_install": [
+    [
+      "nvm",
+      "alias"
+    ],
+    [
+      "nvm",
+      "install"
+    ],
+    [
+      "nvm",
+      "use"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "nvm",
+      "uninstall"
+    ]
+  ]
+}

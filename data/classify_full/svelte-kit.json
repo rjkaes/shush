@@ -1,0 +1,12 @@
+{
+  "package_run": [
+    [
+      "svelte-kit",
+      "build"
+    ],
+    [
+      "svelte-kit",
+      "dev"
+    ]
+  ]
+}

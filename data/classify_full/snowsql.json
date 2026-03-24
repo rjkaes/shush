@@ -1,0 +1,19 @@
+{
+  "db_write": [
+    [
+      "snowsql"
+    ],
+    [
+      "snowsql",
+      "--query"
+    ],
+    [
+      "snowsql",
+      "-f"
+    ],
+    [
+      "snowsql",
+      "-q"
+    ]
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "package_run": [
+    [
+      "ruff",
+      "check"
+    ],
+    [
+      "ruff",
+      "format"
+    ]
+  ]
+}

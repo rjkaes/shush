@@ -1,0 +1,50 @@
+{
+  "filesystem_read": [
+    [
+      "bazel",
+      "help"
+    ],
+    [
+      "bazel",
+      "info"
+    ],
+    [
+      "bazel",
+      "query"
+    ],
+    [
+      "bazel",
+      "version"
+    ]
+  ],
+  "package_install": [
+    [
+      "bazel",
+      "fetch"
+    ],
+    [
+      "bazel",
+      "sync"
+    ]
+  ],
+  "package_run": [
+    [
+      "bazel",
+      "build"
+    ],
+    [
+      "bazel",
+      "run"
+    ],
+    [
+      "bazel",
+      "test"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "bazel",
+      "clean"
+    ]
+  ]
+}

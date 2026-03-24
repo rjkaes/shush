@@ -1,0 +1,14 @@
+{
+  "filesystem_read": [
+    [
+      "ruby",
+      "--version"
+    ]
+  ],
+  "lang_exec": [
+    [
+      "ruby",
+      "-e"
+    ]
+  ]
+}

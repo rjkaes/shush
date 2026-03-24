@@ -1,0 +1,16 @@
+{
+  "process_signal": [
+    [
+      "kill",
+      "-9"
+    ],
+    [
+      "kill",
+      "-KILL"
+    ],
+    [
+      "kill",
+      "-SIGKILL"
+    ]
+  ]
+}

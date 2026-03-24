@@ -1,0 +1,17 @@
+{
+  "filesystem_read": [
+    [
+      "ctest",
+      "--show-only"
+    ],
+    [
+      "ctest",
+      "-N"
+    ]
+  ],
+  "package_run": [
+    [
+      "ctest"
+    ]
+  ]
+}

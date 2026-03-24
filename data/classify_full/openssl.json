@@ -1,0 +1,26 @@
+{
+  "filesystem_read": [
+    [
+      "openssl",
+      "dgst"
+    ],
+    [
+      "openssl",
+      "md5"
+    ],
+    [
+      "openssl",
+      "sha1"
+    ],
+    [
+      "openssl",
+      "sha256"
+    ]
+  ],
+  "network_outbound": [
+    [
+      "openssl",
+      "s_client"
+    ]
+  ]
+}

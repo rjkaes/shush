@@ -1,0 +1,64 @@
+{
+  "container_destructive": [
+    [
+      "terraform",
+      "apply"
+    ]
+  ],
+  "filesystem_read": [
+    [
+      "terraform",
+      "--version"
+    ],
+    [
+      "terraform",
+      "graph"
+    ],
+    [
+      "terraform",
+      "output"
+    ],
+    [
+      "terraform",
+      "providers"
+    ],
+    [
+      "terraform",
+      "show"
+    ],
+    [
+      "terraform",
+      "state",
+      "list"
+    ],
+    [
+      "terraform",
+      "state",
+      "show"
+    ],
+    [
+      "terraform",
+      "validate"
+    ],
+    [
+      "terraform",
+      "version"
+    ]
+  ],
+  "package_install": [
+    [
+      "terraform",
+      "get"
+    ],
+    [
+      "terraform",
+      "init"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "terraform",
+      "destroy"
+    ]
+  ]
+}

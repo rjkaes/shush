@@ -1,0 +1,8 @@
+{
+  "package_run": [
+    [
+      "golangci-lint",
+      "run"
+    ]
+  ]
+}

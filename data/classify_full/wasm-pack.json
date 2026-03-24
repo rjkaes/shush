@@ -1,0 +1,12 @@
+{
+  "package_run": [
+    [
+      "wasm-pack",
+      "build"
+    ],
+    [
+      "wasm-pack",
+      "test"
+    ]
+  ]
+}

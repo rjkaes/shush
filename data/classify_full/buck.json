@@ -1,0 +1,16 @@
+{
+  "package_run": [
+    [
+      "buck",
+      "build"
+    ],
+    [
+      "buck",
+      "run"
+    ],
+    [
+      "buck",
+      "test"
+    ]
+  ]
+}

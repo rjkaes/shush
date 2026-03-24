@@ -1,0 +1,54 @@
+{
+  "filesystem_read": [
+    [
+      "bundle",
+      "check"
+    ],
+    [
+      "bundle",
+      "info"
+    ],
+    [
+      "bundle",
+      "list"
+    ],
+    [
+      "bundle",
+      "outdated"
+    ],
+    [
+      "bundle",
+      "show"
+    ],
+    [
+      "bundle",
+      "version"
+    ]
+  ],
+  "package_install": [
+    [
+      "bundle",
+      "add"
+    ],
+    [
+      "bundle",
+      "install"
+    ],
+    [
+      "bundle",
+      "update"
+    ]
+  ],
+  "package_run": [
+    [
+      "bundle",
+      "exec"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "bundle",
+      "clean"
+    ]
+  ]
+}

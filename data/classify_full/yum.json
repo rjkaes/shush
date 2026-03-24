@@ -1,0 +1,56 @@
+{
+  "filesystem_read": [
+    [
+      "yum",
+      "check-update"
+    ],
+    [
+      "yum",
+      "deplist"
+    ],
+    [
+      "yum",
+      "info"
+    ],
+    [
+      "yum",
+      "list"
+    ],
+    [
+      "yum",
+      "provides"
+    ],
+    [
+      "yum",
+      "search"
+    ]
+  ],
+  "package_install": [
+    [
+      "yum",
+      "install"
+    ],
+    [
+      "yum",
+      "update"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "yum",
+      "autoremove"
+    ],
+    [
+      "yum",
+      "clean"
+    ],
+    [
+      "yum",
+      "erase"
+    ],
+    [
+      "yum",
+      "remove"
+    ]
+  ]
+}

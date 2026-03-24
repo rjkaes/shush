@@ -1,4 +1,173 @@
 {
+  "[": {
+    "_": "filesystem_read"
+  },
+  "ack": {
+    "_": "filesystem_read"
+  },
+  "actionlint": {
+    "_": "filesystem_read"
+  },
+  "ag": {
+    "_": "filesystem_read"
+  },
+  "alias": {
+    "_": "filesystem_read"
+  },
+  "apropos": {
+    "_": "filesystem_read"
+  },
+  "apt-get": {
+    "changelog": {
+      "_": "filesystem_read"
+    },
+    "check": {
+      "_": "filesystem_read"
+    },
+    "build-dep": {
+      "_": "package_install"
+    },
+    "dist-upgrade": {
+      "_": "package_install"
+    },
+    "download": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "source": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    },
+    "autoclean": {
+      "_": "package_uninstall"
+    },
+    "autoremove": {
+      "_": "package_uninstall"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    },
+    "purge": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    }
+  },
+  "apt": {
+    "changelog": {
+      "_": "filesystem_read"
+    },
+    "check": {
+      "_": "filesystem_read"
+    },
+    "depends": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "policy": {
+      "_": "filesystem_read"
+    },
+    "rdepends": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "download": {
+      "_": "package_install"
+    },
+    "full-upgrade": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "reinstall": {
+      "_": "package_install"
+    },
+    "satisfy": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    },
+    "autoclean": {
+      "_": "package_uninstall"
+    },
+    "autoremove": {
+      "_": "package_uninstall"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    },
+    "purge": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    }
+  },
+  "arch": {
+    "_": "filesystem_read"
+  },
+  "asdf": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "current": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "where": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "plugin": {
+      "add": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
+  "astro": {
+    "build": {
+      "_": "package_run"
+    },
+    "dev": {
+      "_": "package_run"
+    }
+  },
+  "awk": {
+    "_": "filesystem_read"
+  },
   "aws": {
     "cloudformation": {
       "delete-stack": {
@@ -820,6 +989,943 @@
       }
     }
   },
+  "b2sum": {
+    "_": "filesystem_read"
+  },
+  "b3sum": {
+    "_": "filesystem_read"
+  },
+  "bandit": {
+    "_": "package_run"
+  },
+  "base32": {
+    "_": "filesystem_read"
+  },
+  "basename": {
+    "_": "filesystem_read"
+  },
+  "bat": {
+    "_": "filesystem_read"
+  },
+  "bazel": {
+    "help": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "query": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "fetch": {
+      "_": "package_install"
+    },
+    "sync": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
+  },
+  "bc": {
+    "_": "filesystem_read"
+  },
+  "bd": {
+    "_": "filesystem_read"
+  },
+  "biome": {
+    "check": {
+      "_": "package_run"
+    },
+    "format": {
+      "_": "package_run"
+    },
+    "lint": {
+      "_": "package_run"
+    }
+  },
+  "black": {
+    "_": "package_run"
+  },
+  "brew": {
+    "--cache": {
+      "_": "filesystem_read"
+    },
+    "--caskroom": {
+      "_": "filesystem_read"
+    },
+    "--cellar": {
+      "_": "filesystem_read"
+    },
+    "--env": {
+      "_": "filesystem_read"
+    },
+    "--prefix": {
+      "_": "filesystem_read"
+    },
+    "--repository": {
+      "_": "filesystem_read"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "analytics": {
+      "_": "filesystem_read"
+    },
+    "casks": {
+      "_": "filesystem_read"
+    },
+    "cat": {
+      "_": "filesystem_read"
+    },
+    "commands": {
+      "_": "filesystem_read"
+    },
+    "completions": {
+      "_": "filesystem_read"
+    },
+    "config": {
+      "_": "filesystem_read"
+    },
+    "deps": {
+      "_": "filesystem_read"
+    },
+    "desc": {
+      "_": "filesystem_read"
+    },
+    "docs": {
+      "_": "filesystem_read"
+    },
+    "doctor": {
+      "_": "filesystem_read"
+    },
+    "formulae": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "home": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "leaves": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "log": {
+      "_": "filesystem_read"
+    },
+    "missing": {
+      "_": "filesystem_read"
+    },
+    "outdated": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "services": {
+      "info": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "shellenv": {
+      "_": "filesystem_read"
+    },
+    "tap-info": {
+      "_": "filesystem_read"
+    },
+    "uses": {
+      "_": "filesystem_read"
+    },
+    "which-formula": {
+      "_": "filesystem_read"
+    },
+    "fetch": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "link": {
+      "_": "package_install"
+    },
+    "migrate": {
+      "_": "package_install"
+    },
+    "reinstall": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    },
+    "autoremove": {
+      "_": "package_uninstall"
+    },
+    "cleanup": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    },
+    "unlink": {
+      "_": "package_uninstall"
+    },
+    "untap": {
+      "_": "package_uninstall"
+    },
+    "update-reset": {
+      "_": "package_uninstall"
+    }
+  },
+  "broot": {
+    "_": "filesystem_read"
+  },
+  "buck": {
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "buck2": {
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "buf": {
+    "breaking": {
+      "_": "package_run"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "generate": {
+      "_": "package_run"
+    },
+    "lint": {
+      "_": "package_run"
+    }
+  },
+  "bun": {
+    "--revision": {
+      "_": "filesystem_read"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-v": {
+      "_": "filesystem_read"
+    },
+    "completions": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "outdated": {
+      "_": "filesystem_read"
+    },
+    "pm": {
+      "bin": {
+        "_": "filesystem_read"
+      },
+      "cache": {
+        "_": "filesystem_read",
+        "rm": {
+          "_": "package_uninstall"
+        }
+      },
+      "default-trusted": {
+        "_": "filesystem_read"
+      },
+      "hash": {
+        "_": "filesystem_read"
+      },
+      "hash-print": {
+        "_": "filesystem_read"
+      },
+      "hash-string": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      },
+      "migrate": {
+        "_": "package_install"
+      }
+    },
+    "--eval": {
+      "_": "lang_exec"
+    },
+    "-e": {
+      "_": "lang_exec"
+    },
+    "publish": {
+      "_": "network_write"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "link": {
+      "_": "package_install"
+    },
+    "pack": {
+      "_": "package_install"
+    },
+    "patch": {
+      "_": "package_install"
+    },
+    "patch-commit": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    },
+    "create": {
+      "_": "package_run"
+    },
+    "exec": {
+      "_": "package_run"
+    },
+    "repl": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "x": {
+      "_": "package_run"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    },
+    "unlink": {
+      "_": "package_uninstall"
+    }
+  },
+  "bundle": {
+    "check": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "outdated": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "exec": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
+  },
+  "bunx": {
+    "_": "package_run"
+  },
+  "bunzip2": {
+    "_": "filesystem_write"
+  },
+  "bzip2": {
+    "_": "filesystem_write"
+  },
+  "c++filt": {
+    "_": "filesystem_read"
+  },
+  "c8": {
+    "_": "package_run"
+  },
+  "cabal": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "configure": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
+  },
+  "cal": {
+    "_": "filesystem_read"
+  },
+  "cargo": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "clippy": {
+      "_": "filesystem_read"
+    },
+    "fmt": {
+      "--check": {
+        "_": "filesystem_read"
+      },
+      "_": "package_run"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "locate-project": {
+      "_": "filesystem_read"
+    },
+    "metadata": {
+      "_": "filesystem_read"
+    },
+    "pkgid": {
+      "_": "filesystem_read"
+    },
+    "report": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "tree": {
+      "_": "filesystem_read"
+    },
+    "verify-project": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "owner": {
+      "_": "network_write"
+    },
+    "publish": {
+      "_": "network_write"
+    },
+    "yank": {
+      "_": "network_write"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "check": {
+      "_": "package_install"
+    },
+    "doc": {
+      "_": "package_install"
+    },
+    "fetch": {
+      "_": "package_install"
+    },
+    "generate-lockfile": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "new": {
+      "_": "package_install"
+    },
+    "package": {
+      "_": "package_install"
+    },
+    "rustc": {
+      "_": "package_install"
+    },
+    "rustdoc": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "vendor": {
+      "_": "package_install"
+    },
+    "bench": {
+      "_": "package_run"
+    },
+    "fix": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
+  "cat": {
+    "_": "filesystem_read"
+  },
+  "cd": {
+    "_": "filesystem_read"
+  },
+  "cfdisk": {
+    "_": "disk_destructive"
+  },
+  "cheat": {
+    "_": "filesystem_read"
+  },
+  "chgrp": {
+    "_": "filesystem_write"
+  },
+  "chmod": {
+    "_": "filesystem_write"
+  },
+  "choose": {
+    "_": "filesystem_read"
+  },
+  "chown": {
+    "_": "filesystem_write"
+  },
+  "cksum": {
+    "_": "filesystem_read"
+  },
+  "clang++": {
+    "--version": {
+      "_": "filesystem_read"
+    }
+  },
+  "clang": {
+    "--version": {
+      "_": "filesystem_read"
+    }
+  },
+  "cmake": {
+    "--help": {
+      "_": "filesystem_read"
+    },
+    "--system-information": {
+      "_": "filesystem_read"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "--install": {
+      "_": "filesystem_write"
+    },
+    "--build": {
+      "_": "package_install"
+    }
+  },
+  "cmp": {
+    "_": "filesystem_read"
+  },
+  "colordiff": {
+    "_": "filesystem_read"
+  },
+  "column": {
+    "_": "filesystem_read"
+  },
+  "comm": {
+    "_": "filesystem_read"
+  },
+  "command": {
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "-v": {
+      "_": "filesystem_read"
+    }
+  },
+  "compgen": {
+    "_": "filesystem_read"
+  },
+  "cp": {
+    "_": "filesystem_write"
+  },
+  "cpack": {
+    "_": "package_install"
+  },
+  "crontab": {
+    "_": "lang_exec"
+  },
+  "csvtool": {
+    "_": "filesystem_read"
+  },
+  "ctest": {
+    "--show-only": {
+      "_": "filesystem_read"
+    },
+    "-N": {
+      "_": "filesystem_read"
+    },
+    "_": "package_run"
+  },
+  "curl": {
+    "_": "network_outbound"
+  },
+  "cut": {
+    "_": "filesystem_read"
+  },
+  "dart": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "pub": {
+      "add": {
+        "_": "package_install"
+      },
+      "get": {
+        "_": "package_install"
+      },
+      "upgrade": {
+        "_": "package_install"
+      },
+      "cache": {
+        "clean": {
+          "_": "package_uninstall"
+        }
+      }
+    },
+    "analyze": {
+      "_": "package_run"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "fix": {
+      "_": "package_run"
+    },
+    "format": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "dasel": {
+    "_": "filesystem_read"
+  },
+  "date": {
+    "_": "filesystem_read"
+  },
+  "dc": {
+    "_": "filesystem_read"
+  },
+  "dd": {
+    "_": "disk_destructive"
+  },
+  "defaults": {
+    "read": {
+      "_": "filesystem_read"
+    }
+  },
+  "delta": {
+    "_": "filesystem_read"
+  },
+  "deno": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "doc": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "types": {
+      "_": "filesystem_read"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "bench": {
+      "_": "package_run"
+    },
+    "check": {
+      "_": "package_run"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "eval": {
+      "_": "package_run"
+    },
+    "fmt": {
+      "_": "package_run"
+    },
+    "lint": {
+      "_": "package_run"
+    },
+    "repl": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "task": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    }
+  },
+  "df": {
+    "_": "filesystem_read"
+  },
+  "diff": {
+    "_": "filesystem_read"
+  },
+  "difft": {
+    "_": "filesystem_read"
+  },
+  "dig": {
+    "_": "network_diagnostic"
+  },
+  "dirname": {
+    "_": "filesystem_read"
+  },
+  "dirs": {
+    "_": "filesystem_read"
+  },
+  "diskutil": {
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    }
+  },
+  "dnf": {
+    "check": {
+      "_": "filesystem_read"
+    },
+    "check-update": {
+      "_": "filesystem_read"
+    },
+    "deplist": {
+      "_": "filesystem_read"
+    },
+    "group": {
+      "info": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "history": {
+      "_": "filesystem_read",
+      "info": {
+        "_": "filesystem_read"
+      },
+      "redo": {
+        "_": "package_install"
+      },
+      "rollback": {
+        "_": "package_uninstall"
+      },
+      "undo": {
+        "_": "package_uninstall"
+      }
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "module": {
+      "info": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "provides": {
+      "_": "filesystem_read"
+    },
+    "repoinfo": {
+      "_": "filesystem_read"
+    },
+    "repolist": {
+      "_": "filesystem_read"
+    },
+    "repoquery": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "builddep": {
+      "_": "package_install"
+    },
+    "distro-sync": {
+      "_": "package_install"
+    },
+    "downgrade": {
+      "_": "package_install"
+    },
+    "download": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "makecache": {
+      "_": "package_install"
+    },
+    "reinstall": {
+      "_": "package_install"
+    },
+    "swap": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    },
+    "autoremove": {
+      "_": "package_uninstall"
+    },
+    "clean": {
+      "all": {
+        "_": "package_uninstall"
+      },
+      "dbcache": {
+        "_": "package_uninstall"
+      },
+      "metadata": {
+        "_": "package_uninstall"
+      },
+      "packages": {
+        "_": "package_uninstall"
+      }
+    },
+    "remove": {
+      "_": "package_uninstall"
+    }
+  },
   "docker": {
     "builder": {
       "prune": {
@@ -1055,1609 +2161,6 @@
       "_": "process_signal"
     }
   },
-  "gcloud": {
-    "sql": {
-      "instances": {
-        "delete": {
-          "_": "container_destructive"
-        }
-      }
-    },
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "auth": {
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "compute": {
-      "instances": {
-        "list": {
-          "_": "filesystem_read"
-        },
-        "create": {
-          "_": "network_write"
-        },
-        "delete": {
-          "_": "network_write"
-        }
-      }
-    },
-    "config": {
-      "get": {
-        "_": "filesystem_read"
-      },
-      "get-value": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "container": {
-      "clusters": {
-        "list": {
-          "_": "filesystem_read"
-        }
-      }
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "projects": {
-      "describe": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "version": {
-      "_": "filesystem_read"
-    }
-  },
-  "helm": {
-    "delete": {
-      "_": "container_destructive"
-    },
-    "uninstall": {
-      "_": "container_destructive"
-    },
-    "env": {
-      "_": "filesystem_read"
-    },
-    "get": {
-      "_": "filesystem_read"
-    },
-    "history": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "repo": {
-      "list": {
-        "_": "filesystem_read"
-      },
-      "add": {
-        "_": "package_install"
-      },
-      "update": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "status": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "dependency": {
-      "build": {
-        "_": "package_install"
-      },
-      "update": {
-        "_": "package_install"
-      }
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    }
-  },
-  "kubectl": {
-    "apply": {
-      "_": "container_destructive"
-    },
-    "cordon": {
-      "_": "container_destructive"
-    },
-    "create": {
-      "_": "container_destructive"
-    },
-    "delete": {
-      "_": "container_destructive"
-    },
-    "drain": {
-      "_": "container_destructive"
-    },
-    "edit": {
-      "_": "container_destructive"
-    },
-    "patch": {
-      "_": "container_destructive"
-    },
-    "replace": {
-      "_": "container_destructive"
-    },
-    "rollout": {
-      "_": "container_destructive",
-      "history": {
-        "_": "db_read"
-      },
-      "status": {
-        "_": "db_read"
-      }
-    },
-    "scale": {
-      "_": "container_destructive"
-    },
-    "set": {
-      "_": "container_destructive"
-    },
-    "taint": {
-      "_": "container_destructive"
-    },
-    "api-versions": {
-      "_": "db_read"
-    },
-    "auth": {
-      "can-i": {
-        "_": "db_read"
-      },
-      "whoami": {
-        "_": "db_read"
-      }
-    },
-    "cluster-info": {
-      "_": "db_read"
-    },
-    "config": {
-      "current-context": {
-        "_": "db_read"
-      },
-      "get-clusters": {
-        "_": "db_read"
-      },
-      "get-contexts": {
-        "_": "db_read"
-      },
-      "get-users": {
-        "_": "db_read"
-      },
-      "view": {
-        "_": "filesystem_read"
-      }
-    },
-    "diff": {
-      "_": "db_read"
-    },
-    "wait": {
-      "_": "db_read"
-    },
-    "api-resources": {
-      "_": "filesystem_read"
-    },
-    "describe": {
-      "_": "filesystem_read"
-    },
-    "explain": {
-      "_": "filesystem_read"
-    },
-    "get": {
-      "_": "filesystem_read"
-    },
-    "logs": {
-      "_": "filesystem_read"
-    },
-    "top": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "exec": {
-      "_": "lang_exec"
-    },
-    "run": {
-      "_": "lang_exec"
-    }
-  },
-  "podman": {
-    "builder": {
-      "prune": {
-        "_": "container_destructive"
-      }
-    },
-    "container": {
-      "prune": {
-        "_": "container_destructive"
-      },
-      "rm": {
-        "_": "container_destructive"
-      },
-      "diff": {
-        "_": "filesystem_read"
-      },
-      "inspect": {
-        "_": "filesystem_read"
-      },
-      "logs": {
-        "_": "filesystem_read"
-      },
-      "ls": {
-        "_": "filesystem_read"
-      },
-      "stats": {
-        "_": "filesystem_read"
-      },
-      "top": {
-        "_": "filesystem_read"
-      },
-      "kill": {
-        "_": "process_signal"
-      },
-      "pause": {
-        "_": "process_signal"
-      },
-      "restart": {
-        "_": "process_signal"
-      },
-      "stop": {
-        "_": "process_signal"
-      },
-      "unpause": {
-        "_": "process_signal"
-      }
-    },
-    "image": {
-      "prune": {
-        "_": "container_destructive"
-      },
-      "rm": {
-        "_": "container_destructive"
-      },
-      "history": {
-        "_": "filesystem_read"
-      },
-      "inspect": {
-        "_": "filesystem_read"
-      },
-      "ls": {
-        "_": "filesystem_read"
-      }
-    },
-    "network": {
-      "prune": {
-        "_": "container_destructive"
-      },
-      "rm": {
-        "_": "container_destructive"
-      },
-      "inspect": {
-        "_": "filesystem_read"
-      },
-      "ls": {
-        "_": "filesystem_read"
-      }
-    },
-    "rm": {
-      "_": "container_destructive"
-    },
-    "rmi": {
-      "_": "container_destructive"
-    },
-    "system": {
-      "prune": {
-        "_": "container_destructive"
-      },
-      "df": {
-        "_": "filesystem_read"
-      },
-      "info": {
-        "_": "filesystem_read"
-      }
-    },
-    "volume": {
-      "prune": {
-        "_": "container_destructive"
-      },
-      "rm": {
-        "_": "container_destructive"
-      },
-      "inspect": {
-        "_": "filesystem_read"
-      },
-      "ls": {
-        "_": "filesystem_read"
-      }
-    },
-    "compose": {
-      "config": {
-        "_": "filesystem_read"
-      },
-      "logs": {
-        "_": "filesystem_read"
-      },
-      "ps": {
-        "_": "filesystem_read"
-      },
-      "push": {
-        "_": "network_write"
-      },
-      "pull": {
-        "_": "package_install"
-      },
-      "build": {
-        "_": "package_run"
-      },
-      "run": {
-        "_": "package_run"
-      },
-      "up": {
-        "_": "package_run"
-      },
-      "down": {
-        "_": "package_uninstall"
-      },
-      "kill": {
-        "_": "process_signal"
-      },
-      "pause": {
-        "_": "process_signal"
-      },
-      "restart": {
-        "_": "process_signal"
-      },
-      "stop": {
-        "_": "process_signal"
-      },
-      "unpause": {
-        "_": "process_signal"
-      }
-    },
-    "diff": {
-      "_": "filesystem_read"
-    },
-    "events": {
-      "_": "filesystem_read"
-    },
-    "history": {
-      "_": "filesystem_read"
-    },
-    "images": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "inspect": {
-      "_": "filesystem_read"
-    },
-    "logs": {
-      "_": "filesystem_read"
-    },
-    "port": {
-      "_": "filesystem_read"
-    },
-    "ps": {
-      "_": "filesystem_read"
-    },
-    "stats": {
-      "_": "filesystem_read"
-    },
-    "top": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "exec": {
-      "_": "lang_exec"
-    },
-    "run": {
-      "_": "lang_exec"
-    },
-    "push": {
-      "_": "network_write"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "pull": {
-      "_": "package_install"
-    },
-    "kill": {
-      "_": "process_signal"
-    },
-    "pause": {
-      "_": "process_signal"
-    },
-    "restart": {
-      "_": "process_signal"
-    },
-    "stop": {
-      "_": "process_signal"
-    },
-    "unpause": {
-      "_": "process_signal"
-    }
-  },
-  "terraform": {
-    "apply": {
-      "_": "container_destructive"
-    },
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "graph": {
-      "_": "filesystem_read"
-    },
-    "output": {
-      "_": "filesystem_read"
-    },
-    "providers": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "state": {
-      "list": {
-        "_": "filesystem_read"
-      },
-      "show": {
-        "_": "filesystem_read"
-      }
-    },
-    "validate": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "get": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "destroy": {
-      "_": "package_uninstall"
-    }
-  },
-  "mongosh": {
-    "_": "db_write"
-  },
-  "mysql": {
-    "_": "db_write",
-    "--execute": {
-      "_": "db_write"
-    },
-    "-e": {
-      "_": "db_write"
-    }
-  },
-  "pg_restore": {
-    "_": "db_write"
-  },
-  "psql": {
-    "_": "db_write",
-    "--command": {
-      "_": "db_write"
-    },
-    "--file": {
-      "_": "db_write"
-    },
-    "-c": {
-      "_": "db_write"
-    },
-    "-f": {
-      "_": "db_write"
-    }
-  },
-  "redis-cli": {
-    "_": "db_write"
-  },
-  "snow": {
-    "sql": {
-      "_": "db_write",
-      "--filename": {
-        "_": "db_write"
-      },
-      "--query": {
-        "_": "db_write"
-      },
-      "-f": {
-        "_": "db_write"
-      },
-      "-q": {
-        "_": "db_write"
-      }
-    }
-  },
-  "snowsql": {
-    "_": "db_write",
-    "--query": {
-      "_": "db_write"
-    },
-    "-f": {
-      "_": "db_write"
-    },
-    "-q": {
-      "_": "db_write"
-    }
-  },
-  "sqlite3": {
-    "_": "db_write"
-  },
-  "cfdisk": {
-    "_": "disk_destructive"
-  },
-  "dd": {
-    "_": "disk_destructive"
-  },
-  "fdisk": {
-    "_": "disk_destructive"
-  },
-  "mkfs.btrfs": {
-    "_": "disk_destructive"
-  },
-  "mkfs.ext4": {
-    "_": "disk_destructive"
-  },
-  "mkfs": {
-    "_": "disk_destructive"
-  },
-  "mkfs.xfs": {
-    "_": "disk_destructive"
-  },
-  "mount": {
-    "_": "disk_destructive"
-  },
-  "umount": {
-    "_": "disk_destructive"
-  },
-  "rm": {
-    "_": "filesystem_delete"
-  },
-  "rmdir": {
-    "_": "filesystem_delete"
-  },
-  "shred": {
-    "_": "filesystem_delete"
-  },
-  "truncate": {
-    "_": "filesystem_delete"
-  },
-  "unlink": {
-    "_": "filesystem_delete"
-  },
-  "[": {
-    "_": "filesystem_read"
-  },
-  "ack": {
-    "_": "filesystem_read"
-  },
-  "actionlint": {
-    "_": "filesystem_read"
-  },
-  "ag": {
-    "_": "filesystem_read"
-  },
-  "alias": {
-    "_": "filesystem_read"
-  },
-  "apropos": {
-    "_": "filesystem_read"
-  },
-  "apt-get": {
-    "changelog": {
-      "_": "filesystem_read"
-    },
-    "check": {
-      "_": "filesystem_read"
-    },
-    "build-dep": {
-      "_": "package_install"
-    },
-    "dist-upgrade": {
-      "_": "package_install"
-    },
-    "download": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "source": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    },
-    "autoclean": {
-      "_": "package_uninstall"
-    },
-    "autoremove": {
-      "_": "package_uninstall"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    },
-    "purge": {
-      "_": "package_uninstall"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    }
-  },
-  "apt": {
-    "changelog": {
-      "_": "filesystem_read"
-    },
-    "check": {
-      "_": "filesystem_read"
-    },
-    "depends": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "policy": {
-      "_": "filesystem_read"
-    },
-    "rdepends": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "download": {
-      "_": "package_install"
-    },
-    "full-upgrade": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "reinstall": {
-      "_": "package_install"
-    },
-    "satisfy": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    },
-    "autoclean": {
-      "_": "package_uninstall"
-    },
-    "autoremove": {
-      "_": "package_uninstall"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    },
-    "purge": {
-      "_": "package_uninstall"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    }
-  },
-  "arch": {
-    "_": "filesystem_read"
-  },
-  "asdf": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "current": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "where": {
-      "_": "filesystem_read"
-    },
-    "which": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "plugin": {
-      "add": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "awk": {
-    "_": "filesystem_read"
-  },
-  "b2sum": {
-    "_": "filesystem_read"
-  },
-  "b3sum": {
-    "_": "filesystem_read"
-  },
-  "base32": {
-    "_": "filesystem_read"
-  },
-  "basename": {
-    "_": "filesystem_read"
-  },
-  "bat": {
-    "_": "filesystem_read"
-  },
-  "bazel": {
-    "help": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "query": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "fetch": {
-      "_": "package_install"
-    },
-    "sync": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    }
-  },
-  "bc": {
-    "_": "filesystem_read"
-  },
-  "bd": {
-    "_": "filesystem_read"
-  },
-  "brew": {
-    "--cache": {
-      "_": "filesystem_read"
-    },
-    "--caskroom": {
-      "_": "filesystem_read"
-    },
-    "--cellar": {
-      "_": "filesystem_read"
-    },
-    "--env": {
-      "_": "filesystem_read"
-    },
-    "--prefix": {
-      "_": "filesystem_read"
-    },
-    "--repository": {
-      "_": "filesystem_read"
-    },
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "analytics": {
-      "_": "filesystem_read"
-    },
-    "casks": {
-      "_": "filesystem_read"
-    },
-    "cat": {
-      "_": "filesystem_read"
-    },
-    "commands": {
-      "_": "filesystem_read"
-    },
-    "completions": {
-      "_": "filesystem_read"
-    },
-    "config": {
-      "_": "filesystem_read"
-    },
-    "deps": {
-      "_": "filesystem_read"
-    },
-    "desc": {
-      "_": "filesystem_read"
-    },
-    "docs": {
-      "_": "filesystem_read"
-    },
-    "doctor": {
-      "_": "filesystem_read"
-    },
-    "formulae": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "home": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "leaves": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "log": {
-      "_": "filesystem_read"
-    },
-    "missing": {
-      "_": "filesystem_read"
-    },
-    "outdated": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "services": {
-      "info": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "shellenv": {
-      "_": "filesystem_read"
-    },
-    "tap-info": {
-      "_": "filesystem_read"
-    },
-    "uses": {
-      "_": "filesystem_read"
-    },
-    "which-formula": {
-      "_": "filesystem_read"
-    },
-    "fetch": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "link": {
-      "_": "package_install"
-    },
-    "migrate": {
-      "_": "package_install"
-    },
-    "reinstall": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    },
-    "autoremove": {
-      "_": "package_uninstall"
-    },
-    "cleanup": {
-      "_": "package_uninstall"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    },
-    "unlink": {
-      "_": "package_uninstall"
-    },
-    "untap": {
-      "_": "package_uninstall"
-    },
-    "update-reset": {
-      "_": "package_uninstall"
-    }
-  },
-  "broot": {
-    "_": "filesystem_read"
-  },
-  "bun": {
-    "--revision": {
-      "_": "filesystem_read"
-    },
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-v": {
-      "_": "filesystem_read"
-    },
-    "completions": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "outdated": {
-      "_": "filesystem_read"
-    },
-    "pm": {
-      "bin": {
-        "_": "filesystem_read"
-      },
-      "cache": {
-        "_": "filesystem_read",
-        "rm": {
-          "_": "package_uninstall"
-        }
-      },
-      "default-trusted": {
-        "_": "filesystem_read"
-      },
-      "hash": {
-        "_": "filesystem_read"
-      },
-      "hash-print": {
-        "_": "filesystem_read"
-      },
-      "hash-string": {
-        "_": "filesystem_read"
-      },
-      "ls": {
-        "_": "filesystem_read"
-      },
-      "migrate": {
-        "_": "package_install"
-      }
-    },
-    "--eval": {
-      "_": "lang_exec"
-    },
-    "-e": {
-      "_": "lang_exec"
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "link": {
-      "_": "package_install"
-    },
-    "pack": {
-      "_": "package_install"
-    },
-    "patch": {
-      "_": "package_install"
-    },
-    "patch-commit": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    },
-    "create": {
-      "_": "package_run"
-    },
-    "exec": {
-      "_": "package_run"
-    },
-    "repl": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "x": {
-      "_": "package_run"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    },
-    "unlink": {
-      "_": "package_uninstall"
-    }
-  },
-  "bundle": {
-    "check": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "outdated": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "exec": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    }
-  },
-  "c++filt": {
-    "_": "filesystem_read"
-  },
-  "cabal": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "configure": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    }
-  },
-  "cal": {
-    "_": "filesystem_read"
-  },
-  "cargo": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-V": {
-      "_": "filesystem_read"
-    },
-    "clippy": {
-      "_": "filesystem_read"
-    },
-    "fmt": {
-      "--check": {
-        "_": "filesystem_read"
-      },
-      "_": "package_run"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "locate-project": {
-      "_": "filesystem_read"
-    },
-    "metadata": {
-      "_": "filesystem_read"
-    },
-    "pkgid": {
-      "_": "filesystem_read"
-    },
-    "report": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "tree": {
-      "_": "filesystem_read"
-    },
-    "verify-project": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "owner": {
-      "_": "network_write"
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "yank": {
-      "_": "network_write"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "check": {
-      "_": "package_install"
-    },
-    "doc": {
-      "_": "package_install"
-    },
-    "fetch": {
-      "_": "package_install"
-    },
-    "generate-lockfile": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "new": {
-      "_": "package_install"
-    },
-    "package": {
-      "_": "package_install"
-    },
-    "rustc": {
-      "_": "package_install"
-    },
-    "rustdoc": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "vendor": {
-      "_": "package_install"
-    },
-    "bench": {
-      "_": "package_run"
-    },
-    "fix": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "cat": {
-    "_": "filesystem_read"
-  },
-  "cd": {
-    "_": "filesystem_read"
-  },
-  "cheat": {
-    "_": "filesystem_read"
-  },
-  "choose": {
-    "_": "filesystem_read"
-  },
-  "cksum": {
-    "_": "filesystem_read"
-  },
-  "clang++": {
-    "--version": {
-      "_": "filesystem_read"
-    }
-  },
-  "clang": {
-    "--version": {
-      "_": "filesystem_read"
-    }
-  },
-  "cmake": {
-    "--help": {
-      "_": "filesystem_read"
-    },
-    "--system-information": {
-      "_": "filesystem_read"
-    },
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "--install": {
-      "_": "filesystem_write"
-    },
-    "--build": {
-      "_": "package_install"
-    }
-  },
-  "cmp": {
-    "_": "filesystem_read"
-  },
-  "colordiff": {
-    "_": "filesystem_read"
-  },
-  "column": {
-    "_": "filesystem_read"
-  },
-  "comm": {
-    "_": "filesystem_read"
-  },
-  "command": {
-    "-V": {
-      "_": "filesystem_read"
-    },
-    "-v": {
-      "_": "filesystem_read"
-    }
-  },
-  "compgen": {
-    "_": "filesystem_read"
-  },
-  "csvtool": {
-    "_": "filesystem_read"
-  },
-  "ctest": {
-    "--show-only": {
-      "_": "filesystem_read"
-    },
-    "-N": {
-      "_": "filesystem_read"
-    },
-    "_": "package_run"
-  },
-  "cut": {
-    "_": "filesystem_read"
-  },
-  "dart": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "pub": {
-      "add": {
-        "_": "package_install"
-      },
-      "get": {
-        "_": "package_install"
-      },
-      "upgrade": {
-        "_": "package_install"
-      },
-      "cache": {
-        "clean": {
-          "_": "package_uninstall"
-        }
-      }
-    },
-    "analyze": {
-      "_": "package_run"
-    },
-    "compile": {
-      "_": "package_run"
-    },
-    "fix": {
-      "_": "package_run"
-    },
-    "format": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    }
-  },
-  "dasel": {
-    "_": "filesystem_read"
-  },
-  "date": {
-    "_": "filesystem_read"
-  },
-  "dc": {
-    "_": "filesystem_read"
-  },
-  "defaults": {
-    "read": {
-      "_": "filesystem_read"
-    }
-  },
-  "delta": {
-    "_": "filesystem_read"
-  },
-  "deno": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "doc": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "types": {
-      "_": "filesystem_read"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "bench": {
-      "_": "package_run"
-    },
-    "check": {
-      "_": "package_run"
-    },
-    "compile": {
-      "_": "package_run"
-    },
-    "eval": {
-      "_": "package_run"
-    },
-    "fmt": {
-      "_": "package_run"
-    },
-    "lint": {
-      "_": "package_run"
-    },
-    "repl": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "task": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    }
-  },
-  "df": {
-    "_": "filesystem_read"
-  },
-  "diff": {
-    "_": "filesystem_read"
-  },
-  "difft": {
-    "_": "filesystem_read"
-  },
-  "dirname": {
-    "_": "filesystem_read"
-  },
-  "dirs": {
-    "_": "filesystem_read"
-  },
-  "diskutil": {
-    "info": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    }
-  },
-  "dnf": {
-    "check": {
-      "_": "filesystem_read"
-    },
-    "check-update": {
-      "_": "filesystem_read"
-    },
-    "deplist": {
-      "_": "filesystem_read"
-    },
-    "group": {
-      "info": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "install": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "history": {
-      "_": "filesystem_read",
-      "info": {
-        "_": "filesystem_read"
-      },
-      "redo": {
-        "_": "package_install"
-      },
-      "rollback": {
-        "_": "package_uninstall"
-      },
-      "undo": {
-        "_": "package_uninstall"
-      }
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "module": {
-      "info": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "install": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "provides": {
-      "_": "filesystem_read"
-    },
-    "repoinfo": {
-      "_": "filesystem_read"
-    },
-    "repolist": {
-      "_": "filesystem_read"
-    },
-    "repoquery": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "builddep": {
-      "_": "package_install"
-    },
-    "distro-sync": {
-      "_": "package_install"
-    },
-    "downgrade": {
-      "_": "package_install"
-    },
-    "download": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "makecache": {
-      "_": "package_install"
-    },
-    "reinstall": {
-      "_": "package_install"
-    },
-    "swap": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    },
-    "autoremove": {
-      "_": "package_uninstall"
-    },
-    "clean": {
-      "all": {
-        "_": "package_uninstall"
-      },
-      "dbcache": {
-        "_": "package_uninstall"
-      },
-      "metadata": {
-        "_": "package_uninstall"
-      },
-      "packages": {
-        "_": "package_uninstall"
-      }
-    },
-    "remove": {
-      "_": "package_uninstall"
-    }
-  },
   "dotnet": {
     "--info": {
       "_": "filesystem_read"
@@ -2869,6 +2372,14 @@
       }
     }
   },
+  "dprint": {
+    "check": {
+      "_": "package_run"
+    },
+    "fmt": {
+      "_": "package_run"
+    }
+  },
   "dscacheutil": {
     "_": "filesystem_read"
   },
@@ -2894,6 +2405,15 @@
       "_": "filesystem_read"
     }
   },
+  "entr": {
+    "_": "package_run"
+  },
+  "esbuild": {
+    "_": "package_run"
+  },
+  "eslint": {
+    "_": "package_run"
+  },
   "exa": {
     "_": "filesystem_read"
   },
@@ -2918,11 +2438,17 @@
   "fdfind": {
     "_": "filesystem_read"
   },
+  "fdisk": {
+    "_": "disk_destructive"
+  },
   "file": {
     "_": "filesystem_read"
   },
   "finger": {
     "_": "filesystem_read"
+  },
+  "flake8": {
+    "_": "package_run"
   },
   "flutter": {
     "--version": {
@@ -3004,6 +2530,9 @@
   "free": {
     "_": "filesystem_read"
   },
+  "ftp": {
+    "_": "network_write"
+  },
   "fx": {
     "_": "filesystem_read"
   },
@@ -3014,6 +2543,68 @@
   },
   "gcc": {
     "--version": {
+      "_": "filesystem_read"
+    }
+  },
+  "gcloud": {
+    "sql": {
+      "instances": {
+        "delete": {
+          "_": "container_destructive"
+        }
+      }
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "auth": {
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "compute": {
+      "instances": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "create": {
+          "_": "network_write"
+        },
+        "delete": {
+          "_": "network_write"
+        }
+      }
+    },
+    "config": {
+      "get": {
+        "_": "filesystem_read"
+      },
+      "get-value": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "container": {
+      "clusters": {
+        "list": {
+          "_": "filesystem_read"
+        }
+      }
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "projects": {
+      "describe": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "version": {
       "_": "filesystem_read"
     }
   },
@@ -3689,2337 +3280,6 @@
       "_": "filesystem_read"
     }
   },
-  "gmake": {
-    "--dry-run": {
-      "_": "filesystem_read"
-    },
-    "--help": {
-      "_": "filesystem_read"
-    },
-    "--print-data-base": {
-      "_": "filesystem_read"
-    },
-    "--question": {
-      "_": "filesystem_read"
-    },
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-n": {
-      "_": "filesystem_read"
-    },
-    "-p": {
-      "_": "filesystem_read"
-    },
-    "-q": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "filesystem_write"
-    },
-    "_": "package_run"
-  },
-  "go": {
-    "bug": {
-      "_": "filesystem_read"
-    },
-    "doc": {
-      "_": "filesystem_read"
-    },
-    "env": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "mod": {
-      "graph": {
-        "_": "filesystem_read"
-      },
-      "verify": {
-        "_": "filesystem_read"
-      },
-      "why": {
-        "_": "filesystem_read"
-      },
-      "download": {
-        "_": "package_install"
-      },
-      "edit": {
-        "_": "package_install"
-      },
-      "init": {
-        "_": "package_install"
-      },
-      "tidy": {
-        "_": "package_install"
-      },
-      "vendor": {
-        "_": "package_install"
-      }
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "vet": {
-      "_": "filesystem_read"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "get": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "work": {
-      "edit": {
-        "_": "package_install"
-      },
-      "init": {
-        "_": "package_install"
-      },
-      "sync": {
-        "_": "package_install"
-      },
-      "use": {
-        "_": "package_install"
-      },
-      "vendor": {
-        "_": "package_install"
-      }
-    },
-    "fix": {
-      "_": "package_run"
-    },
-    "fmt": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "tool": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    }
-  },
-  "gradle": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "buildEnvironment": {
-      "_": "filesystem_read"
-    },
-    "components": {
-      "_": "filesystem_read"
-    },
-    "dependencies": {
-      "_": "filesystem_read"
-    },
-    "dependencyInsight": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "javaToolchains": {
-      "_": "filesystem_read"
-    },
-    "model": {
-      "_": "filesystem_read"
-    },
-    "outgoingVariants": {
-      "_": "filesystem_read"
-    },
-    "projects": {
-      "_": "filesystem_read"
-    },
-    "properties": {
-      "_": "filesystem_read"
-    },
-    "resolvableConfigurations": {
-      "_": "filesystem_read"
-    },
-    "tasks": {
-      "_": "filesystem_read"
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "uploadArchives": {
-      "_": "network_write"
-    },
-    "assemble": {
-      "_": "package_install"
-    },
-    "bootJar": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "compileJava": {
-      "_": "package_install"
-    },
-    "compileKotlin": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "jar": {
-      "_": "package_install"
-    },
-    "publishToMavenLocal": {
-      "_": "package_install"
-    },
-    "war": {
-      "_": "package_install"
-    },
-    "bootRun": {
-      "_": "package_run"
-    },
-    "check": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    }
-  },
-  "gradlew": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "dependencies": {
-      "_": "filesystem_read"
-    },
-    "dependencyInsight": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "projects": {
-      "_": "filesystem_read"
-    },
-    "properties": {
-      "_": "filesystem_read"
-    },
-    "tasks": {
-      "_": "filesystem_read"
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "uploadArchives": {
-      "_": "network_write"
-    },
-    "assemble": {
-      "_": "package_install"
-    },
-    "bootJar": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "compileJava": {
-      "_": "package_install"
-    },
-    "compileKotlin": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "jar": {
-      "_": "package_install"
-    },
-    "publishToMavenLocal": {
-      "_": "package_install"
-    },
-    "war": {
-      "_": "package_install"
-    },
-    "bootRun": {
-      "_": "package_run"
-    },
-    "check": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    }
-  },
-  "grep": {
-    "_": "filesystem_read"
-  },
-  "gron": {
-    "_": "filesystem_read"
-  },
-  "groups": {
-    "_": "filesystem_read"
-  },
-  "hatch": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "env": {
-      "show": {
-        "_": "filesystem_read"
-      },
-      "create": {
-        "_": "package_install"
-      }
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    }
-  },
-  "head": {
-    "_": "filesystem_read"
-  },
-  "help": {
-    "_": "filesystem_read"
-  },
-  "hexdump": {
-    "_": "filesystem_read"
-  },
-  "hostname": {
-    "_": "filesystem_read"
-  },
-  "htop": {
-    "_": "filesystem_read"
-  },
-  "icdiff": {
-    "_": "filesystem_read"
-  },
-  "iconv": {
-    "_": "filesystem_read"
-  },
-  "id": {
-    "_": "filesystem_read"
-  },
-  "info": {
-    "_": "filesystem_read"
-  },
-  "iostat": {
-    "_": "filesystem_read"
-  },
-  "java": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-version": {
-      "_": "filesystem_read"
-    }
-  },
-  "javac": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-version": {
-      "_": "filesystem_read"
-    }
-  },
-  "join": {
-    "_": "filesystem_read"
-  },
-  "jq": {
-    "_": "filesystem_read"
-  },
-  "last": {
-    "_": "filesystem_read"
-  },
-  "launchctl": {
-    "list": {
-      "_": "filesystem_read"
-    }
-  },
-  "ldd": {
-    "_": "filesystem_read"
-  },
-  "lein": {
-    "classpath": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "deps": {
-      "_": "package_install"
-    },
-    "compile": {
-      "_": "package_run"
-    },
-    "repl": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "uberjar": {
-      "_": "package_run"
-    }
-  },
-  "less": {
-    "_": "filesystem_read"
-  },
-  "locale": {
-    "_": "filesystem_read"
-  },
-  "logname": {
-    "_": "filesystem_read"
-  },
-  "ls": {
-    "_": "filesystem_read"
-  },
-  "lsd": {
-    "_": "filesystem_read"
-  },
-  "lsof": {
-    "_": "filesystem_read"
-  },
-  "make": {
-    "--dry-run": {
-      "_": "filesystem_read"
-    },
-    "--help": {
-      "_": "filesystem_read"
-    },
-    "--print-data-base": {
-      "_": "filesystem_read"
-    },
-    "--question": {
-      "_": "filesystem_read"
-    },
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-n": {
-      "_": "filesystem_read"
-    },
-    "-p": {
-      "_": "filesystem_read"
-    },
-    "-q": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "filesystem_write"
-    },
-    "_": "package_run"
-  },
-  "man": {
-    "_": "filesystem_read"
-  },
-  "md5": {
-    "_": "filesystem_read"
-  },
-  "md5sum": {
-    "_": "filesystem_read"
-  },
-  "mdfind": {
-    "_": "filesystem_read"
-  },
-  "mdls": {
-    "_": "filesystem_read"
-  },
-  "miller": {
-    "_": "filesystem_read"
-  },
-  "mise": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "current": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "ls": {
-      "_": "filesystem_read"
-    },
-    "where": {
-      "_": "filesystem_read"
-    },
-    "which": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "use": {
-      "_": "package_install"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "mix": {
-    "deps.tree": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "hex.info": {
-      "_": "filesystem_read"
-    },
-    "deps.get": {
-      "_": "package_install"
-    },
-    "deps.update": {
-      "_": "package_install"
-    },
-    "hex.install": {
-      "_": "package_install"
-    },
-    "compile": {
-      "_": "package_run"
-    },
-    "credo": {
-      "_": "package_run"
-    },
-    "dialyzer": {
-      "_": "package_run"
-    },
-    "ecto.create": {
-      "_": "package_run"
-    },
-    "ecto.migrate": {
-      "_": "package_run"
-    },
-    "ecto.rollback": {
-      "_": "package_run"
-    },
-    "format": {
-      "_": "package_run"
-    },
-    "phx.gen.html": {
-      "_": "package_run"
-    },
-    "phx.gen.json": {
-      "_": "package_run"
-    },
-    "phx.gen.schema": {
-      "_": "package_run"
-    },
-    "phx.routes": {
-      "_": "package_run"
-    },
-    "phx.server": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "deps.clean": {
-      "_": "package_uninstall"
-    }
-  },
-  "mlr": {
-    "_": "filesystem_read"
-  },
-  "more": {
-    "_": "filesystem_read"
-  },
-  "mvn": {
-    "--help": {
-      "_": "filesystem_read"
-    },
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-v": {
-      "_": "filesystem_read"
-    },
-    "-version": {
-      "_": "filesystem_read"
-    },
-    "dependency:analyze": {
-      "_": "filesystem_read"
-    },
-    "dependency:list": {
-      "_": "filesystem_read"
-    },
-    "dependency:resolve": {
-      "_": "filesystem_read"
-    },
-    "dependency:tree": {
-      "_": "filesystem_read"
-    },
-    "help:describe": {
-      "_": "filesystem_read"
-    },
-    "help:effective-pom": {
-      "_": "filesystem_read"
-    },
-    "help:effective-settings": {
-      "_": "filesystem_read"
-    },
-    "help:system": {
-      "_": "filesystem_read"
-    },
-    "validate": {
-      "_": "filesystem_read"
-    },
-    "versions:display-dependency-updates": {
-      "_": "filesystem_read"
-    },
-    "versions:display-plugin-updates": {
-      "_": "filesystem_read"
-    },
-    "deploy": {
-      "_": "network_write"
-    },
-    "release:perform": {
-      "_": "network_write"
-    },
-    "site-deploy": {
-      "_": "network_write"
-    },
-    "archetype:generate": {
-      "_": "package_install"
-    },
-    "compile": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "package": {
-      "_": "package_install"
-    },
-    "release:prepare": {
-      "_": "package_install"
-    },
-    "site": {
-      "_": "package_install"
-    },
-    "test-compile": {
-      "_": "package_install"
-    },
-    "versions:set": {
-      "_": "package_install"
-    },
-    "exec:exec": {
-      "_": "package_run"
-    },
-    "exec:java": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "verify": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    },
-    "dependency:purge-local-repository": {
-      "_": "package_uninstall"
-    }
-  },
-  "netstat": {
-    "_": "filesystem_read"
-  },
-  "nice": {
-    "_": "filesystem_read"
-  },
-  "nix": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "develop": {
-      "_": "package_install"
-    },
-    "profile": {
-      "install": {
-        "_": "package_install"
-      }
-    }
-  },
-  "nl": {
-    "_": "filesystem_read"
-  },
-  "nm": {
-    "_": "filesystem_read"
-  },
-  "node": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-v": {
-      "_": "filesystem_read"
-    },
-    "--eval": {
-      "_": "lang_exec"
-    },
-    "-e": {
-      "_": "lang_exec"
-    }
-  },
-  "nohup": {
-    "_": "filesystem_read"
-  },
-  "npm": {
-    "audit": {
-      "_": "filesystem_read",
-      "fix": {
-        "_": "package_install"
-      }
-    },
-    "bugs": {
-      "_": "filesystem_read"
-    },
-    "cache": {
-      "ls": {
-        "_": "filesystem_read"
-      },
-      "verify": {
-        "_": "filesystem_read"
-      },
-      "clean": {
-        "_": "package_uninstall"
-      }
-    },
-    "completion": {
-      "_": "filesystem_read"
-    },
-    "config": {
-      "get": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "diff": {
-      "_": "filesystem_read"
-    },
-    "docs": {
-      "_": "filesystem_read"
-    },
-    "doctor": {
-      "_": "filesystem_read"
-    },
-    "explain": {
-      "_": "filesystem_read"
-    },
-    "find-dupes": {
-      "_": "filesystem_read"
-    },
-    "fund": {
-      "_": "filesystem_read"
-    },
-    "get": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "home": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "ll": {
-      "_": "filesystem_read"
-    },
-    "ls": {
-      "_": "filesystem_read"
-    },
-    "outdated": {
-      "_": "filesystem_read"
-    },
-    "ping": {
-      "_": "filesystem_read"
-    },
-    "prefix": {
-      "_": "filesystem_read"
-    },
-    "query": {
-      "_": "filesystem_read"
-    },
-    "repo": {
-      "_": "filesystem_read"
-    },
-    "root": {
-      "_": "filesystem_read"
-    },
-    "sbom": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "stars": {
-      "_": "filesystem_read"
-    },
-    "view": {
-      "_": "filesystem_read"
-    },
-    "whoami": {
-      "_": "filesystem_read"
-    },
-    "access": {
-      "_": "network_write"
-    },
-    "deprecate": {
-      "_": "network_write"
-    },
-    "dist-tag": {
-      "_": "network_write"
-    },
-    "org": {
-      "_": "network_write"
-    },
-    "owner": {
-      "_": "network_write"
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "star": {
-      "_": "network_write"
-    },
-    "team": {
-      "_": "network_write"
-    },
-    "undeprecate": {
-      "_": "network_write"
-    },
-    "unpublish": {
-      "_": "network_write"
-    },
-    "unstar": {
-      "_": "network_write"
-    },
-    "ci": {
-      "_": "package_install"
-    },
-    "dedupe": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "link": {
-      "_": "package_install"
-    },
-    "pack": {
-      "_": "package_install"
-    },
-    "rebuild": {
-      "_": "package_install"
-    },
-    "shrinkwrap": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "exec": {
-      "_": "package_run"
-    },
-    "install-ci-test": {
-      "_": "package_run"
-    },
-    "install-test": {
-      "_": "package_run"
-    },
-    "restart": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "start": {
-      "_": "package_run"
-    },
-    "stop": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "prune": {
-      "_": "package_uninstall"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    },
-    "unlink": {
-      "_": "package_uninstall"
-    }
-  },
-  "nproc": {
-    "_": "filesystem_read"
-  },
-  "numfmt": {
-    "_": "filesystem_read"
-  },
-  "nvm": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "current": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "ls": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "which": {
-      "_": "filesystem_read"
-    },
-    "alias": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "use": {
-      "_": "package_install"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "objdump": {
-    "_": "filesystem_read"
-  },
-  "od": {
-    "_": "filesystem_read"
-  },
-  "openssl": {
-    "dgst": {
-      "_": "filesystem_read"
-    },
-    "md5": {
-      "_": "filesystem_read"
-    },
-    "sha1": {
-      "_": "filesystem_read"
-    },
-    "sha256": {
-      "_": "filesystem_read"
-    },
-    "s_client": {
-      "_": "network_outbound"
-    }
-  },
-  "otool": {
-    "_": "filesystem_read"
-  },
-  "paste": {
-    "_": "filesystem_read"
-  },
-  "pdm": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "lock": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "run": {
-      "_": "package_run"
-    }
-  },
-  "pgrep": {
-    "_": "filesystem_read"
-  },
-  "pip": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-V": {
-      "_": "filesystem_read"
-    },
-    "cache": {
-      "dir": {
-        "_": "filesystem_read"
-      },
-      "info": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "purge": {
-        "_": "package_uninstall"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "check": {
-      "_": "filesystem_read"
-    },
-    "completion": {
-      "_": "filesystem_read"
-    },
-    "config": {
-      "debug": {
-        "_": "filesystem_read"
-      },
-      "get": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "debug": {
-      "_": "filesystem_read"
-    },
-    "freeze": {
-      "_": "filesystem_read"
-    },
-    "hash": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "index": {
-      "versions": {
-        "_": "filesystem_read"
-      }
-    },
-    "inspect": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "download": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "lock": {
-      "_": "package_install"
-    },
-    "wheel": {
-      "_": "package_install"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "pip3": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-V": {
-      "_": "filesystem_read"
-    },
-    "check": {
-      "_": "filesystem_read"
-    },
-    "config": {
-      "get": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "freeze": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "download": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "lock": {
-      "_": "package_install"
-    },
-    "wheel": {
-      "_": "package_install"
-    },
-    "cache": {
-      "purge": {
-        "_": "package_uninstall"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "plutil": {
-    "-lint": {
-      "_": "filesystem_read"
-    },
-    "-p": {
-      "_": "filesystem_read"
-    }
-  },
-  "pnpm": {
-    "audit": {
-      "_": "filesystem_read"
-    },
-    "bin": {
-      "_": "filesystem_read"
-    },
-    "completion": {
-      "_": "filesystem_read"
-    },
-    "doctor": {
-      "_": "filesystem_read"
-    },
-    "env": {
-      "list": {
-        "_": "filesystem_read"
-      },
-      "use": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "licenses": {
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "outdated": {
-      "_": "filesystem_read"
-    },
-    "root": {
-      "_": "filesystem_read"
-    },
-    "server": {
-      "status": {
-        "_": "filesystem_read"
-      }
-    },
-    "store": {
-      "path": {
-        "_": "filesystem_read"
-      },
-      "status": {
-        "_": "filesystem_read"
-      },
-      "prune": {
-        "_": "package_uninstall"
-      }
-    },
-    "why": {
-      "_": "filesystem_read"
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "dedupe": {
-      "_": "package_install"
-    },
-    "fetch": {
-      "_": "package_install"
-    },
-    "import": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "link": {
-      "_": "package_install"
-    },
-    "pack": {
-      "_": "package_install"
-    },
-    "patch": {
-      "_": "package_install"
-    },
-    "patch-commit": {
-      "_": "package_install"
-    },
-    "rebuild": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "create": {
-      "_": "package_run"
-    },
-    "dlx": {
-      "_": "package_run"
-    },
-    "exec": {
-      "_": "package_run"
-    },
-    "install-test": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "start": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "patch-remove": {
-      "_": "package_uninstall"
-    },
-    "prune": {
-      "_": "package_uninstall"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    },
-    "unlink": {
-      "_": "package_uninstall"
-    }
-  },
-  "poetry": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "check": {
-      "_": "filesystem_read"
-    },
-    "env": {
-      "info": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "lock": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "run": {
-      "_": "package_run"
-    }
-  },
-  "popd": {
-    "_": "filesystem_read"
-  },
-  "printenv": {
-    "_": "filesystem_read"
-  },
-  "printf": {
-    "_": "filesystem_read"
-  },
-  "procs": {
-    "_": "filesystem_read"
-  },
-  "ps": {
-    "_": "filesystem_read"
-  },
-  "pstree": {
-    "_": "filesystem_read"
-  },
-  "pushd": {
-    "_": "filesystem_read"
-  },
-  "pwd": {
-    "_": "filesystem_read"
-  },
-  "pyenv": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "commands": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "versions": {
-      "_": "filesystem_read"
-    },
-    "which": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "python": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-V": {
-      "_": "filesystem_read"
-    },
-    "-c": {
-      "_": "lang_exec"
-    },
-    "-m": {
-      "build": {
-        "_": "package_install"
-      },
-      "pip": {
-        "install": {
-          "_": "package_install"
-        }
-      },
-      "venv": {
-        "_": "package_install"
-      },
-      "bandit": {
-        "_": "package_run"
-      },
-      "black": {
-        "_": "package_run"
-      },
-      "flake8": {
-        "_": "package_run"
-      },
-      "isort": {
-        "_": "package_run"
-      },
-      "mypy": {
-        "_": "package_run"
-      },
-      "pylint": {
-        "_": "package_run"
-      },
-      "pytest": {
-        "_": "package_run"
-      },
-      "ruff": {
-        "_": "package_run"
-      },
-      "unittest": {
-        "_": "package_run"
-      }
-    }
-  },
-  "python3": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-V": {
-      "_": "filesystem_read"
-    },
-    "-c": {
-      "_": "lang_exec"
-    },
-    "-m": {
-      "pip": {
-        "install": {
-          "_": "package_install"
-        }
-      },
-      "bandit": {
-        "_": "package_run"
-      },
-      "black": {
-        "_": "package_run"
-      },
-      "flake8": {
-        "_": "package_run"
-      },
-      "isort": {
-        "_": "package_run"
-      },
-      "mypy": {
-        "_": "package_run"
-      },
-      "pylint": {
-        "_": "package_run"
-      },
-      "ruff": {
-        "_": "package_run"
-      },
-      "unittest": {
-        "_": "package_run"
-      }
-    }
-  },
-  "rails": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "console": {
-      "_": "package_run"
-    },
-    "db:create": {
-      "_": "package_run"
-    },
-    "db:migrate": {
-      "_": "package_run"
-    },
-    "db:seed": {
-      "_": "package_run"
-    },
-    "generate": {
-      "_": "package_run"
-    },
-    "routes": {
-      "_": "package_run"
-    },
-    "server": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    }
-  },
-  "rbenv": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "commands": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "versions": {
-      "_": "filesystem_read"
-    },
-    "which": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "readelf": {
-    "_": "filesystem_read"
-  },
-  "readlink": {
-    "_": "filesystem_read"
-  },
-  "realpath": {
-    "_": "filesystem_read"
-  },
-  "rev": {
-    "_": "filesystem_read"
-  },
-  "rg": {
-    "_": "filesystem_read"
-  },
-  "ruby": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-e": {
-      "_": "lang_exec"
-    }
-  },
-  "rustc": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-V": {
-      "_": "filesystem_read"
-    }
-  },
-  "rustup": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "completions": {
-      "_": "filesystem_read"
-    },
-    "doc": {
-      "_": "filesystem_read"
-    },
-    "show": {
-      "_": "filesystem_read"
-    },
-    "target": {
-      "list": {
-        "_": "filesystem_read"
-      },
-      "add": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "toolchain": {
-      "list": {
-        "_": "filesystem_read"
-      },
-      "uninstall": {
-        "_": "package_uninstall"
-      }
-    },
-    "which": {
-      "_": "filesystem_read"
-    },
-    "component": {
-      "add": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "default": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "override": {
-      "set": {
-        "_": "package_install"
-      }
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "self": {
-      "uninstall": {
-        "_": "package_uninstall"
-      }
-    }
-  },
-  "sbt": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "assembly": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_run"
-    },
-    "compile": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    }
-  },
-  "scala": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-version": {
-      "_": "filesystem_read"
-    }
-  },
-  "sd": {
-    "_": "filesystem_read"
-  },
-  "seq": {
-    "_": "filesystem_read"
-  },
-  "sha1sum": {
-    "_": "filesystem_read"
-  },
-  "sha224sum": {
-    "_": "filesystem_read"
-  },
-  "sha256sum": {
-    "_": "filesystem_read"
-  },
-  "sha384sum": {
-    "_": "filesystem_read"
-  },
-  "sha512sum": {
-    "_": "filesystem_read"
-  },
-  "shasum": {
-    "_": "filesystem_read"
-  },
-  "shellcheck": {
-    "_": "filesystem_read"
-  },
-  "size": {
-    "_": "filesystem_read"
-  },
-  "sleep": {
-    "_": "filesystem_read"
-  },
-  "sort": {
-    "_": "filesystem_read"
-  },
-  "ss": {
-    "_": "filesystem_read"
-  },
-  "stack": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "setup": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_run"
-    },
-    "exec": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    }
-  },
-  "stat": {
-    "_": "filesystem_read"
-  },
-  "stdbuf": {
-    "_": "filesystem_read"
-  },
-  "strings": {
-    "_": "filesystem_read"
-  },
-  "strip": {
-    "--help": {
-      "_": "filesystem_read"
-    }
-  },
-  "sum": {
-    "_": "filesystem_read"
-  },
-  "sw_vers": {
-    "_": "filesystem_read"
-  },
-  "swift": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "package": {
-      "describe": {
-        "_": "filesystem_read"
-      },
-      "dump-package": {
-        "_": "filesystem_read"
-      },
-      "show-dependencies": {
-        "_": "filesystem_read"
-      },
-      "resolve": {
-        "_": "package_install"
-      },
-      "generate-xcodeproj": {
-        "_": "package_run"
-      },
-      "update": {
-        "_": "package_run"
-      }
-    },
-    "build": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    }
-  },
-  "sysctl": {
-    "_": "filesystem_read"
-  },
-  "system_profiler": {
-    "_": "filesystem_read"
-  },
-  "tac": {
-    "_": "filesystem_read"
-  },
-  "tail": {
-    "_": "filesystem_read"
-  },
-  "test": {
-    "_": "filesystem_read"
-  },
-  "time": {
-    "_": "filesystem_read"
-  },
-  "timeout": {
-    "_": "filesystem_read"
-  },
-  "tldr": {
-    "_": "filesystem_read"
-  },
-  "top": {
-    "_": "filesystem_read"
-  },
-  "tr": {
-    "_": "filesystem_read"
-  },
-  "tree": {
-    "_": "filesystem_read"
-  },
-  "true": {
-    "_": "filesystem_read"
-  },
-  "tty": {
-    "_": "filesystem_read"
-  },
-  "type": {
-    "_": "filesystem_read"
-  },
-  "ulimit": {
-    "_": "filesystem_read"
-  },
-  "uname": {
-    "_": "filesystem_read"
-  },
-  "unexpand": {
-    "_": "filesystem_read"
-  },
-  "uniq": {
-    "_": "filesystem_read"
-  },
-  "uptime": {
-    "_": "filesystem_read"
-  },
-  "uv": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "-V": {
-      "_": "filesystem_read"
-    },
-    "cache": {
-      "dir": {
-        "_": "filesystem_read"
-      },
-      "clean": {
-        "_": "package_uninstall"
-      },
-      "prune": {
-        "_": "package_uninstall"
-      }
-    },
-    "export": {
-      "_": "filesystem_read"
-    },
-    "generate-shell-completion": {
-      "_": "filesystem_read"
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "pip": {
-      "check": {
-        "_": "filesystem_read"
-      },
-      "freeze": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "show": {
-        "_": "filesystem_read"
-      },
-      "tree": {
-        "_": "filesystem_read"
-      },
-      "compile": {
-        "_": "package_install"
-      },
-      "install": {
-        "_": "package_install"
-      },
-      "sync": {
-        "_": "package_install"
-      },
-      "uninstall": {
-        "_": "package_uninstall"
-      }
-    },
-    "python": {
-      "dir": {
-        "_": "filesystem_read"
-      },
-      "find": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "install": {
-        "_": "package_install"
-      },
-      "uninstall": {
-        "_": "package_uninstall"
-      }
-    },
-    "tool": {
-      "dir": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "install": {
-        "_": "package_install"
-      },
-      "run": {
-        "_": "package_run"
-      },
-      "uninstall": {
-        "_": "package_uninstall"
-      }
-    },
-    "tree": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "build": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "lock": {
-      "_": "package_install"
-    },
-    "self": {
-      "update": {
-        "_": "package_install"
-      }
-    },
-    "sync": {
-      "_": "package_install"
-    },
-    "venv": {
-      "_": "package_install"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    }
-  },
-  "vmstat": {
-    "_": "filesystem_read"
-  },
-  "volta": {
-    "--version": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "which": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "pin": {
-      "_": "package_install"
-    },
-    "uninstall": {
-      "_": "package_uninstall"
-    }
-  },
-  "w": {
-    "_": "filesystem_read"
-  },
-  "wc": {
-    "_": "filesystem_read"
-  },
-  "whatis": {
-    "_": "filesystem_read"
-  },
-  "whereis": {
-    "_": "filesystem_read"
-  },
-  "which": {
-    "_": "filesystem_read"
-  },
-  "whoami": {
-    "_": "filesystem_read"
-  },
-  "xcode-select": {
-    "--print-path": {
-      "_": "filesystem_read"
-    },
-    "-p": {
-      "_": "filesystem_read"
-    }
-  },
-  "xcrun": {
-    "--find": {
-      "_": "filesystem_read"
-    },
-    "--sdk": {
-      "_": "filesystem_read"
-    },
-    "--show-sdk-path": {
-      "_": "filesystem_read"
-    }
-  },
-  "xsv": {
-    "_": "filesystem_read"
-  },
-  "xxd": {
-    "_": "filesystem_read"
-  },
-  "xxhsum": {
-    "_": "filesystem_read"
-  },
-  "yarn": {
-    "audit": {
-      "_": "filesystem_read"
-    },
-    "bin": {
-      "_": "filesystem_read"
-    },
-    "cache": {
-      "dir": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      },
-      "clean": {
-        "_": "package_uninstall"
-      }
-    },
-    "completion": {
-      "_": "filesystem_read"
-    },
-    "config": {
-      "get": {
-        "_": "filesystem_read"
-      },
-      "list": {
-        "_": "filesystem_read"
-      }
-    },
-    "constraints": {
-      "_": "filesystem_read"
-    },
-    "explain": {
-      "peer-requirements": {
-        "_": "filesystem_read"
-      }
-    },
-    "help": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "npm": {
-      "audit": {
-        "_": "filesystem_read"
-      },
-      "info": {
-        "_": "filesystem_read"
-      },
-      "tag": {
-        "list": {
-          "_": "filesystem_read"
-        },
-        "add": {
-          "_": "network_write"
-        },
-        "remove": {
-          "_": "network_write"
-        }
-      },
-      "whoami": {
-        "_": "filesystem_read"
-      },
-      "publish": {
-        "_": "network_write"
-      }
-    },
-    "outdated": {
-      "_": "filesystem_read"
-    },
-    "why": {
-      "_": "filesystem_read"
-    },
-    "workspaces": {
-      "list": {
-        "_": "filesystem_read"
-      },
-      "foreach": {
-        "_": "package_run"
-      }
-    },
-    "publish": {
-      "_": "network_write"
-    },
-    "add": {
-      "_": "package_install"
-    },
-    "dedupe": {
-      "_": "package_install"
-    },
-    "init": {
-      "_": "package_install"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "link": {
-      "_": "package_install"
-    },
-    "pack": {
-      "_": "package_install"
-    },
-    "patch": {
-      "_": "package_install"
-    },
-    "patch-commit": {
-      "_": "package_install"
-    },
-    "plugin": {
-      "import": {
-        "_": "package_install"
-      },
-      "remove": {
-        "_": "package_uninstall"
-      }
-    },
-    "rebuild": {
-      "_": "package_install"
-    },
-    "set": {
-      "version": {
-        "_": "package_install"
-      }
-    },
-    "stage": {
-      "_": "package_install"
-    },
-    "up": {
-      "_": "package_install"
-    },
-    "upgrade": {
-      "_": "package_install"
-    },
-    "create": {
-      "_": "package_run"
-    },
-    "dlx": {
-      "_": "package_run"
-    },
-    "exec": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "start": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    },
-    "autoclean": {
-      "_": "package_uninstall"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    },
-    "unlink": {
-      "_": "package_uninstall"
-    }
-  },
-  "yq": {
-    "_": "filesystem_read"
-  },
-  "yum": {
-    "check-update": {
-      "_": "filesystem_read"
-    },
-    "deplist": {
-      "_": "filesystem_read"
-    },
-    "info": {
-      "_": "filesystem_read"
-    },
-    "list": {
-      "_": "filesystem_read"
-    },
-    "provides": {
-      "_": "filesystem_read"
-    },
-    "search": {
-      "_": "filesystem_read"
-    },
-    "install": {
-      "_": "package_install"
-    },
-    "update": {
-      "_": "package_install"
-    },
-    "autoremove": {
-      "_": "package_uninstall"
-    },
-    "clean": {
-      "_": "package_uninstall"
-    },
-    "erase": {
-      "_": "package_uninstall"
-    },
-    "remove": {
-      "_": "package_uninstall"
-    }
-  },
-  "zcat": {
-    "_": "filesystem_read"
-  },
-  "zgrep": {
-    "_": "filesystem_read"
-  },
-  "zig": {
-    "env": {
-      "_": "filesystem_read"
-    },
-    "version": {
-      "_": "filesystem_read"
-    },
-    "build": {
-      "_": "package_run"
-    },
-    "fmt": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    }
-  },
-  "zless": {
-    "_": "filesystem_read"
-  },
-  "zmore": {
-    "_": "filesystem_read"
-  },
-  "bunzip2": {
-    "_": "filesystem_write"
-  },
-  "bzip2": {
-    "_": "filesystem_write"
-  },
-  "chgrp": {
-    "_": "filesystem_write"
-  },
-  "chmod": {
-    "_": "filesystem_write"
-  },
-  "chown": {
-    "_": "filesystem_write"
-  },
-  "cp": {
-    "_": "filesystem_write"
-  },
-  "gunzip": {
-    "_": "filesystem_write"
-  },
-  "gzip": {
-    "_": "filesystem_write"
-  },
-  "install": {
-    "_": "filesystem_write"
-  },
-  "ln": {
-    "_": "filesystem_write"
-  },
-  "mkdir": {
-    "_": "filesystem_write"
-  },
-  "mkfifo": {
-    "_": "filesystem_write"
-  },
-  "mktemp": {
-    "_": "filesystem_write"
-  },
-  "mv": {
-    "_": "filesystem_write"
-  },
-  "mysqldump": {
-    "_": "filesystem_write"
-  },
-  "patch": {
-    "_": "filesystem_write"
-  },
-  "pg_dump": {
-    "_": "filesystem_write"
-  },
-  "pg_dumpall": {
-    "_": "filesystem_write"
-  },
-  "tee": {
-    "_": "filesystem_write"
-  },
-  "touch": {
-    "_": "filesystem_write"
-  },
-  "unzip": {
-    "_": "filesystem_write"
-  },
-  "xz": {
-    "_": "filesystem_write"
-  },
-  "zip": {
-    "_": "filesystem_write"
-  },
   "git": {
     "prune": {
       "_": "git_discard"
@@ -6438,93 +3698,697 @@
       "_": "network_outbound"
     }
   },
-  "crontab": {
-    "_": "lang_exec"
+  "gmake": {
+    "--dry-run": {
+      "_": "filesystem_read"
+    },
+    "--help": {
+      "_": "filesystem_read"
+    },
+    "--print-data-base": {
+      "_": "filesystem_read"
+    },
+    "--question": {
+      "_": "filesystem_read"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-n": {
+      "_": "filesystem_read"
+    },
+    "-p": {
+      "_": "filesystem_read"
+    },
+    "-q": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "filesystem_write"
+    },
+    "_": "package_run"
   },
-  "perl": {
-    "-e": {
-      "_": "lang_exec"
+  "go": {
+    "bug": {
+      "_": "filesystem_read"
+    },
+    "doc": {
+      "_": "filesystem_read"
+    },
+    "env": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "mod": {
+      "graph": {
+        "_": "filesystem_read"
+      },
+      "verify": {
+        "_": "filesystem_read"
+      },
+      "why": {
+        "_": "filesystem_read"
+      },
+      "download": {
+        "_": "package_install"
+      },
+      "edit": {
+        "_": "package_install"
+      },
+      "init": {
+        "_": "package_install"
+      },
+      "tidy": {
+        "_": "package_install"
+      },
+      "vendor": {
+        "_": "package_install"
+      }
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "vet": {
+      "_": "filesystem_read"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "get": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "work": {
+      "edit": {
+        "_": "package_install"
+      },
+      "init": {
+        "_": "package_install"
+      },
+      "sync": {
+        "_": "package_install"
+      },
+      "use": {
+        "_": "package_install"
+      },
+      "vendor": {
+        "_": "package_install"
+      }
+    },
+    "fix": {
+      "_": "package_run"
+    },
+    "fmt": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "tool": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
     }
   },
-  "php": {
-    "-r": {
-      "_": "lang_exec"
+  "gofumpt": {
+    "_": "package_run"
+  },
+  "golangci-lint": {
+    "run": {
+      "_": "package_run"
     }
   },
-  "su": {
-    "_": "lang_exec"
+  "govulncheck": {
+    "_": "package_run"
   },
-  "sudo": {
-    "_": "lang_exec"
+  "gradle": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "buildEnvironment": {
+      "_": "filesystem_read"
+    },
+    "components": {
+      "_": "filesystem_read"
+    },
+    "dependencies": {
+      "_": "filesystem_read"
+    },
+    "dependencyInsight": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "javaToolchains": {
+      "_": "filesystem_read"
+    },
+    "model": {
+      "_": "filesystem_read"
+    },
+    "outgoingVariants": {
+      "_": "filesystem_read"
+    },
+    "projects": {
+      "_": "filesystem_read"
+    },
+    "properties": {
+      "_": "filesystem_read"
+    },
+    "resolvableConfigurations": {
+      "_": "filesystem_read"
+    },
+    "tasks": {
+      "_": "filesystem_read"
+    },
+    "publish": {
+      "_": "network_write"
+    },
+    "uploadArchives": {
+      "_": "network_write"
+    },
+    "assemble": {
+      "_": "package_install"
+    },
+    "bootJar": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "compileJava": {
+      "_": "package_install"
+    },
+    "compileKotlin": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "jar": {
+      "_": "package_install"
+    },
+    "publishToMavenLocal": {
+      "_": "package_install"
+    },
+    "war": {
+      "_": "package_install"
+    },
+    "bootRun": {
+      "_": "package_run"
+    },
+    "check": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
   },
-  "dig": {
-    "_": "network_diagnostic"
+  "gradlew": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "dependencies": {
+      "_": "filesystem_read"
+    },
+    "dependencyInsight": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "projects": {
+      "_": "filesystem_read"
+    },
+    "properties": {
+      "_": "filesystem_read"
+    },
+    "tasks": {
+      "_": "filesystem_read"
+    },
+    "publish": {
+      "_": "network_write"
+    },
+    "uploadArchives": {
+      "_": "network_write"
+    },
+    "assemble": {
+      "_": "package_install"
+    },
+    "bootJar": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "compileJava": {
+      "_": "package_install"
+    },
+    "compileKotlin": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "jar": {
+      "_": "package_install"
+    },
+    "publishToMavenLocal": {
+      "_": "package_install"
+    },
+    "war": {
+      "_": "package_install"
+    },
+    "bootRun": {
+      "_": "package_run"
+    },
+    "check": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
   },
-  "host": {
-    "_": "network_diagnostic"
+  "grep": {
+    "_": "filesystem_read"
   },
-  "mtr": {
-    "_": "network_diagnostic"
+  "gron": {
+    "_": "filesystem_read"
   },
-  "nslookup": {
-    "_": "network_diagnostic"
-  },
-  "ping": {
-    "_": "network_diagnostic"
-  },
-  "ping6": {
-    "_": "network_diagnostic"
-  },
-  "traceroute": {
-    "_": "network_diagnostic"
-  },
-  "traceroute6": {
-    "_": "network_diagnostic"
-  },
-  "whois": {
-    "_": "network_diagnostic"
-  },
-  "curl": {
-    "_": "network_outbound"
+  "groups": {
+    "_": "filesystem_read"
   },
   "grpcurl": {
     "_": "network_outbound"
   },
-  "nmap": {
-    "_": "network_outbound"
+  "gunzip": {
+    "_": "filesystem_write"
   },
-  "rsync": {
-    "_": "network_outbound"
+  "gzip": {
+    "_": "filesystem_write"
   },
-  "scp": {
-    "_": "network_outbound"
+  "hatch": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "env": {
+      "show": {
+        "_": "filesystem_read"
+      },
+      "create": {
+        "_": "package_install"
+      }
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
   },
-  "sftp": {
-    "_": "network_outbound"
+  "head": {
+    "_": "filesystem_read"
   },
-  "ssh": {
-    "_": "network_outbound"
+  "helm": {
+    "delete": {
+      "_": "container_destructive"
+    },
+    "uninstall": {
+      "_": "container_destructive"
+    },
+    "env": {
+      "_": "filesystem_read"
+    },
+    "get": {
+      "_": "filesystem_read"
+    },
+    "history": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "repo": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "add": {
+        "_": "package_install"
+      },
+      "update": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "status": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "dependency": {
+      "build": {
+        "_": "package_install"
+      },
+      "update": {
+        "_": "package_install"
+      }
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    }
   },
-  "ftp": {
-    "_": "network_write"
+  "help": {
+    "_": "filesystem_read"
   },
-  "nc": {
-    "_": "network_write"
+  "hexdump": {
+    "_": "filesystem_read"
   },
-  "ncat": {
-    "_": "network_write"
+  "host": {
+    "_": "network_diagnostic"
   },
-  "netcat": {
-    "_": "network_write"
+  "hostname": {
+    "_": "filesystem_read"
   },
-  "socat": {
-    "_": "network_write"
+  "htop": {
+    "_": "filesystem_read"
   },
-  "telnet": {
-    "_": "network_write"
+  "icdiff": {
+    "_": "filesystem_read"
   },
-  "cpack": {
-    "_": "package_install"
+  "iconv": {
+    "_": "filesystem_read"
+  },
+  "id": {
+    "_": "filesystem_read"
+  },
+  "info": {
+    "_": "filesystem_read"
+  },
+  "install": {
+    "_": "filesystem_write"
+  },
+  "iostat": {
+    "_": "filesystem_read"
+  },
+  "isort": {
+    "_": "package_run"
+  },
+  "java": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-version": {
+      "_": "filesystem_read"
+    }
+  },
+  "javac": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-version": {
+      "_": "filesystem_read"
+    }
+  },
+  "jest": {
+    "_": "package_run"
+  },
+  "join": {
+    "_": "filesystem_read"
+  },
+  "jq": {
+    "_": "filesystem_read"
+  },
+  "just": {
+    "_": "package_run"
+  },
+  "kill": {
+    "-9": {
+      "_": "process_signal"
+    },
+    "-KILL": {
+      "_": "process_signal"
+    },
+    "-SIGKILL": {
+      "_": "process_signal"
+    }
+  },
+  "killall": {
+    "_": "process_signal"
+  },
+  "kubectl": {
+    "apply": {
+      "_": "container_destructive"
+    },
+    "cordon": {
+      "_": "container_destructive"
+    },
+    "create": {
+      "_": "container_destructive"
+    },
+    "delete": {
+      "_": "container_destructive"
+    },
+    "drain": {
+      "_": "container_destructive"
+    },
+    "edit": {
+      "_": "container_destructive"
+    },
+    "patch": {
+      "_": "container_destructive"
+    },
+    "replace": {
+      "_": "container_destructive"
+    },
+    "rollout": {
+      "_": "container_destructive",
+      "history": {
+        "_": "db_read"
+      },
+      "status": {
+        "_": "db_read"
+      }
+    },
+    "scale": {
+      "_": "container_destructive"
+    },
+    "set": {
+      "_": "container_destructive"
+    },
+    "taint": {
+      "_": "container_destructive"
+    },
+    "api-versions": {
+      "_": "db_read"
+    },
+    "auth": {
+      "can-i": {
+        "_": "db_read"
+      },
+      "whoami": {
+        "_": "db_read"
+      }
+    },
+    "cluster-info": {
+      "_": "db_read"
+    },
+    "config": {
+      "current-context": {
+        "_": "db_read"
+      },
+      "get-clusters": {
+        "_": "db_read"
+      },
+      "get-contexts": {
+        "_": "db_read"
+      },
+      "get-users": {
+        "_": "db_read"
+      },
+      "view": {
+        "_": "filesystem_read"
+      }
+    },
+    "diff": {
+      "_": "db_read"
+    },
+    "wait": {
+      "_": "db_read"
+    },
+    "api-resources": {
+      "_": "filesystem_read"
+    },
+    "describe": {
+      "_": "filesystem_read"
+    },
+    "explain": {
+      "_": "filesystem_read"
+    },
+    "get": {
+      "_": "filesystem_read"
+    },
+    "logs": {
+      "_": "filesystem_read"
+    },
+    "top": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "exec": {
+      "_": "lang_exec"
+    },
+    "run": {
+      "_": "lang_exec"
+    }
+  },
+  "last": {
+    "_": "filesystem_read"
+  },
+  "launchctl": {
+    "list": {
+      "_": "filesystem_read"
+    }
+  },
+  "ldd": {
+    "_": "filesystem_read"
+  },
+  "lein": {
+    "classpath": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "deps": {
+      "_": "package_install"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "repl": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "uberjar": {
+      "_": "package_run"
+    }
+  },
+  "less": {
+    "_": "filesystem_read"
+  },
+  "ln": {
+    "_": "filesystem_write"
+  },
+  "locale": {
+    "_": "filesystem_read"
+  },
+  "logname": {
+    "_": "filesystem_read"
+  },
+  "ls": {
+    "_": "filesystem_read"
+  },
+  "lsd": {
+    "_": "filesystem_read"
+  },
+  "lsof": {
+    "_": "filesystem_read"
+  },
+  "make": {
+    "--dry-run": {
+      "_": "filesystem_read"
+    },
+    "--help": {
+      "_": "filesystem_read"
+    },
+    "--print-data-base": {
+      "_": "filesystem_read"
+    },
+    "--question": {
+      "_": "filesystem_read"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-n": {
+      "_": "filesystem_read"
+    },
+    "-p": {
+      "_": "filesystem_read"
+    },
+    "-q": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "filesystem_write"
+    },
+    "_": "package_run"
+  },
+  "man": {
+    "_": "filesystem_read"
+  },
+  "md5": {
+    "_": "filesystem_read"
+  },
+  "md5sum": {
+    "_": "filesystem_read"
+  },
+  "mdfind": {
+    "_": "filesystem_read"
+  },
+  "mdls": {
+    "_": "filesystem_read"
   },
   "meson": {
     "subprojects": {
@@ -6547,41 +4411,94 @@
       "_": "package_run"
     }
   },
-  "nix-env": {
-    "--install": {
-      "_": "package_install"
-    },
-    "-i": {
-      "_": "package_install"
-    }
-  },
-  "astro": {
-    "build": {
-      "_": "package_run"
-    },
-    "dev": {
-      "_": "package_run"
-    }
-  },
-  "bandit": {
+  "mill": {
     "_": "package_run"
   },
-  "biome": {
-    "check": {
+  "miller": {
+    "_": "filesystem_read"
+  },
+  "mise": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "current": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "ls": {
+      "_": "filesystem_read"
+    },
+    "where": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "use": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
+  "mix": {
+    "deps.tree": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "hex.info": {
+      "_": "filesystem_read"
+    },
+    "deps.get": {
+      "_": "package_install"
+    },
+    "deps.update": {
+      "_": "package_install"
+    },
+    "hex.install": {
+      "_": "package_install"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "credo": {
+      "_": "package_run"
+    },
+    "dialyzer": {
+      "_": "package_run"
+    },
+    "ecto.create": {
+      "_": "package_run"
+    },
+    "ecto.migrate": {
+      "_": "package_run"
+    },
+    "ecto.rollback": {
       "_": "package_run"
     },
     "format": {
       "_": "package_run"
     },
-    "lint": {
+    "phx.gen.html": {
       "_": "package_run"
-    }
-  },
-  "black": {
-    "_": "package_run"
-  },
-  "buck": {
-    "build": {
+    },
+    "phx.gen.json": {
+      "_": "package_run"
+    },
+    "phx.gen.schema": {
+      "_": "package_run"
+    },
+    "phx.routes": {
+      "_": "package_run"
+    },
+    "phx.server": {
       "_": "package_run"
     },
     "run": {
@@ -6589,87 +4506,177 @@
     },
     "test": {
       "_": "package_run"
+    },
+    "deps.clean": {
+      "_": "package_uninstall"
     }
   },
-  "buck2": {
-    "build": {
-      "_": "package_run"
-    },
-    "run": {
-      "_": "package_run"
-    },
-    "test": {
-      "_": "package_run"
-    }
+  "mkdir": {
+    "_": "filesystem_write"
   },
-  "buf": {
-    "breaking": {
-      "_": "package_run"
-    },
-    "build": {
-      "_": "package_run"
-    },
-    "generate": {
-      "_": "package_run"
-    },
-    "lint": {
-      "_": "package_run"
-    }
+  "mkfifo": {
+    "_": "filesystem_write"
   },
-  "bunx": {
-    "_": "package_run"
+  "mkfs.btrfs": {
+    "_": "disk_destructive"
   },
-  "c8": {
-    "_": "package_run"
+  "mkfs.ext4": {
+    "_": "disk_destructive"
   },
-  "dprint": {
-    "check": {
-      "_": "package_run"
-    },
-    "fmt": {
-      "_": "package_run"
-    }
+  "mkfs": {
+    "_": "disk_destructive"
   },
-  "entr": {
-    "_": "package_run"
+  "mkfs.xfs": {
+    "_": "disk_destructive"
   },
-  "esbuild": {
-    "_": "package_run"
+  "mktemp": {
+    "_": "filesystem_write"
   },
-  "eslint": {
-    "_": "package_run"
-  },
-  "flake8": {
-    "_": "package_run"
-  },
-  "gofumpt": {
-    "_": "package_run"
-  },
-  "golangci-lint": {
-    "run": {
-      "_": "package_run"
-    }
-  },
-  "govulncheck": {
-    "_": "package_run"
-  },
-  "isort": {
-    "_": "package_run"
-  },
-  "jest": {
-    "_": "package_run"
-  },
-  "just": {
-    "_": "package_run"
-  },
-  "mill": {
-    "_": "package_run"
+  "mlr": {
+    "_": "filesystem_read"
   },
   "mocha": {
     "_": "package_run"
   },
+  "mongosh": {
+    "_": "db_write"
+  },
+  "more": {
+    "_": "filesystem_read"
+  },
+  "mount": {
+    "_": "disk_destructive"
+  },
+  "mtr": {
+    "_": "network_diagnostic"
+  },
+  "mv": {
+    "_": "filesystem_write"
+  },
+  "mvn": {
+    "--help": {
+      "_": "filesystem_read"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-v": {
+      "_": "filesystem_read"
+    },
+    "-version": {
+      "_": "filesystem_read"
+    },
+    "dependency:analyze": {
+      "_": "filesystem_read"
+    },
+    "dependency:list": {
+      "_": "filesystem_read"
+    },
+    "dependency:resolve": {
+      "_": "filesystem_read"
+    },
+    "dependency:tree": {
+      "_": "filesystem_read"
+    },
+    "help:describe": {
+      "_": "filesystem_read"
+    },
+    "help:effective-pom": {
+      "_": "filesystem_read"
+    },
+    "help:effective-settings": {
+      "_": "filesystem_read"
+    },
+    "help:system": {
+      "_": "filesystem_read"
+    },
+    "validate": {
+      "_": "filesystem_read"
+    },
+    "versions:display-dependency-updates": {
+      "_": "filesystem_read"
+    },
+    "versions:display-plugin-updates": {
+      "_": "filesystem_read"
+    },
+    "deploy": {
+      "_": "network_write"
+    },
+    "release:perform": {
+      "_": "network_write"
+    },
+    "site-deploy": {
+      "_": "network_write"
+    },
+    "archetype:generate": {
+      "_": "package_install"
+    },
+    "compile": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "package": {
+      "_": "package_install"
+    },
+    "release:prepare": {
+      "_": "package_install"
+    },
+    "site": {
+      "_": "package_install"
+    },
+    "test-compile": {
+      "_": "package_install"
+    },
+    "versions:set": {
+      "_": "package_install"
+    },
+    "exec:exec": {
+      "_": "package_run"
+    },
+    "exec:java": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "verify": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    },
+    "dependency:purge-local-repository": {
+      "_": "package_uninstall"
+    }
+  },
   "mypy": {
     "_": "package_run"
+  },
+  "mysql": {
+    "_": "db_write",
+    "--execute": {
+      "_": "db_write"
+    },
+    "-e": {
+      "_": "db_write"
+    }
+  },
+  "mysqldump": {
+    "_": "filesystem_write"
+  },
+  "nc": {
+    "_": "network_write"
+  },
+  "ncat": {
+    "_": "network_write"
+  },
+  "netcat": {
+    "_": "network_write"
+  },
+  "netstat": {
+    "_": "filesystem_read"
   },
   "next": {
     "build": {
@@ -6685,14 +4692,277 @@
       "_": "package_run"
     }
   },
+  "nice": {
+    "_": "filesystem_read"
+  },
   "ninja": {
     "_": "package_run"
+  },
+  "nix-env": {
+    "--install": {
+      "_": "package_install"
+    },
+    "-i": {
+      "_": "package_install"
+    }
+  },
+  "nix": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "develop": {
+      "_": "package_install"
+    },
+    "profile": {
+      "install": {
+        "_": "package_install"
+      }
+    }
+  },
+  "nl": {
+    "_": "filesystem_read"
+  },
+  "nm": {
+    "_": "filesystem_read"
+  },
+  "nmap": {
+    "_": "network_outbound"
+  },
+  "node": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-v": {
+      "_": "filesystem_read"
+    },
+    "--eval": {
+      "_": "lang_exec"
+    },
+    "-e": {
+      "_": "lang_exec"
+    }
+  },
+  "nohup": {
+    "_": "filesystem_read"
   },
   "nox": {
     "_": "package_run"
   },
+  "npm": {
+    "audit": {
+      "_": "filesystem_read",
+      "fix": {
+        "_": "package_install"
+      }
+    },
+    "bugs": {
+      "_": "filesystem_read"
+    },
+    "cache": {
+      "ls": {
+        "_": "filesystem_read"
+      },
+      "verify": {
+        "_": "filesystem_read"
+      },
+      "clean": {
+        "_": "package_uninstall"
+      }
+    },
+    "completion": {
+      "_": "filesystem_read"
+    },
+    "config": {
+      "get": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "diff": {
+      "_": "filesystem_read"
+    },
+    "docs": {
+      "_": "filesystem_read"
+    },
+    "doctor": {
+      "_": "filesystem_read"
+    },
+    "explain": {
+      "_": "filesystem_read"
+    },
+    "find-dupes": {
+      "_": "filesystem_read"
+    },
+    "fund": {
+      "_": "filesystem_read"
+    },
+    "get": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "home": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "ll": {
+      "_": "filesystem_read"
+    },
+    "ls": {
+      "_": "filesystem_read"
+    },
+    "outdated": {
+      "_": "filesystem_read"
+    },
+    "ping": {
+      "_": "filesystem_read"
+    },
+    "prefix": {
+      "_": "filesystem_read"
+    },
+    "query": {
+      "_": "filesystem_read"
+    },
+    "repo": {
+      "_": "filesystem_read"
+    },
+    "root": {
+      "_": "filesystem_read"
+    },
+    "sbom": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "stars": {
+      "_": "filesystem_read"
+    },
+    "view": {
+      "_": "filesystem_read"
+    },
+    "whoami": {
+      "_": "filesystem_read"
+    },
+    "access": {
+      "_": "network_write"
+    },
+    "deprecate": {
+      "_": "network_write"
+    },
+    "dist-tag": {
+      "_": "network_write"
+    },
+    "org": {
+      "_": "network_write"
+    },
+    "owner": {
+      "_": "network_write"
+    },
+    "publish": {
+      "_": "network_write"
+    },
+    "star": {
+      "_": "network_write"
+    },
+    "team": {
+      "_": "network_write"
+    },
+    "undeprecate": {
+      "_": "network_write"
+    },
+    "unpublish": {
+      "_": "network_write"
+    },
+    "unstar": {
+      "_": "network_write"
+    },
+    "ci": {
+      "_": "package_install"
+    },
+    "dedupe": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "link": {
+      "_": "package_install"
+    },
+    "pack": {
+      "_": "package_install"
+    },
+    "rebuild": {
+      "_": "package_install"
+    },
+    "shrinkwrap": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "exec": {
+      "_": "package_run"
+    },
+    "install-ci-test": {
+      "_": "package_run"
+    },
+    "install-test": {
+      "_": "package_run"
+    },
+    "restart": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "start": {
+      "_": "package_run"
+    },
+    "stop": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "prune": {
+      "_": "package_uninstall"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    },
+    "unlink": {
+      "_": "package_uninstall"
+    }
+  },
+  "nproc": {
+    "_": "filesystem_read"
+  },
   "npx": {
     "_": "package_run"
+  },
+  "nslookup": {
+    "_": "network_diagnostic"
+  },
+  "numfmt": {
+    "_": "filesystem_read"
   },
   "nuxt": {
     "build": {
@@ -6705,14 +4975,735 @@
       "_": "package_run"
     }
   },
+  "nvm": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "current": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "ls": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "alias": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "use": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
   "nyc": {
     "_": "package_run"
+  },
+  "objdump": {
+    "_": "filesystem_read"
+  },
+  "od": {
+    "_": "filesystem_read"
+  },
+  "openssl": {
+    "dgst": {
+      "_": "filesystem_read"
+    },
+    "md5": {
+      "_": "filesystem_read"
+    },
+    "sha1": {
+      "_": "filesystem_read"
+    },
+    "sha256": {
+      "_": "filesystem_read"
+    },
+    "s_client": {
+      "_": "network_outbound"
+    }
+  },
+  "otool": {
+    "_": "filesystem_read"
+  },
+  "paste": {
+    "_": "filesystem_read"
+  },
+  "patch": {
+    "_": "filesystem_write"
+  },
+  "pdm": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "lock": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "run": {
+      "_": "package_run"
+    }
+  },
+  "perl": {
+    "-e": {
+      "_": "lang_exec"
+    }
+  },
+  "pg_dump": {
+    "_": "filesystem_write"
+  },
+  "pg_dumpall": {
+    "_": "filesystem_write"
+  },
+  "pg_restore": {
+    "_": "db_write"
+  },
+  "pgrep": {
+    "_": "filesystem_read"
+  },
+  "php": {
+    "-r": {
+      "_": "lang_exec"
+    }
+  },
+  "ping": {
+    "_": "network_diagnostic"
+  },
+  "ping6": {
+    "_": "network_diagnostic"
+  },
+  "pip": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "cache": {
+      "dir": {
+        "_": "filesystem_read"
+      },
+      "info": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "purge": {
+        "_": "package_uninstall"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "check": {
+      "_": "filesystem_read"
+    },
+    "completion": {
+      "_": "filesystem_read"
+    },
+    "config": {
+      "debug": {
+        "_": "filesystem_read"
+      },
+      "get": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "debug": {
+      "_": "filesystem_read"
+    },
+    "freeze": {
+      "_": "filesystem_read"
+    },
+    "hash": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "index": {
+      "versions": {
+        "_": "filesystem_read"
+      }
+    },
+    "inspect": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "download": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "lock": {
+      "_": "package_install"
+    },
+    "wheel": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
+  "pip3": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "check": {
+      "_": "filesystem_read"
+    },
+    "config": {
+      "get": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "freeze": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "download": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "lock": {
+      "_": "package_install"
+    },
+    "wheel": {
+      "_": "package_install"
+    },
+    "cache": {
+      "purge": {
+        "_": "package_uninstall"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
+  "pkill": {
+    "_": "process_signal"
+  },
+  "plutil": {
+    "-lint": {
+      "_": "filesystem_read"
+    },
+    "-p": {
+      "_": "filesystem_read"
+    }
+  },
+  "pnpm": {
+    "audit": {
+      "_": "filesystem_read"
+    },
+    "bin": {
+      "_": "filesystem_read"
+    },
+    "completion": {
+      "_": "filesystem_read"
+    },
+    "doctor": {
+      "_": "filesystem_read"
+    },
+    "env": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "use": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "licenses": {
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "outdated": {
+      "_": "filesystem_read"
+    },
+    "root": {
+      "_": "filesystem_read"
+    },
+    "server": {
+      "status": {
+        "_": "filesystem_read"
+      }
+    },
+    "store": {
+      "path": {
+        "_": "filesystem_read"
+      },
+      "status": {
+        "_": "filesystem_read"
+      },
+      "prune": {
+        "_": "package_uninstall"
+      }
+    },
+    "why": {
+      "_": "filesystem_read"
+    },
+    "publish": {
+      "_": "network_write"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "dedupe": {
+      "_": "package_install"
+    },
+    "fetch": {
+      "_": "package_install"
+    },
+    "import": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "link": {
+      "_": "package_install"
+    },
+    "pack": {
+      "_": "package_install"
+    },
+    "patch": {
+      "_": "package_install"
+    },
+    "patch-commit": {
+      "_": "package_install"
+    },
+    "rebuild": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "create": {
+      "_": "package_run"
+    },
+    "dlx": {
+      "_": "package_run"
+    },
+    "exec": {
+      "_": "package_run"
+    },
+    "install-test": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "start": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "patch-remove": {
+      "_": "package_uninstall"
+    },
+    "prune": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    },
+    "unlink": {
+      "_": "package_uninstall"
+    }
+  },
+  "podman": {
+    "builder": {
+      "prune": {
+        "_": "container_destructive"
+      }
+    },
+    "container": {
+      "prune": {
+        "_": "container_destructive"
+      },
+      "rm": {
+        "_": "container_destructive"
+      },
+      "diff": {
+        "_": "filesystem_read"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "logs": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      },
+      "stats": {
+        "_": "filesystem_read"
+      },
+      "top": {
+        "_": "filesystem_read"
+      },
+      "kill": {
+        "_": "process_signal"
+      },
+      "pause": {
+        "_": "process_signal"
+      },
+      "restart": {
+        "_": "process_signal"
+      },
+      "stop": {
+        "_": "process_signal"
+      },
+      "unpause": {
+        "_": "process_signal"
+      }
+    },
+    "image": {
+      "prune": {
+        "_": "container_destructive"
+      },
+      "rm": {
+        "_": "container_destructive"
+      },
+      "history": {
+        "_": "filesystem_read"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      }
+    },
+    "network": {
+      "prune": {
+        "_": "container_destructive"
+      },
+      "rm": {
+        "_": "container_destructive"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      }
+    },
+    "rm": {
+      "_": "container_destructive"
+    },
+    "rmi": {
+      "_": "container_destructive"
+    },
+    "system": {
+      "prune": {
+        "_": "container_destructive"
+      },
+      "df": {
+        "_": "filesystem_read"
+      },
+      "info": {
+        "_": "filesystem_read"
+      }
+    },
+    "volume": {
+      "prune": {
+        "_": "container_destructive"
+      },
+      "rm": {
+        "_": "container_destructive"
+      },
+      "inspect": {
+        "_": "filesystem_read"
+      },
+      "ls": {
+        "_": "filesystem_read"
+      }
+    },
+    "compose": {
+      "config": {
+        "_": "filesystem_read"
+      },
+      "logs": {
+        "_": "filesystem_read"
+      },
+      "ps": {
+        "_": "filesystem_read"
+      },
+      "push": {
+        "_": "network_write"
+      },
+      "pull": {
+        "_": "package_install"
+      },
+      "build": {
+        "_": "package_run"
+      },
+      "run": {
+        "_": "package_run"
+      },
+      "up": {
+        "_": "package_run"
+      },
+      "down": {
+        "_": "package_uninstall"
+      },
+      "kill": {
+        "_": "process_signal"
+      },
+      "pause": {
+        "_": "process_signal"
+      },
+      "restart": {
+        "_": "process_signal"
+      },
+      "stop": {
+        "_": "process_signal"
+      },
+      "unpause": {
+        "_": "process_signal"
+      }
+    },
+    "diff": {
+      "_": "filesystem_read"
+    },
+    "events": {
+      "_": "filesystem_read"
+    },
+    "history": {
+      "_": "filesystem_read"
+    },
+    "images": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "inspect": {
+      "_": "filesystem_read"
+    },
+    "logs": {
+      "_": "filesystem_read"
+    },
+    "port": {
+      "_": "filesystem_read"
+    },
+    "ps": {
+      "_": "filesystem_read"
+    },
+    "stats": {
+      "_": "filesystem_read"
+    },
+    "top": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "exec": {
+      "_": "lang_exec"
+    },
+    "run": {
+      "_": "lang_exec"
+    },
+    "push": {
+      "_": "network_write"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "pull": {
+      "_": "package_install"
+    },
+    "kill": {
+      "_": "process_signal"
+    },
+    "pause": {
+      "_": "process_signal"
+    },
+    "restart": {
+      "_": "process_signal"
+    },
+    "stop": {
+      "_": "process_signal"
+    },
+    "unpause": {
+      "_": "process_signal"
+    }
+  },
+  "poetry": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "check": {
+      "_": "filesystem_read"
+    },
+    "env": {
+      "info": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "lock": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "run": {
+      "_": "package_run"
+    }
+  },
+  "popd": {
+    "_": "filesystem_read"
   },
   "prettier": {
     "_": "package_run"
   },
+  "printenv": {
+    "_": "filesystem_read"
+  },
+  "printf": {
+    "_": "filesystem_read"
+  },
+  "procs": {
+    "_": "filesystem_read"
+  },
   "protoc": {
     "_": "package_run"
+  },
+  "ps": {
+    "_": "filesystem_read"
+  },
+  "psql": {
+    "_": "db_write",
+    "--command": {
+      "_": "db_write"
+    },
+    "--file": {
+      "_": "db_write"
+    },
+    "-c": {
+      "_": "db_write"
+    },
+    "-f": {
+      "_": "db_write"
+    }
+  },
+  "pstree": {
+    "_": "filesystem_read"
+  },
+  "pushd": {
+    "_": "filesystem_read"
+  },
+  "pwd": {
+    "_": "filesystem_read"
+  },
+  "pyenv": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "commands": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "versions": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
   },
   "pylint": {
     "_": "package_run"
@@ -6720,8 +5711,162 @@
   "pytest": {
     "_": "package_run"
   },
+  "python": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "-c": {
+      "_": "lang_exec"
+    },
+    "-m": {
+      "build": {
+        "_": "package_install"
+      },
+      "pip": {
+        "install": {
+          "_": "package_install"
+        }
+      },
+      "venv": {
+        "_": "package_install"
+      },
+      "bandit": {
+        "_": "package_run"
+      },
+      "black": {
+        "_": "package_run"
+      },
+      "flake8": {
+        "_": "package_run"
+      },
+      "isort": {
+        "_": "package_run"
+      },
+      "mypy": {
+        "_": "package_run"
+      },
+      "pylint": {
+        "_": "package_run"
+      },
+      "pytest": {
+        "_": "package_run"
+      },
+      "ruff": {
+        "_": "package_run"
+      },
+      "unittest": {
+        "_": "package_run"
+      }
+    }
+  },
+  "python3": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "-c": {
+      "_": "lang_exec"
+    },
+    "-m": {
+      "pip": {
+        "install": {
+          "_": "package_install"
+        }
+      },
+      "bandit": {
+        "_": "package_run"
+      },
+      "black": {
+        "_": "package_run"
+      },
+      "flake8": {
+        "_": "package_run"
+      },
+      "isort": {
+        "_": "package_run"
+      },
+      "mypy": {
+        "_": "package_run"
+      },
+      "pylint": {
+        "_": "package_run"
+      },
+      "ruff": {
+        "_": "package_run"
+      },
+      "unittest": {
+        "_": "package_run"
+      }
+    }
+  },
+  "rails": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "console": {
+      "_": "package_run"
+    },
+    "db:create": {
+      "_": "package_run"
+    },
+    "db:migrate": {
+      "_": "package_run"
+    },
+    "db:seed": {
+      "_": "package_run"
+    },
+    "generate": {
+      "_": "package_run"
+    },
+    "routes": {
+      "_": "package_run"
+    },
+    "server": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
   "rake": {
     "_": "package_run"
+  },
+  "rbenv": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "commands": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "versions": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
+  "readelf": {
+    "_": "filesystem_read"
+  },
+  "readlink": {
+    "_": "filesystem_read"
+  },
+  "realpath": {
+    "_": "filesystem_read"
   },
   "rebar3": {
     "compile": {
@@ -6734,6 +5879,9 @@
       "_": "package_run"
     }
   },
+  "redis-cli": {
+    "_": "db_write"
+  },
   "remix": {
     "build": {
       "_": "package_run"
@@ -6742,14 +5890,37 @@
       "_": "package_run"
     }
   },
+  "rev": {
+    "_": "filesystem_read"
+  },
+  "rg": {
+    "_": "filesystem_read"
+  },
+  "rm": {
+    "_": "filesystem_delete"
+  },
+  "rmdir": {
+    "_": "filesystem_delete"
+  },
   "rollup": {
     "_": "package_run"
   },
   "rspec": {
     "_": "package_run"
   },
+  "rsync": {
+    "_": "network_outbound"
+  },
   "rubocop": {
     "_": "package_run"
+  },
+  "ruby": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-e": {
+      "_": "lang_exec"
+    }
   },
   "ruff": {
     "check": {
@@ -6759,14 +5930,251 @@
       "_": "package_run"
     }
   },
+  "rustc": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    }
+  },
   "rustfmt": {
     "_": "package_run"
+  },
+  "rustup": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "completions": {
+      "_": "filesystem_read"
+    },
+    "doc": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "target": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "add": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "toolchain": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "uninstall": {
+        "_": "package_uninstall"
+      }
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "component": {
+      "add": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "default": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "override": {
+      "set": {
+        "_": "package_install"
+      }
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "self": {
+      "uninstall": {
+        "_": "package_uninstall"
+      }
+    }
+  },
+  "sbt": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "assembly": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_run"
+    },
+    "compile": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "scala": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-version": {
+      "_": "filesystem_read"
+    }
+  },
+  "scp": {
+    "_": "network_outbound"
+  },
+  "sd": {
+    "_": "filesystem_read"
+  },
+  "seq": {
+    "_": "filesystem_read"
+  },
+  "sftp": {
+    "_": "network_outbound"
+  },
+  "sha1sum": {
+    "_": "filesystem_read"
+  },
+  "sha224sum": {
+    "_": "filesystem_read"
+  },
+  "sha256sum": {
+    "_": "filesystem_read"
+  },
+  "sha384sum": {
+    "_": "filesystem_read"
+  },
+  "sha512sum": {
+    "_": "filesystem_read"
+  },
+  "shasum": {
+    "_": "filesystem_read"
+  },
+  "shellcheck": {
+    "_": "filesystem_read"
+  },
+  "shred": {
+    "_": "filesystem_delete"
+  },
+  "size": {
+    "_": "filesystem_read"
+  },
+  "sleep": {
+    "_": "filesystem_read"
+  },
+  "snow": {
+    "sql": {
+      "_": "db_write",
+      "--filename": {
+        "_": "db_write"
+      },
+      "--query": {
+        "_": "db_write"
+      },
+      "-f": {
+        "_": "db_write"
+      },
+      "-q": {
+        "_": "db_write"
+      }
+    }
+  },
+  "snowsql": {
+    "_": "db_write",
+    "--query": {
+      "_": "db_write"
+    },
+    "-f": {
+      "_": "db_write"
+    },
+    "-q": {
+      "_": "db_write"
+    }
+  },
+  "socat": {
+    "_": "network_write"
+  },
+  "sort": {
+    "_": "filesystem_read"
+  },
+  "sqlite3": {
+    "_": "db_write"
+  },
+  "ss": {
+    "_": "filesystem_read"
+  },
+  "ssh": {
+    "_": "network_outbound"
+  },
+  "stack": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "setup": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "exec": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    }
   },
   "standardrb": {
     "_": "package_run"
   },
+  "stat": {
+    "_": "filesystem_read"
+  },
+  "stdbuf": {
+    "_": "filesystem_read"
+  },
+  "strings": {
+    "_": "filesystem_read"
+  },
+  "strip": {
+    "--help": {
+      "_": "filesystem_read"
+    }
+  },
   "stylelint": {
     "_": "package_run"
+  },
+  "su": {
+    "_": "lang_exec"
+  },
+  "sudo": {
+    "_": "lang_exec"
+  },
+  "sum": {
+    "_": "filesystem_read"
   },
   "svelte-kit": {
     "build": {
@@ -6776,11 +6184,162 @@
       "_": "package_run"
     }
   },
+  "sw_vers": {
+    "_": "filesystem_read"
+  },
+  "swift": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "package": {
+      "describe": {
+        "_": "filesystem_read"
+      },
+      "dump-package": {
+        "_": "filesystem_read"
+      },
+      "show-dependencies": {
+        "_": "filesystem_read"
+      },
+      "resolve": {
+        "_": "package_install"
+      },
+      "generate-xcodeproj": {
+        "_": "package_run"
+      },
+      "update": {
+        "_": "package_run"
+      }
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "sysctl": {
+    "_": "filesystem_read"
+  },
+  "system_profiler": {
+    "_": "filesystem_read"
+  },
+  "systemctl": {
+    "disable": {
+      "_": "process_signal"
+    },
+    "kill": {
+      "_": "process_signal"
+    },
+    "restart": {
+      "_": "process_signal"
+    },
+    "start": {
+      "_": "process_signal"
+    },
+    "stop": {
+      "_": "process_signal"
+    }
+  },
+  "tac": {
+    "_": "filesystem_read"
+  },
+  "tail": {
+    "_": "filesystem_read"
+  },
   "task": {
     "_": "package_run"
   },
+  "tee": {
+    "_": "filesystem_write"
+  },
+  "telnet": {
+    "_": "network_write"
+  },
+  "terraform": {
+    "apply": {
+      "_": "container_destructive"
+    },
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "graph": {
+      "_": "filesystem_read"
+    },
+    "output": {
+      "_": "filesystem_read"
+    },
+    "providers": {
+      "_": "filesystem_read"
+    },
+    "show": {
+      "_": "filesystem_read"
+    },
+    "state": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      }
+    },
+    "validate": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "get": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "destroy": {
+      "_": "package_uninstall"
+    }
+  },
+  "test": {
+    "_": "filesystem_read"
+  },
+  "time": {
+    "_": "filesystem_read"
+  },
+  "timeout": {
+    "_": "filesystem_read"
+  },
+  "tldr": {
+    "_": "filesystem_read"
+  },
+  "top": {
+    "_": "filesystem_read"
+  },
+  "touch": {
+    "_": "filesystem_write"
+  },
   "tox": {
     "_": "package_run"
+  },
+  "tr": {
+    "_": "filesystem_read"
+  },
+  "traceroute": {
+    "_": "network_diagnostic"
+  },
+  "traceroute6": {
+    "_": "network_diagnostic"
+  },
+  "tree": {
+    "_": "filesystem_read"
+  },
+  "true": {
+    "_": "filesystem_read"
+  },
+  "truncate": {
+    "_": "filesystem_delete"
   },
   "ts-node": {
     "_": "package_run"
@@ -6790,6 +6349,9 @@
   },
   "tsx": {
     "_": "package_run"
+  },
+  "tty": {
+    "_": "filesystem_read"
   },
   "turbo": {
     "_": "package_run",
@@ -6801,6 +6363,162 @@
     },
     "test": {
       "_": "package_run"
+    }
+  },
+  "type": {
+    "_": "filesystem_read"
+  },
+  "ulimit": {
+    "_": "filesystem_read"
+  },
+  "umount": {
+    "_": "disk_destructive"
+  },
+  "uname": {
+    "_": "filesystem_read"
+  },
+  "unexpand": {
+    "_": "filesystem_read"
+  },
+  "uniq": {
+    "_": "filesystem_read"
+  },
+  "unlink": {
+    "_": "filesystem_delete"
+  },
+  "unzip": {
+    "_": "filesystem_write"
+  },
+  "uptime": {
+    "_": "filesystem_read"
+  },
+  "uv": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "-V": {
+      "_": "filesystem_read"
+    },
+    "cache": {
+      "dir": {
+        "_": "filesystem_read"
+      },
+      "clean": {
+        "_": "package_uninstall"
+      },
+      "prune": {
+        "_": "package_uninstall"
+      }
+    },
+    "export": {
+      "_": "filesystem_read"
+    },
+    "generate-shell-completion": {
+      "_": "filesystem_read"
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "pip": {
+      "check": {
+        "_": "filesystem_read"
+      },
+      "freeze": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "show": {
+        "_": "filesystem_read"
+      },
+      "tree": {
+        "_": "filesystem_read"
+      },
+      "compile": {
+        "_": "package_install"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "sync": {
+        "_": "package_install"
+      },
+      "uninstall": {
+        "_": "package_uninstall"
+      }
+    },
+    "python": {
+      "dir": {
+        "_": "filesystem_read"
+      },
+      "find": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "uninstall": {
+        "_": "package_uninstall"
+      }
+    },
+    "tool": {
+      "dir": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "install": {
+        "_": "package_install"
+      },
+      "run": {
+        "_": "package_run"
+      },
+      "uninstall": {
+        "_": "package_uninstall"
+      }
+    },
+    "tree": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "publish": {
+      "_": "network_write"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "build": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "lock": {
+      "_": "package_install"
+    },
+    "self": {
+      "update": {
+        "_": "package_install"
+      }
+    },
+    "sync": {
+      "_": "package_install"
+    },
+    "venv": {
+      "_": "package_install"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "remove": {
+      "_": "package_uninstall"
     }
   },
   "uvx": {
@@ -6821,6 +6539,32 @@
       "_": "package_run"
     }
   },
+  "vmstat": {
+    "_": "filesystem_read"
+  },
+  "volta": {
+    "--version": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "which": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "pin": {
+      "_": "package_install"
+    },
+    "uninstall": {
+      "_": "package_uninstall"
+    }
+  },
+  "w": {
+    "_": "filesystem_read"
+  },
   "wasm-pack": {
     "build": {
       "_": "package_run"
@@ -6832,8 +6576,34 @@
   "watchexec": {
     "_": "package_run"
   },
+  "wc": {
+    "_": "filesystem_read"
+  },
   "webpack": {
     "_": "package_run"
+  },
+  "whatis": {
+    "_": "filesystem_read"
+  },
+  "whereis": {
+    "_": "filesystem_read"
+  },
+  "which": {
+    "_": "filesystem_read"
+  },
+  "whoami": {
+    "_": "filesystem_read"
+  },
+  "whois": {
+    "_": "network_diagnostic"
+  },
+  "xcode-select": {
+    "--print-path": {
+      "_": "filesystem_read"
+    },
+    "-p": {
+      "_": "filesystem_read"
+    }
   },
   "xcodebuild": {
     "_": "package_run",
@@ -6847,38 +6617,268 @@
       "_": "package_run"
     }
   },
-  "kill": {
-    "-9": {
-      "_": "process_signal"
+  "xcrun": {
+    "--find": {
+      "_": "filesystem_read"
     },
-    "-KILL": {
-      "_": "process_signal"
+    "--sdk": {
+      "_": "filesystem_read"
     },
-    "-SIGKILL": {
-      "_": "process_signal"
+    "--show-sdk-path": {
+      "_": "filesystem_read"
     }
   },
-  "killall": {
-    "_": "process_signal"
+  "xsv": {
+    "_": "filesystem_read"
   },
-  "pkill": {
-    "_": "process_signal"
+  "xxd": {
+    "_": "filesystem_read"
   },
-  "systemctl": {
-    "disable": {
-      "_": "process_signal"
+  "xxhsum": {
+    "_": "filesystem_read"
+  },
+  "xz": {
+    "_": "filesystem_write"
+  },
+  "yarn": {
+    "audit": {
+      "_": "filesystem_read"
     },
-    "kill": {
-      "_": "process_signal"
+    "bin": {
+      "_": "filesystem_read"
     },
-    "restart": {
-      "_": "process_signal"
+    "cache": {
+      "dir": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      },
+      "clean": {
+        "_": "package_uninstall"
+      }
+    },
+    "completion": {
+      "_": "filesystem_read"
+    },
+    "config": {
+      "get": {
+        "_": "filesystem_read"
+      },
+      "list": {
+        "_": "filesystem_read"
+      }
+    },
+    "constraints": {
+      "_": "filesystem_read"
+    },
+    "explain": {
+      "peer-requirements": {
+        "_": "filesystem_read"
+      }
+    },
+    "help": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "npm": {
+      "audit": {
+        "_": "filesystem_read"
+      },
+      "info": {
+        "_": "filesystem_read"
+      },
+      "tag": {
+        "list": {
+          "_": "filesystem_read"
+        },
+        "add": {
+          "_": "network_write"
+        },
+        "remove": {
+          "_": "network_write"
+        }
+      },
+      "whoami": {
+        "_": "filesystem_read"
+      },
+      "publish": {
+        "_": "network_write"
+      }
+    },
+    "outdated": {
+      "_": "filesystem_read"
+    },
+    "why": {
+      "_": "filesystem_read"
+    },
+    "workspaces": {
+      "list": {
+        "_": "filesystem_read"
+      },
+      "foreach": {
+        "_": "package_run"
+      }
+    },
+    "publish": {
+      "_": "network_write"
+    },
+    "add": {
+      "_": "package_install"
+    },
+    "dedupe": {
+      "_": "package_install"
+    },
+    "init": {
+      "_": "package_install"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "link": {
+      "_": "package_install"
+    },
+    "pack": {
+      "_": "package_install"
+    },
+    "patch": {
+      "_": "package_install"
+    },
+    "patch-commit": {
+      "_": "package_install"
+    },
+    "plugin": {
+      "import": {
+        "_": "package_install"
+      },
+      "remove": {
+        "_": "package_uninstall"
+      }
+    },
+    "rebuild": {
+      "_": "package_install"
+    },
+    "set": {
+      "version": {
+        "_": "package_install"
+      }
+    },
+    "stage": {
+      "_": "package_install"
+    },
+    "up": {
+      "_": "package_install"
+    },
+    "upgrade": {
+      "_": "package_install"
+    },
+    "create": {
+      "_": "package_run"
+    },
+    "dlx": {
+      "_": "package_run"
+    },
+    "exec": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
     },
     "start": {
-      "_": "process_signal"
+      "_": "package_run"
     },
-    "stop": {
-      "_": "process_signal"
+    "test": {
+      "_": "package_run"
+    },
+    "autoclean": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    },
+    "unlink": {
+      "_": "package_uninstall"
     }
+  },
+  "yq": {
+    "_": "filesystem_read"
+  },
+  "yum": {
+    "check-update": {
+      "_": "filesystem_read"
+    },
+    "deplist": {
+      "_": "filesystem_read"
+    },
+    "info": {
+      "_": "filesystem_read"
+    },
+    "list": {
+      "_": "filesystem_read"
+    },
+    "provides": {
+      "_": "filesystem_read"
+    },
+    "search": {
+      "_": "filesystem_read"
+    },
+    "install": {
+      "_": "package_install"
+    },
+    "update": {
+      "_": "package_install"
+    },
+    "autoremove": {
+      "_": "package_uninstall"
+    },
+    "clean": {
+      "_": "package_uninstall"
+    },
+    "erase": {
+      "_": "package_uninstall"
+    },
+    "remove": {
+      "_": "package_uninstall"
+    }
+  },
+  "zcat": {
+    "_": "filesystem_read"
+  },
+  "zgrep": {
+    "_": "filesystem_read"
+  },
+  "zig": {
+    "env": {
+      "_": "filesystem_read"
+    },
+    "version": {
+      "_": "filesystem_read"
+    },
+    "build": {
+      "_": "package_run"
+    },
+    "fmt": {
+      "_": "package_run"
+    },
+    "run": {
+      "_": "package_run"
+    },
+    "test": {
+      "_": "package_run"
+    }
+  },
+  "zip": {
+    "_": "filesystem_write"
+  },
+  "zless": {
+    "_": "filesystem_read"
+  },
+  "zmore": {
+    "_": "filesystem_read"
   }
 }

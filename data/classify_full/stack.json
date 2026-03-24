@@ -1,0 +1,42 @@
+{
+  "filesystem_read": [
+    [
+      "stack",
+      "--version"
+    ]
+  ],
+  "package_install": [
+    [
+      "stack",
+      "install"
+    ],
+    [
+      "stack",
+      "setup"
+    ]
+  ],
+  "package_run": [
+    [
+      "stack",
+      "build"
+    ],
+    [
+      "stack",
+      "exec"
+    ],
+    [
+      "stack",
+      "run"
+    ],
+    [
+      "stack",
+      "test"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "stack",
+      "clean"
+    ]
+  ]
+}

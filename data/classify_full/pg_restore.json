@@ -1,0 +1,7 @@
+{
+  "db_write": [
+    [
+      "pg_restore"
+    ]
+  ]
+}

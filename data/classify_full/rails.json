@@ -1,0 +1,42 @@
+{
+  "filesystem_read": [
+    [
+      "rails",
+      "--version"
+    ]
+  ],
+  "package_run": [
+    [
+      "rails",
+      "console"
+    ],
+    [
+      "rails",
+      "db:create"
+    ],
+    [
+      "rails",
+      "db:migrate"
+    ],
+    [
+      "rails",
+      "db:seed"
+    ],
+    [
+      "rails",
+      "generate"
+    ],
+    [
+      "rails",
+      "routes"
+    ],
+    [
+      "rails",
+      "server"
+    ],
+    [
+      "rails",
+      "test"
+    ]
+  ]
+}

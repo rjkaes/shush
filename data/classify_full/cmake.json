@@ -1,0 +1,28 @@
+{
+  "filesystem_read": [
+    [
+      "cmake",
+      "--help"
+    ],
+    [
+      "cmake",
+      "--system-information"
+    ],
+    [
+      "cmake",
+      "--version"
+    ]
+  ],
+  "filesystem_write": [
+    [
+      "cmake",
+      "--install"
+    ]
+  ],
+  "package_install": [
+    [
+      "cmake",
+      "--build"
+    ]
+  ]
+}

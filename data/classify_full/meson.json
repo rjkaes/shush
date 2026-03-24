@@ -1,0 +1,28 @@
+{
+  "package_install": [
+    [
+      "meson",
+      "subprojects",
+      "download"
+    ],
+    [
+      "meson",
+      "wrap",
+      "install"
+    ]
+  ],
+  "package_run": [
+    [
+      "meson",
+      "compile"
+    ],
+    [
+      "meson",
+      "setup"
+    ],
+    [
+      "meson",
+      "test"
+    ]
+  ]
+}

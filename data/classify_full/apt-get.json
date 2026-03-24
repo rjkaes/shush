@@ -1,0 +1,64 @@
+{
+  "filesystem_read": [
+    [
+      "apt-get",
+      "changelog"
+    ],
+    [
+      "apt-get",
+      "check"
+    ]
+  ],
+  "package_install": [
+    [
+      "apt-get",
+      "build-dep"
+    ],
+    [
+      "apt-get",
+      "dist-upgrade"
+    ],
+    [
+      "apt-get",
+      "download"
+    ],
+    [
+      "apt-get",
+      "install"
+    ],
+    [
+      "apt-get",
+      "source"
+    ],
+    [
+      "apt-get",
+      "update"
+    ],
+    [
+      "apt-get",
+      "upgrade"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "apt-get",
+      "autoclean"
+    ],
+    [
+      "apt-get",
+      "autoremove"
+    ],
+    [
+      "apt-get",
+      "clean"
+    ],
+    [
+      "apt-get",
+      "purge"
+    ],
+    [
+      "apt-get",
+      "remove"
+    ]
+  ]
+}

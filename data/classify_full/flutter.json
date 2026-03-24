@@ -1,0 +1,66 @@
+{
+  "filesystem_read": [
+    [
+      "flutter",
+      "--version"
+    ],
+    [
+      "flutter",
+      "config",
+      "--list"
+    ],
+    [
+      "flutter",
+      "devices"
+    ],
+    [
+      "flutter",
+      "doctor"
+    ]
+  ],
+  "package_install": [
+    [
+      "flutter",
+      "pub",
+      "get"
+    ],
+    [
+      "flutter",
+      "pub",
+      "upgrade"
+    ]
+  ],
+  "package_run": [
+    [
+      "flutter",
+      "analyze"
+    ],
+    [
+      "flutter",
+      "build"
+    ],
+    [
+      "flutter",
+      "gen-l10n"
+    ],
+    [
+      "flutter",
+      "pub",
+      "run"
+    ],
+    [
+      "flutter",
+      "run"
+    ],
+    [
+      "flutter",
+      "test"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "flutter",
+      "clean"
+    ]
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "filesystem_read": [
+    [
+      "volta",
+      "--version"
+    ],
+    [
+      "volta",
+      "list"
+    ],
+    [
+      "volta",
+      "which"
+    ]
+  ],
+  "package_install": [
+    [
+      "volta",
+      "install"
+    ],
+    [
+      "volta",
+      "pin"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "volta",
+      "uninstall"
+    ]
+  ]
+}

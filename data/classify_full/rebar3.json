@@ -1,0 +1,16 @@
+{
+  "package_run": [
+    [
+      "rebar3",
+      "compile"
+    ],
+    [
+      "rebar3",
+      "release"
+    ],
+    [
+      "rebar3",
+      "test"
+    ]
+  ]
+}

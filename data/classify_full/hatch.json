@@ -1,0 +1,34 @@
+{
+  "filesystem_read": [
+    [
+      "hatch",
+      "--version"
+    ],
+    [
+      "hatch",
+      "env",
+      "show"
+    ],
+    [
+      "hatch",
+      "version"
+    ]
+  ],
+  "package_install": [
+    [
+      "hatch",
+      "env",
+      "create"
+    ]
+  ],
+  "package_run": [
+    [
+      "hatch",
+      "run"
+    ],
+    [
+      "hatch",
+      "test"
+    ]
+  ]
+}

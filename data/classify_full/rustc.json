@@ -1,0 +1,12 @@
+{
+  "filesystem_read": [
+    [
+      "rustc",
+      "--version"
+    ],
+    [
+      "rustc",
+      "-V"
+    ]
+  ]
+}

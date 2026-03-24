@@ -1,0 +1,16 @@
+{
+  "filesystem_read": [
+    [
+      "xcrun",
+      "--find"
+    ],
+    [
+      "xcrun",
+      "--sdk"
+    ],
+    [
+      "xcrun",
+      "--show-sdk-path"
+    ]
+  ]
+}

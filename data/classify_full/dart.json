@@ -1,0 +1,63 @@
+{
+  "filesystem_read": [
+    [
+      "dart",
+      "--version"
+    ],
+    [
+      "dart",
+      "info"
+    ]
+  ],
+  "package_install": [
+    [
+      "dart",
+      "pub",
+      "add"
+    ],
+    [
+      "dart",
+      "pub",
+      "get"
+    ],
+    [
+      "dart",
+      "pub",
+      "upgrade"
+    ]
+  ],
+  "package_run": [
+    [
+      "dart",
+      "analyze"
+    ],
+    [
+      "dart",
+      "compile"
+    ],
+    [
+      "dart",
+      "fix"
+    ],
+    [
+      "dart",
+      "format"
+    ],
+    [
+      "dart",
+      "run"
+    ],
+    [
+      "dart",
+      "test"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "dart",
+      "pub",
+      "cache",
+      "clean"
+    ]
+  ]
+}

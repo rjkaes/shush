@@ -1,0 +1,36 @@
+{
+  "filesystem_read": [
+    [
+      "pyenv",
+      "--version"
+    ],
+    [
+      "pyenv",
+      "commands"
+    ],
+    [
+      "pyenv",
+      "version"
+    ],
+    [
+      "pyenv",
+      "versions"
+    ],
+    [
+      "pyenv",
+      "which"
+    ]
+  ],
+  "package_install": [
+    [
+      "pyenv",
+      "install"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "pyenv",
+      "uninstall"
+    ]
+  ]
+}

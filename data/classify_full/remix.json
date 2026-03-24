@@ -1,0 +1,12 @@
+{
+  "package_run": [
+    [
+      "remix",
+      "build"
+    ],
+    [
+      "remix",
+      "dev"
+    ]
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "filesystem_read": [
+    [
+      "mise",
+      "--version"
+    ],
+    [
+      "mise",
+      "current"
+    ],
+    [
+      "mise",
+      "list"
+    ],
+    [
+      "mise",
+      "ls"
+    ],
+    [
+      "mise",
+      "where"
+    ],
+    [
+      "mise",
+      "which"
+    ]
+  ],
+  "package_install": [
+    [
+      "mise",
+      "install"
+    ],
+    [
+      "mise",
+      "use"
+    ]
+  ],
+  "package_uninstall": [
+    [
+      "mise",
+      "uninstall"
+    ]
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "package_run": [
+    [
+      "biome",
+      "check"
+    ],
+    [
+      "biome",
+      "format"
+    ],
+    [
+      "biome",
+      "lint"
+    ]
+  ]
+}

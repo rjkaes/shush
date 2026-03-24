@@ -1,0 +1,23 @@
+{
+  "filesystem_read": [
+    [
+      "nix",
+      "--version"
+    ]
+  ],
+  "package_install": [
+    [
+      "nix",
+      "build"
+    ],
+    [
+      "nix",
+      "develop"
+    ],
+    [
+      "nix",
+      "profile",
+      "install"
+    ]
+  ]
+}

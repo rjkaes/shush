@@ -1,0 +1,36 @@
+{
+  "filesystem_read": [
+    [
+      "sbt",
+      "--version"
+    ]
+  ],
+  "package_install": [
+    [
+      "sbt",
+      "update"
+    ]
+  ],
+  "package_run": [
+    [
+      "sbt",
+      "assembly"
+    ],
+    [
+      "sbt",
+      "clean"
+    ],
+    [
+      "sbt",
+      "compile"
+    ],
+    [
+      "sbt",
+      "run"
+    ],
+    [
+      "sbt",
+      "test"
+    ]
+  ]
+}

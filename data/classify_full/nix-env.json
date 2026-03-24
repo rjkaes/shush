@@ -1,0 +1,12 @@
+{
+  "package_install": [
+    [
+      "nix-env",
+      "--install"
+    ],
+    [
+      "nix-env",
+      "-i"
+    ]
+  ]
+}

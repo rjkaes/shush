@@ -1,0 +1,15 @@
+{
+  "package_run": [
+    [
+      "vite"
+    ],
+    [
+      "vite",
+      "build"
+    ],
+    [
+      "vite",
+      "preview"
+    ]
+  ]
+}
