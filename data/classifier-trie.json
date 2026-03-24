@@ -2732,6 +2732,11 @@
         "_": "package_uninstall"
       }
     },
+    "package": {
+      "search": {
+        "_": "filesystem_read"
+      }
+    },
     "sdk": {
       "check": {
         "_": "filesystem_read"

@@ -46,6 +46,11 @@
   ],
   [
     "dotnet",
+    "package",
+    "search"
+  ],
+  [
+    "dotnet",
     "sdk",
     "check"
   ],
