@@ -12,7 +12,7 @@
     },
     {
       "match": {
-        "tokenMatches": "^-[a-zA-Z]*[iI]"
+        "tokenMatches": "^-[^-]*[iI]"
       },
       "type": "filesystem_write"
     }
