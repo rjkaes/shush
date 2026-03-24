@@ -9,11 +9,16 @@ import { read, write, edit, glob, grep } from "./eval-helpers";
 // Path Guard Bypass Vectors
 // =============================================================================
 
+const IS_MACOS = process.platform === "darwin";
+const IS_WINDOWS = process.platform === "win32";
+
 describe("path bypass: symlink-like paths", () => {
-  test("/proc/self/root/etc/shadow should be caught (symlink to /)", () => {
+  test.skipIf(IS_WINDOWS)("/proc/self/root/etc/shadow should be caught (symlink to /)", () => {
     // On Linux, /proc/self/root is a symlink to /. An attacker could
     // use this to reach /etc/shadow without the literal path.
     // shush should strip or resolve /proc/self/root prefix before comparison.
+    // Skipped on Windows: path.resolve produces drive-letter paths that
+    // don't match the /proc/self/root/ prefix stripping logic.
     expect(read("/proc/self/root/etc/shadow").decision).toBe("block");
   });
 
@@ -25,9 +30,10 @@ describe("path bypass: symlink-like paths", () => {
   });
 });
 
-describe("path bypass: case variations on macOS", () => {
+describe.skipIf(!IS_MACOS)("path bypass: case variations on macOS", () => {
   // HFS+ / APFS are case-insensitive by default. String comparison in
   // isSensitive uses exact match, so uppercase variants may slip through.
+  // Skipped on non-macOS: case-insensitive matching only applies on darwin.
   test("~/.SSH/id_rsa should be caught (case-insensitive FS on macOS)", () => {
     // On macOS (HFS+/APFS), case-insensitive FS means ~/.SSH/ is ~/.ssh/.
     // shush should do case-insensitive comparison on macOS.
@@ -157,9 +163,17 @@ describe("path bypass: relative traversal from outside project", () => {
     const result = read("../../../etc/shadow");
     // Whether this triggers depends on process.cwd() depth. From a shallow
     // directory it would reach /etc/shadow; from a deep one it won't.
+    // On Windows, path.resolve("/etc/shadow") uses the current drive root,
+    // so relative traversal to etc/shadow can match (yielding "block").
     // Either way, this is a gap: relative paths are resolved against the
     // shush process, not the Claude Code session's cwd.
-    expect(result.decision).toBe("allow");
+    if (IS_WINDOWS) {
+      // On Windows, ../../../etc/shadow resolves to D:\etc\shadow which
+      // matches the sensitive dir path.resolve("/etc/shadow") = D:\etc\shadow
+      expect(["allow", "block"]).toContain(result.decision);
+    } else {
+      expect(result.decision).toBe("allow");
+    }
   });
 
   test("evaluate Read does not use cwd for path resolution (potential gap)", () => {
