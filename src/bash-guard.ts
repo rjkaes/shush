@@ -8,7 +8,7 @@ import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ,
 import { checkFlagRules } from "./flag-rules.js";
 import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
-import { checkPath, scanCommandForSensitivePaths } from "./path-guard.js";
+import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
 import { stricter, cmdBasename } from "./types.js";
 
@@ -368,15 +368,6 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     }
   }
 
-  // Scan raw command text for sensitive path literals that may be
-  // hidden inside command substitutions or variable expansions.
-  const pathScan = scanCommandForSensitivePaths(command);
-  if (pathScan) {
-    finalDecision = stricter(finalDecision, pathScan.decision);
-    if (pathScan.decision === finalDecision) {
-      reason = pathScan.reason;
-    }
-  }
 
   return {
     command,

@@ -4,7 +4,6 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { realpathSync } from "node:fs";
 import type { Decision, ShushConfig } from "./types.js";
-import { STRICTNESS } from "./types.js";
 
 const IS_MACOS = process.platform === "darwin";
 const HOME = homedir();
@@ -215,54 +214,3 @@ export function checkProjectBoundary(
   };
 }
 
-// Literal path patterns to scan for in raw Bash command text.
-// These catch dynamic path construction like `cat $(echo ~/.ssh/id_rsa)`
-// or variable expansion like `cat $HOME/.ssh/id_rsa` where the sensitive
-// path string is visible in the source but not as a resolved path argument.
-//
-// All matches cap at "ask" (not "block") because this is a heuristic text
-// scan that cannot distinguish actual file access from mentions of paths
-// in string literals, commit messages, or comments.
-const SENSITIVE_PATH_LITERALS: RegExp[] = [
-  /~\/\.ssh\b/,
-  /~\/\.gnupg\b/,
-  /~\/\.git-credentials\b/,
-  /~\/\.netrc\b/,
-  /\/etc\/shadow\b/,
-  /\/etc\/master\.passwd\b/,
-  /~\/\.aws\b/,
-  /~\/\.docker\/config\.json\b/,
-  /~\/\.kube\/config\b/,
-  /~\/\.password-store\b/,
-  // $HOME variants
-  /\$HOME\/\.ssh\b/,
-  /\$HOME\/\.gnupg\b/,
-  /\$HOME\/\.aws\b/,
-  /\$HOME\/\.git-credentials\b/,
-  // ${HOME} variants
-  /\$\{HOME\}\/\.ssh\b/,
-  /\$\{HOME\}\/\.gnupg\b/,
-  /\$\{HOME\}\/\.aws\b/,
-];
-
-/**
- * Scan raw Bash command text for sensitive path literals.
- * Catches paths hidden inside command substitutions, variable expansions,
- * and string concatenations that would not be visible to resolvePath.
- * Always returns "ask" (never "block") since this is a heuristic.
- */
-export function scanCommandForSensitivePaths(
-  command: string,
-): { decision: Decision; reason: string } | null {
-  if (!command) return null;
-  for (const regex of SENSITIVE_PATH_LITERALS) {
-    const m = regex.exec(command);
-    if (m) {
-      return {
-        decision: "ask",
-        reason: `Bash references sensitive path: ${m[0]}`,
-      };
-    }
-  }
-  return null;
-}

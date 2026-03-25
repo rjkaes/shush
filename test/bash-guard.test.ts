@@ -534,29 +534,3 @@ describe("versioned interpreter normalization", () => {
   });
 });
 
-describe("sensitive path detection in Bash commands", () => {
-  test("cat $(echo ~/.ssh/id_rsa) is flagged", () => {
-    const result = bash("cat $(echo ~/.ssh/id_rsa)");
-    expect(result.decision).not.toBe("allow");
-  });
-
-  test("cat $HOME/.ssh/id_rsa is flagged", () => {
-    const result = bash("cat $HOME/.ssh/id_rsa");
-    expect(result.decision).not.toBe("allow");
-  });
-
-  test("cat ${HOME}/.gnupg/secring.gpg is flagged", () => {
-    const result = bash("cat ${HOME}/.gnupg/secring.gpg");
-    expect(result.decision).not.toBe("allow");
-  });
-
-  test("echo safe-string is not flagged", () => {
-    const result = bash("echo hello world");
-    expect(result.decision).toBe("allow");
-  });
-
-  test("cat /etc/shadow is flagged", () => {
-    const result = bash("cat /etc/shadow");
-    expect(result.decision).not.toBe("allow");
-  });
-});
