@@ -67,5 +67,8 @@ export function classifyScriptExec(tokens: string[]): string | null {
 
 /** Relative paths are assumed to be project-local; absolute and ~ paths are not. */
 function isProjectPath(scriptPath: string): boolean {
-  return !scriptPath.startsWith("/") && !scriptPath.startsWith("~");
+  if (scriptPath.startsWith("/") || scriptPath.startsWith("~")) return false;
+  // Windows absolute paths: C:\ or C:/
+  if (/^[A-Za-z]:[\\/]/.test(scriptPath)) return false;
+  return true;
 }

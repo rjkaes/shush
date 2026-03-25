@@ -2,6 +2,7 @@
 
 import { homedir } from "node:os";
 import path from "node:path";
+import { realpathSync } from "node:fs";
 import type { Decision, ShushConfig } from "./types.js";
 
 const IS_MACOS = process.platform === "darwin";
@@ -33,7 +34,7 @@ const SENSITIVE_DIRS: Array<[string, string, Decision]> = [
 
 // Sensitive basenames: [basename, display_name, policy]
 // Tool sets for hook-path protection (hoisted to avoid per-call allocation).
-const HOOK_BLOCK_TOOLS = new Set(["Write", "Edit"]);
+const HOOK_BLOCK_TOOLS = new Set(["Write", "Edit", "MultiEdit", "NotebookEdit"]);
 const HOOK_READONLY_TOOLS = new Set(["Read", "Glob", "Grep"]);
 
 const SENSITIVE_BASENAMES: Array<[string, string, Decision]> = [
@@ -57,6 +58,14 @@ export function resolvePath(raw: string): string {
   // Strip /proc/self/root prefix (Linux symlink to /)
   if (resolved.startsWith("/proc/self/root/")) {
     resolved = resolved.slice("/proc/self/root".length);
+  }
+  // Resolve symlinks so that e.g. ~/innocent-link -> ~/.ssh/id_rsa
+  // is caught by sensitive-path checks. Only when the target exists;
+  // Write targets may not exist yet.
+  try {
+    resolved = realpathSync(resolved);
+  } catch {
+    // Path does not exist yet (e.g. a new file being written).
   }
   return resolved;
 }

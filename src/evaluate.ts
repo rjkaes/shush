@@ -12,7 +12,7 @@ import {
   formatContentMessage,
 } from "./content-guard.js";
 import type { Decision, ShushConfig, EvalInput, EvalResult } from "./types.js";
-import { EMPTY_CONFIG } from "./types.js";
+import { EMPTY_CONFIG, stricter } from "./types.js";
 
 /** Shared path + boundary + content check for file-writing tools. */
 function checkFileWrite(
@@ -114,6 +114,24 @@ export function evaluate(
       reason = result.reason;
       break;
     }
+    case "MultiEdit": {
+      // MultiEdit applies multiple edits to a single file.
+      const filePath = (toolInput.file_path as string) ?? "";
+      const edits = (toolInput.edits as Array<{ old_string: string; new_string: string }>) ?? [];
+      const allContent = edits.map((e) => e.new_string ?? "").join("\n");
+      const result = checkFileWrite("MultiEdit", filePath, allContent, projectRoot, config);
+      decision = result.decision;
+      reason = result.reason;
+      break;
+    }
+    case "NotebookEdit": {
+      const notebookPath = (toolInput.notebook_path as string) ?? "";
+      const newSource = (toolInput.new_source as string) ?? "";
+      const result = checkFileWrite("NotebookEdit", notebookPath, newSource, projectRoot, config);
+      decision = result.decision;
+      reason = result.reason;
+      break;
+    }
     case "Glob": {
       const globPath = (toolInput.path as string) ?? "";
       const globPattern = (toolInput.pattern as string) ?? "";
@@ -158,6 +176,16 @@ export function evaluate(
       if (decision === "allow" && isCredentialSearch(pattern)) {
         decision = "ask";
         reason = "Grep pattern looks like credential search";
+      }
+      break;
+    }
+    default: {
+      // Generic MCP tool guard: any tool starting with mcp__ is a
+      // third-party MCP server call. Default to "ask" so the user
+      // confirms before unknown external tools execute.
+      if (toolName.startsWith("mcp__")) {
+        decision = "ask";
+        reason = `MCP tool call: ${toolName} (unclassified third-party tool)`;
       }
       break;
     }

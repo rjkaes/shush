@@ -154,6 +154,108 @@ describe("evaluate", () => {
     expect(result.reason).toBeTruthy();
   });
 
+  // MultiEdit tool
+  test("MultiEdit: blocks writes to hook directory", () => {
+    const result = evaluate({
+      toolName: "MultiEdit",
+      toolInput: {
+        file_path: `${process.env.HOME}/.claude/hooks/evil.js`,
+        edits: [{ old_string: "old", new_string: "new" }],
+      },
+      cwd: "/tmp/project",
+    });
+    expect(result.decision).toBe("block");
+  });
+
+  test("MultiEdit: scans content across all edits", () => {
+    const result = evaluate({
+      toolName: "MultiEdit",
+      toolInput: {
+        file_path: "/tmp/project/config.ts",
+        edits: [
+          { old_string: "a", new_string: "safe" },
+          { old_string: "b", new_string: "-----BEGIN PRIVATE KEY-----" },
+        ],
+      },
+      cwd: "/tmp/project",
+    });
+    expect(result.decision).toBe("ask");
+    expect(result.reason).toContain("secret");
+  });
+
+  test("MultiEdit: allows safe edits in project", () => {
+    const result = evaluate({
+      toolName: "MultiEdit",
+      toolInput: {
+        file_path: "/tmp/project/src/app.ts",
+        edits: [{ old_string: "old", new_string: "new" }],
+      },
+      cwd: "/tmp/project",
+    });
+    expect(result.decision).toBe("allow");
+  });
+
+  // NotebookEdit tool
+  test("NotebookEdit: blocks writes to hook directory", () => {
+    const result = evaluate({
+      toolName: "NotebookEdit",
+      toolInput: {
+        notebook_path: `${process.env.HOME}/.claude/hooks/evil.ipynb`,
+        cell_index: 0,
+        new_source: "import os",
+      },
+      cwd: "/tmp/project",
+    });
+    expect(result.decision).toBe("block");
+  });
+
+  test("NotebookEdit: scans cell content for secrets", () => {
+    const result = evaluate({
+      toolName: "NotebookEdit",
+      toolInput: {
+        notebook_path: "/tmp/project/notebook.ipynb",
+        cell_index: 0,
+        new_source: 'API_KEY = "AKIA1234567890ABCDEF"',
+      },
+      cwd: "/tmp/project",
+    });
+    expect(result.decision).toBe("ask");
+    expect(result.reason).toContain("secret");
+  });
+
+  test("NotebookEdit: allows safe edits in project", () => {
+    const result = evaluate({
+      toolName: "NotebookEdit",
+      toolInput: {
+        notebook_path: "/tmp/project/analysis.ipynb",
+        cell_index: 0,
+        new_source: "print('hello')",
+      },
+      cwd: "/tmp/project",
+    });
+    expect(result.decision).toBe("allow");
+  });
+
+  // MCP tool guard
+  test("MCP: flags unknown MCP tools as ask", () => {
+    const result = evaluate({
+      toolName: "mcp__some_server__dangerous_action",
+      toolInput: { query: "DROP TABLE users" },
+      cwd: "/tmp/project",
+    });
+    expect(result.decision).toBe("ask");
+    expect(result.reason).toContain("MCP tool call");
+  });
+
+  test("MCP: includes tool name in reason", () => {
+    const result = evaluate({
+      toolName: "mcp__supabase__execute_sql",
+      toolInput: {},
+      cwd: "/tmp/project",
+    });
+    expect(result.reason).toContain("mcp__supabase__execute_sql");
+  });
+
   test("returns empty reason for allowed commands", () => {
     const result = evaluate({
       toolName: "Bash",

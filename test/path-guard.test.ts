@@ -1,6 +1,7 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, beforeAll, afterAll } from "bun:test";
 import { homedir } from "node:os";
 import path from "node:path";
+import { mkdirSync, symlinkSync, unlinkSync, rmSync } from "node:fs";
 import { checkPath, checkProjectBoundary, isHookPath, resolvePath } from "../src/path-guard";
 import { read, write } from "./eval-helpers";
 
@@ -134,5 +135,54 @@ describe("cross-platform path handling", () => {
   test("isHookPath rejects paths outside hooks dir", () => {
     const otherPath = path.join(home, ".claude", "settings.json");
     expect(isHookPath(otherPath)).toBe(false);
+  });
+});
+
+describe("symlink resolution", () => {
+  const tmpDir = path.join(homedir(), ".shush-test-symlinks");
+  const home = homedir();
+  const sshTarget = path.join(home, ".ssh");
+  const linkPath = path.join(tmpDir, "innocent-link");
+
+  beforeAll(() => {
+    mkdirSync(tmpDir, { recursive: true });
+    try {
+      symlinkSync(sshTarget, linkPath);
+    } catch {
+      // Link may already exist from a prior aborted run
+    }
+  });
+
+  afterAll(() => {
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  test("resolvePath follows symlinks to real target", () => {
+    const resolved = resolvePath(linkPath);
+    expect(resolved).toBe(sshTarget);
+  });
+
+  test("checkPath catches symlink pointing to ~/.ssh", () => {
+    const result = checkPath("Read", linkPath);
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
+    expect(result!.reason).toContain(".ssh");
+  });
+
+  test("checkPath catches symlink to sensitive file inside ~/.ssh", () => {
+    const keyLink = path.join(tmpDir, "key-link");
+    try {
+      symlinkSync(path.join(sshTarget, "id_rsa"), keyLink);
+    } catch {
+      // May already exist
+    }
+    const result = checkPath("Read", keyLink);
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("block");
+  });
+
+  test("resolvePath handles non-existent target gracefully", () => {
+    const resolved = resolvePath("/tmp/does-not-exist-shush-test.txt");
+    expect(resolved).toBe("/tmp/does-not-exist-shush-test.txt");
   });
 });
