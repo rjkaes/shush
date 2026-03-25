@@ -89,6 +89,23 @@ export function cmdBasename(cmd: string): string {
   return slash >= 0 ? cmd.slice(slash + 1) : cmd;
 }
 
+/**
+ * Strip version suffixes from command names so that versioned
+ * interpreters (python3.12, node22, bash5.2) match EXEC_SINKS.
+ * Tries progressive stripping: .N.N -> trailing digits.
+ */
+export function normalizeVersionedCmd(cmd: string): string {
+  // Strip .N.N.N suffixes: python3.12.1 -> python3, bash5.2 -> bash5
+  let normalized = cmd.replace(/(\d)(\.\d+)+$/, "$1");
+  // Strip trailing digits: bash5 -> bash, node22 -> node
+  // But preserve meaningful ones like python3 (check won't reach here if
+  // the caller already found a match with the first normalization).
+  if (normalized === cmd) {
+    normalized = cmd.replace(/\d+$/, "");
+  }
+  return normalized;
+}
+
 /** Platform-agnostic input for the shared classification core. */
 export interface EvalInput {
   toolName: string;

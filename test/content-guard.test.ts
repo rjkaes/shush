@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { write, grep } from "./eval-helpers";
+import { scanContent } from "../src/content-guard";
 
 describe("scanContent", () => {
   test("detects rm -rf in content", () => {
@@ -88,5 +89,22 @@ describe("isCredentialSearch", () => {
 
   test("allows normal grep patterns", () => {
     expect(grep("", "function").decision).toBe("allow");
+  });
+});
+
+describe("content scan size cap", () => {
+  test("expensive patterns are capped but don't crash on large input", () => {
+    // 512KB of safe content should complete quickly without timeout
+    const large = "x".repeat(512 * 1024);
+    const result = scanContent(large);
+    expect(result).toHaveLength(0);
+  });
+
+  test("cheap patterns (secrets) scan full content", () => {
+    // Secret at 300KB offset (beyond 256KB cap) should still be found
+    const padding = "x".repeat(300 * 1024);
+    const result = scanContent(padding + "AKIAIOSFODNN7EXAMPLE");
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0].category).toBe("secret");
   });
 });

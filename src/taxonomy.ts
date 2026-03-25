@@ -1,4 +1,4 @@
-import { type Decision, type ShushConfig, cmdBasename } from "./types.js";
+import { type Decision, type ShushConfig, cmdBasename, normalizeVersionedCmd } from "./types.js";
 import ACTION_TYPES from "../data/types.json";
 import DEFAULT_POLICIES_JSON from "../data/policies.json";
 import classifyTrieJSON from "../data/classifier-trie.json";
@@ -109,6 +109,16 @@ export const EXEC_SINKS = new Set([
   "bash", "sh", "dash", "zsh", "eval", "python", "python3",
   "node", "ruby", "perl", "php", "bun", "deno", "fish", "pwsh", "powershell",
 ]);
+
+/** Check if a command name is a shell wrapper, with versioned normalization. */
+export function isShellWrapper(cmd: string): boolean {
+  return SHELL_WRAPPERS.has(cmd) || SHELL_WRAPPERS.has(normalizeVersionedCmd(cmd));
+}
+
+/** Check if a command name is an exec sink, with versioned normalization. */
+export function isExecSink(cmd: string): boolean {
+  return EXEC_SINKS.has(cmd) || EXEC_SINKS.has(normalizeVersionedCmd(cmd));
+}
 
 // Decode commands for pipe composition: [command, flag | null]
 export const DECODE_COMMANDS: Array<[string, string | null]> = [

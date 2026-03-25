@@ -2,7 +2,7 @@
 
 import type { Decision, Stage, StageResult, ShushConfig } from "./types.js";
 import { cmdBasename } from "./types.js";
-import { EXEC_SINKS, DECODE_COMMANDS } from "./taxonomy.js";
+import { isExecSink, DECODE_COMMANDS } from "./taxonomy.js";
 import { isHookPath, isSensitive, resolvePath } from "./path-guard.js";
 
 // Exec sinks and the flags that make them run inline code (from the
@@ -42,7 +42,7 @@ function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
 function isExecSinkStage(sr: StageResult): boolean {
   if (sr.tokens.length === 0) return false;
   const cmd = cmdBasename(sr.tokens[0]);
-  return EXEC_SINKS.has(cmd);
+  return isExecSink(cmd);
 }
 
 /**

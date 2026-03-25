@@ -11,6 +11,8 @@ export interface ContentMatch {
 }
 
 // Compiled regexes by category. Each entry: [regex, description].
+// Categories in EXPENSIVE_CATEGORIES use .* or open-ended quantifiers
+// and are only scanned on the size-capped prefix.
 const CONTENT_PATTERNS: Record<string, Array<[RegExp, string]>> = {
   destructive: [
     [/\brm\s+-[a-zA-Z]*r[a-zA-Z]*f\b/, "rm -rf"],
@@ -47,6 +49,10 @@ const CONTENT_PATTERNS: Record<string, Array<[RegExp, string]>> = {
   ],
 };
 
+// Categories with backtracking-prone patterns (use .* or open quantifiers).
+// These are only scanned on the capped prefix to avoid regex DoS.
+const EXPENSIVE_CATEGORIES = new Set(["exfiltration", "obfuscation"]);
+
 // Patterns for detecting credential-searching Grep queries.
 const CREDENTIAL_SEARCH_PATTERNS: RegExp[] = [
   /\bpassword\b/i,
@@ -58,15 +64,25 @@ const CREDENTIAL_SEARCH_PATTERNS: RegExp[] = [
   /BEGIN.*PRIVATE/i,
 ];
 
+// Cap expensive regex scanning to avoid timeout on huge file writes.
+const MAX_SCAN_BYTES = 256 * 1024; // 256 KB
+
 /** Scan content for dangerous patterns. Returns matches (empty = safe).
- *  Collects at most one match per category for the reason string. */
+ *  Collects at most one match per category for the reason string.
+ *  Expensive (backtracking) patterns are capped at MAX_SCAN_BYTES;
+ *  cheap patterns (secrets, destructive) scan the full content. */
 export function scanContent(content: string): ContentMatch[] {
   if (!content) return [];
+  const capped = content.length > MAX_SCAN_BYTES
+    ? content.slice(0, MAX_SCAN_BYTES)
+    : content;
 
   const matches: ContentMatch[] = [];
   for (const [category, patterns] of Object.entries(CONTENT_PATTERNS)) {
+    // Expensive categories (backtracking regexes) only scan the capped prefix.
+    const target = EXPENSIVE_CATEGORIES.has(category) ? capped : content;
     for (const [regex, desc] of patterns) {
-      const m = regex.exec(content);
+      const m = regex.exec(target);
       if (m) {
         matches.push({
           category,

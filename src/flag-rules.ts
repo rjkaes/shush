@@ -74,7 +74,12 @@ export function matchesCondition(
 ): boolean {
   switch (match.kind) {
     case "anyFlag":
-      return tokens.some((t) => match.flags.has(t));
+      return tokens.some((t) =>
+        match.flags.has(t) ||
+        // Joined short flags: -gfoo matches -g when -g is a known flag.
+        // Only applies to single-char short flags (not --long).
+        (t.length > 2 && t[0] === "-" && t[1] !== "-" && match.flags.has(t.slice(0, 2)))
+      );
 
     case "anyFlagPrefix":
       return tokens.some((t) =>

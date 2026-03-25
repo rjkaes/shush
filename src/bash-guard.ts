@@ -4,11 +4,11 @@
 // extractStages -> classify each stage -> check composition -> aggregate.
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
-import { classifyTokens, SHELL_WRAPPERS, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
+import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
 import { checkFlagRules } from "./flag-rules.js";
 import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
-import { checkPath } from "./path-guard.js";
+import { checkPath, scanCommandForSensitivePaths } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
 import { stricter, cmdBasename } from "./types.js";
 
@@ -224,7 +224,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     depth < MAX_UNWRAP_DEPTH &&
     stages.length === 1 &&
     stages[0].tokens.length >= 3 &&
-    SHELL_WRAPPERS.has(stages[0].tokens[0])
+    isShellWrapper(stages[0].tokens[0])
   ) {
     const toks = stages[0].tokens;
     const cIdx = toks.indexOf("-c");
@@ -253,7 +253,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
 
     // After command wrapper unwrapping, check for shell -c
     // (handles: env bash -c '...', sudo bash -c '...', etc.)
-    if (depth < MAX_UNWRAP_DEPTH && tokens.length >= 3 && SHELL_WRAPPERS.has(tokens[0])) {
+    if (depth < MAX_UNWRAP_DEPTH && tokens.length >= 3 && isShellWrapper(tokens[0])) {
       const cIdx = tokens.indexOf("-c");
       if (cIdx >= 1 && cIdx + 1 < tokens.length) {
         const innerCommand = tokens.slice(cIdx + 1).join(" ");
@@ -365,6 +365,16 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
           reason = subResult.reason;
         }
       }
+    }
+  }
+
+  // Scan raw command text for sensitive path literals that may be
+  // hidden inside command substitutions or variable expansions.
+  const pathScan = scanCommandForSensitivePaths(command);
+  if (pathScan) {
+    finalDecision = stricter(finalDecision, pathScan.decision);
+    if (pathScan.decision === finalDecision) {
+      reason = pathScan.reason;
     }
   }
 

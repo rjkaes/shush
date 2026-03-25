@@ -104,6 +104,41 @@ describe("anyFlag", () => {
   });
 });
 
+describe("anyFlag with joined short flags", () => {
+  const map = rules({
+    npm: [
+      {
+        match: { anyFlag: ["-g", "--global"] },
+        type: "unknown",
+      },
+    ],
+  });
+
+  test("-gfoo matches -g (joined value)", () => {
+    expect(
+      checkFlagRules("npm", ["npm", "install", "-gfoo"], map),
+    ).toBe("unknown");
+  });
+
+  test("-g alone still matches", () => {
+    expect(
+      checkFlagRules("npm", ["npm", "install", "-g"], map),
+    ).toBe("unknown");
+  });
+
+  test("--global still matches", () => {
+    expect(
+      checkFlagRules("npm", ["npm", "install", "--global"], map),
+    ).toBe("unknown");
+  });
+
+  test("no flag returns null", () => {
+    expect(
+      checkFlagRules("npm", ["npm", "install", "express"], map),
+    ).toBeNull();
+  });
+});
+
 // ---------------------------------------------------------------------------
 // flag + nextIn
 // ---------------------------------------------------------------------------
