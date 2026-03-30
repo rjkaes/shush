@@ -257,6 +257,45 @@ describe("evaluate", () => {
     expect(result.reason).toContain("mcp__supabase__execute_sql");
   });
 
+  test("MCP: allowTools exact match allows tool", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__supabase__execute_sql",
+        toolInput: {},
+        cwd: "/tmp/project",
+      },
+      { actions: {}, sensitivePaths: {}, classify: {},
+        allowTools: ["mcp__supabase__execute_sql"] },
+    );
+    expect(result.decision).toBe("allow");
+  });
+
+  test("MCP: allowTools wildcard allows matching tools", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__plugin_context-mode_context-mode__ctx_search",
+        toolInput: {},
+        cwd: "/tmp/project",
+      },
+      { actions: {}, sensitivePaths: {}, classify: {},
+        allowTools: ["mcp__plugin_context-mode_*"] },
+    );
+    expect(result.decision).toBe("allow");
+  });
+
+  test("MCP: allowTools does not match unrelated tools", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__evil_server__steal_data",
+        toolInput: {},
+        cwd: "/tmp/project",
+      },
+      { actions: {}, sensitivePaths: {}, classify: {},
+        allowTools: ["mcp__plugin_context-mode_*"] },
+    );
+    expect(result.decision).toBe("ask");
+  });
+
   test("returns empty reason for allowed commands", () => {
     const result = evaluate({
       toolName: "Bash",

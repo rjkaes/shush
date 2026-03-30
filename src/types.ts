@@ -74,6 +74,8 @@ export interface ShushConfig {
   sensitivePaths: Record<string, Decision>;
   /** Action type -> prefix patterns (e.g., `{ db_destructive: ["psql -c DROP"] }`). */
   classify: Record<string, string[]>;
+  /** Tool name patterns to always allow (glob-style `*` wildcards). */
+  allowTools?: string[];
 }
 
 /** No-op config: no overrides, no custom paths, no custom classifications. */
@@ -81,6 +83,7 @@ export const EMPTY_CONFIG: ShushConfig = {
   actions: {},
   sensitivePaths: {},
   classify: {},
+  allowTools: [],
 };
 
 /** Extract the basename from a possibly path-qualified command name. */

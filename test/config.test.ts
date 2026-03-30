@@ -98,6 +98,28 @@ actions:
     expect(config.sensitivePaths).toEqual({});
     expect(config.classify).toEqual({});
   });
+
+  test("parses allow_tools as flat list", () => {
+    const yaml = `
+allow_tools:
+  - "mcp__plugin_context-mode_*"
+  - "mcp__plugin_trueline-mcp_*"
+`;
+    const config = parseConfigYaml(yaml);
+    expect(config.allowTools).toEqual([
+      "mcp__plugin_context-mode_*",
+      "mcp__plugin_trueline-mcp_*",
+    ]);
+  });
+
+  test("allow_tools defaults to empty when missing", () => {
+    const yaml = `
+actions:
+  lang_exec: allow
+`;
+    const config = parseConfigYaml(yaml);
+    expect(config.allowTools).toEqual([]);
+  });
 });
 
 describe("mergeConfigs", () => {

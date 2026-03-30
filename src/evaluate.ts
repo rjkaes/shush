@@ -14,6 +14,35 @@ import {
 import type { Decision, ShushConfig, EvalInput, EvalResult } from "./types.js";
 import { EMPTY_CONFIG, stricter } from "./types.js";
 
+/**
+ * Check whether a tool name matches any pattern in the allow list.
+ * Patterns support `*` as a wildcard matching any sequence of characters.
+ */
+function isToolAllowed(toolName: string, patterns: string[]): boolean {
+  for (const pattern of patterns) {
+    if (globMatch(pattern, toolName)) return true;
+  }
+  return false;
+}
+
+/** Simple glob match: `*` matches any substring, everything else is literal. */
+function globMatch(pattern: string, text: string): boolean {
+  const parts = pattern.split("*");
+  if (parts.length === 1) return pattern === text;
+  // Check prefix
+  if (!text.startsWith(parts[0])) return false;
+  // Check suffix
+  if (!text.endsWith(parts[parts.length - 1])) return false;
+  // Check middle parts appear in order
+  let pos = parts[0].length;
+  for (let i = 1; i < parts.length - 1; i++) {
+    const idx = text.indexOf(parts[i], pos);
+    if (idx < 0) return false;
+    pos = idx + parts[i].length;
+  }
+  return true;
+}
+
 /** Shared path + boundary + content check for file-writing tools. */
 function checkFileWrite(
   toolName: string,
@@ -183,7 +212,7 @@ export function evaluate(
       // Generic MCP tool guard: any tool starting with mcp__ is a
       // third-party MCP server call. Default to "ask" so the user
       // confirms before unknown external tools execute.
-      if (toolName.startsWith("mcp__")) {
+      if (toolName.startsWith("mcp__") && !isToolAllowed(toolName, config.allowTools ?? [])) {
         decision = "ask";
         reason = `MCP tool call: ${toolName} (unclassified third-party tool)`;
       }

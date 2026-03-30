@@ -74,8 +74,13 @@ export function parseSimpleYaml(text: string): Record<string, Record<string, str
       section = {};
       result[sectionKey] = section;
     } else if (content.startsWith("- ")) {
-      // Array item
+      // Array item: could be under a sub-key or directly under a section.
       if (!array) array = [];
+      if (!arrayKey && sectionKey && section) {
+        // Flat array directly under a top-level key (e.g., allow_tools).
+        // Use "_items" as a synthetic sub-key; caller extracts via Object.values.
+        arrayKey = "_items";
+      }
       array.push(unquote(content.slice(2).trim()));
     } else {
     let colonIdx: number;

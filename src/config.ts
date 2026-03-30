@@ -68,7 +68,23 @@ export function parseConfigYaml(text: string): ShushConfig {
     }
   }
 
-  return { actions, sensitivePaths, classify };
+  // Parse allow_tools
+  const allowTools: string[] = [];
+  if (doc.allow_tools) {
+    // The mini-YAML parser returns flat arrays under a synthetic "_items"
+    // sub-key, so Object.values gives us [string[]] which we flatten.
+    for (const val of Object.values(doc.allow_tools)) {
+      if (typeof val === "string") {
+        allowTools.push(val);
+      } else if (Array.isArray(val)) {
+        for (const item of val) {
+          if (typeof item === "string") allowTools.push(item);
+        }
+      }
+    }
+  }
+
+  return { actions, sensitivePaths, classify, allowTools };
 }
 
 /**
@@ -115,7 +131,19 @@ export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConf
     classify[key] = merged;
   }
 
-  return { actions, sensitivePaths, classify };
+  // Merge allowTools: union, deduplicated.
+  const baseTools = base.allowTools ?? [];
+  const overlayTools = overlay.allowTools ?? [];
+  const seenTools = new Set(baseTools);
+  const allowTools = [...baseTools];
+  for (const t of overlayTools) {
+    if (!seenTools.has(t)) {
+      allowTools.push(t);
+      seenTools.add(t);
+    }
+  }
+
+  return { actions, sensitivePaths, classify, allowTools };
 }
 
 /** Load and parse a single config file. Returns null if file doesn't exist. */
@@ -214,6 +242,7 @@ export function loadConfig(
     actions: baseActions,
     sensitivePaths: globalConfig.sensitivePaths,
     classify: globalConfig.classify,
+    allowTools: globalConfig.allowTools,
   };
 
   // Filter project classify entries: only allow tightening.
@@ -225,6 +254,8 @@ export function loadConfig(
   const filteredProject: ShushConfig = {
     ...projectConfig,
     classify: filteredClassify,
+    // allowTools is a loosening operation: only the global config can grant it.
+    allowTools: [],
   };
 
   return mergeConfigs(effectiveBase, filteredProject);
