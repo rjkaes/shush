@@ -274,11 +274,28 @@ classify:
     - "mysql -e DROP"
 ```
 
+### `allow_tools` -- allowlist MCP tools
+
+By default, shush prompts for confirmation on every MCP tool call
+(`mcp__*`). If you trust specific MCP servers, add their tool name
+patterns here. Patterns support `*` as a wildcard:
+
+```yaml
+allow_tools:
+  - "mcp__plugin_context-mode_context-mode__*"
+  - "mcp__plugin_trueline-mcp_mcp__trueline_*"
+  - "mcp__supabase__execute_sql"
+```
+
+This is a **global-only** setting. Per-project `.shush.yaml` cannot add
+`allow_tools` entries, since allowing tools is a loosening operation.
+
 ### Supply-chain safety
 
 Per-project `.shush.yaml` can add classifications and tighten policies,
 but **can never relax them**. A malicious repo cannot use `.shush.yaml`
-to allowlist dangerous commands. Only your global config has that power.
+to allowlist dangerous commands or MCP tools. Only your global config
+has that power.
 
 ## Development
 
