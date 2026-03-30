@@ -1,7 +1,7 @@
 import { describe, expect, test, beforeAll, afterAll } from "bun:test";
 import { homedir } from "node:os";
 import path from "node:path";
-import { mkdirSync, symlinkSync, unlinkSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, symlinkSync, rmSync } from "node:fs";
 import { checkPath, checkProjectBoundary, isHookPath, resolvePath } from "../src/path-guard";
 import { read, write } from "./eval-helpers";
 
@@ -143,8 +143,14 @@ describe("symlink resolution", () => {
   const home = homedir();
   const sshTarget = path.join(home, ".ssh");
   const linkPath = path.join(tmpDir, "innocent-link");
+  // CI runners may not have ~/.ssh; create it so symlinks resolve.
+  let createdSshDir = false;
 
   beforeAll(() => {
+    if (!existsSync(sshTarget)) {
+      mkdirSync(sshTarget, { recursive: true });
+      createdSshDir = true;
+    }
     mkdirSync(tmpDir, { recursive: true });
     try {
       symlinkSync(sshTarget, linkPath);
@@ -155,6 +161,9 @@ describe("symlink resolution", () => {
 
   afterAll(() => {
     rmSync(tmpDir, { recursive: true, force: true });
+    if (createdSshDir) {
+      rmSync(sshTarget, { recursive: true, force: true });
+    }
   });
 
   test("resolvePath follows symlinks to real target", () => {
@@ -171,8 +180,13 @@ describe("symlink resolution", () => {
 
   test("checkPath catches symlink to sensitive file inside ~/.ssh", () => {
     const keyLink = path.join(tmpDir, "key-link");
+    const keyTarget = path.join(sshTarget, "id_rsa");
+    // Ensure the target file exists so realpathSync can resolve the symlink.
+    if (!existsSync(keyTarget)) {
+      Bun.write(keyTarget, "");
+    }
     try {
-      symlinkSync(path.join(sshTarget, "id_rsa"), keyLink);
+      symlinkSync(keyTarget, keyLink);
     } catch {
       // May already exist
     }

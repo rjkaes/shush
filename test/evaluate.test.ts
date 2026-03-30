@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { homedir } from "node:os";
 import { evaluate } from "../src/evaluate";
 
 describe("evaluate", () => {
@@ -159,7 +160,7 @@ describe("evaluate", () => {
     const result = evaluate({
       toolName: "MultiEdit",
       toolInput: {
-        file_path: `${process.env.HOME}/.claude/hooks/evil.js`,
+        file_path: `${homedir()}/.claude/hooks/evil.js`,
         edits: [{ old_string: "old", new_string: "new" }],
       },
       cwd: "/tmp/project",
@@ -200,7 +201,7 @@ describe("evaluate", () => {
     const result = evaluate({
       toolName: "NotebookEdit",
       toolInput: {
-        notebook_path: `${process.env.HOME}/.claude/hooks/evil.ipynb`,
+        notebook_path: `${homedir()}/.claude/hooks/evil.ipynb`,
         cell_index: 0,
         new_source: "import os",
       },
