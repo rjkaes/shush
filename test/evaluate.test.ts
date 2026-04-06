@@ -305,4 +305,166 @@ describe("evaluate", () => {
     expect(result.decision).toBe("allow");
     expect(result.reason).toBe("");
   });
+
+  // MCP path guards via mcp_path_params config
+  test("MCP: path guard blocks sensitive path on allowed tool", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__plugin_trueline-mcp_mcp__trueline_read",
+        toolInput: { file_path: "~/.ssh/id_rsa" },
+        cwd: "/tmp/project",
+      },
+      {
+        actions: {},
+        sensitivePaths: {},
+        classify: {},
+        mcpPathParams: {
+          "mcp__plugin_trueline-mcp_mcp__trueline_*": ["file_path"],
+        },
+        allowTools: ["mcp__plugin_trueline-mcp_mcp__trueline_*"],
+      },
+    );
+    expect(result.decision).toBe("block");
+    expect(result.reason).toContain("sensitive path");
+  });
+
+  test("MCP: path guard allows normal project path on allowed tool", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__plugin_trueline-mcp_mcp__trueline_read",
+        toolInput: { file_path: "/tmp/project/src/index.ts" },
+        cwd: "/tmp/project",
+      },
+      {
+        actions: {},
+        sensitivePaths: {},
+        classify: {},
+        mcpPathParams: {
+          "mcp__plugin_trueline-mcp_mcp__trueline_*": ["file_path"],
+        },
+        allowTools: ["mcp__plugin_trueline-mcp_mcp__trueline_*"],
+      },
+    );
+    expect(result.decision).toBe("allow");
+  });
+
+  test("MCP: path guard asks for outside-project path on allowed tool", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__plugin_trueline-mcp_mcp__trueline_read",
+        toolInput: { file_path: "/other/repo/secret.ts" },
+        cwd: "/tmp/project",
+      },
+      {
+        actions: {},
+        sensitivePaths: {},
+        classify: {},
+        mcpPathParams: {
+          "mcp__plugin_trueline-mcp_mcp__trueline_*": ["file_path"],
+        },
+        allowTools: ["mcp__plugin_trueline-mcp_mcp__trueline_*"],
+      },
+    );
+    expect(result.decision).toBe("ask");
+    expect(result.reason).toContain("outside project");
+  });
+
+  test("MCP: path guard blocks sensitive path on unknown tool (stricter than ask)", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__evil_server__read_file",
+        toolInput: { file_path: "~/.ssh/id_rsa" },
+        cwd: "/tmp/project",
+      },
+      {
+        actions: {},
+        sensitivePaths: {},
+        classify: {},
+        mcpPathParams: {
+          "mcp__evil_server__*": ["file_path"],
+        },
+      },
+    );
+    expect(result.decision).toBe("block");
+  });
+
+  test("MCP: handles string array param (filePaths)", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__plugin_trueline-mcp_mcp__trueline_search",
+        toolInput: { filePaths: ["/tmp/project/ok.ts", "~/.ssh/id_rsa"] },
+        cwd: "/tmp/project",
+      },
+      {
+        actions: {},
+        sensitivePaths: {},
+        classify: {},
+        mcpPathParams: {
+          "mcp__plugin_trueline-mcp_mcp__trueline_*": ["filePaths"],
+        },
+        allowTools: ["mcp__plugin_trueline-mcp_mcp__trueline_*"],
+      },
+    );
+    expect(result.decision).toBe("block");
+  });
+
+  test("MCP: no matching mcp_path_params pattern preserves existing behavior", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__supabase__execute_sql",
+        toolInput: { query: "SELECT 1" },
+        cwd: "/tmp/project",
+      },
+      {
+        actions: {},
+        sensitivePaths: {},
+        classify: {},
+        mcpPathParams: {
+          "mcp__plugin_trueline-mcp_mcp__trueline_*": ["file_path"],
+        },
+        allowTools: ["mcp__supabase__execute_sql"],
+      },
+    );
+    expect(result.decision).toBe("allow");
+  });
+
+  test("MCP: silently skips non-string param values", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__plugin_trueline-mcp_mcp__trueline_read",
+        toolInput: { file_path: 42 },
+        cwd: "/tmp/project",
+      },
+      {
+        actions: {},
+        sensitivePaths: {},
+        classify: {},
+        mcpPathParams: {
+          "mcp__plugin_trueline-mcp_mcp__trueline_*": ["file_path"],
+        },
+        allowTools: ["mcp__plugin_trueline-mcp_mcp__trueline_*"],
+      },
+    );
+    expect(result.decision).toBe("allow");
+  });
+
+  test("MCP: respects config sensitive_paths for MCP tools", () => {
+    const result = evaluate(
+      {
+        toolName: "mcp__plugin_trueline-mcp_mcp__trueline_read",
+        toolInput: { file_path: "~/.vault/token" },
+        cwd: "/tmp/project",
+      },
+      {
+        actions: {},
+        sensitivePaths: { "~/.vault": "block" },
+        classify: {},
+        mcpPathParams: {
+          "mcp__plugin_trueline-mcp_mcp__trueline_*": ["file_path"],
+        },
+        allowTools: ["mcp__plugin_trueline-mcp_mcp__trueline_*"],
+      },
+    );
+    expect(result.decision).toBe("block");
+  });
 });

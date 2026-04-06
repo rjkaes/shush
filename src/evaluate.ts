@@ -209,12 +209,49 @@ export function evaluate(
       break;
     }
     default: {
-      // Generic MCP tool guard: any tool starting with mcp__ is a
-      // third-party MCP server call. Default to "ask" so the user
-      // confirms before unknown external tools execute.
-      if (toolName.startsWith("mcp__") && !isToolAllowed(toolName, config.allowTools ?? [])) {
-        decision = "ask";
-        reason = `MCP tool call: ${toolName} (unclassified third-party tool)`;
+      if (toolName.startsWith("mcp__")) {
+        // MCP tool classification: allow via allowTools, or ask for unknown.
+        if (!isToolAllowed(toolName, config.allowTools ?? [])) {
+          decision = "ask";
+          reason = `MCP tool call: ${toolName} (unclassified third-party tool)`;
+        }
+
+        // Path guards: extract file paths from tool_input via mcp_path_params config.
+        const mcpPathParams = config.mcpPathParams ?? {};
+        for (const [pattern, paramNames] of Object.entries(mcpPathParams)) {
+          if (!globMatch(pattern, toolName)) continue;
+
+          for (const paramName of paramNames) {
+            const raw = toolInput[paramName];
+            const paths: string[] = [];
+            if (typeof raw === "string") {
+              paths.push(raw);
+            } else if (Array.isArray(raw)) {
+              for (const item of raw) {
+                if (typeof item === "string") paths.push(item);
+              }
+            }
+
+            for (const p of paths) {
+              const pathResult = checkPath(toolName, p, config);
+              if (pathResult) {
+                const combined = stricter(decision, pathResult.decision);
+                if (combined !== decision) {
+                  reason = pathResult.reason;
+                }
+                decision = combined;
+              }
+              const boundaryResult = checkProjectBoundary(toolName, p, projectRoot);
+              if (boundaryResult) {
+                const combined = stricter(decision, boundaryResult.decision);
+                if (combined !== decision) {
+                  reason = boundaryResult.reason;
+                }
+                decision = combined;
+              }
+            }
+          }
+        }
       }
       break;
     }
