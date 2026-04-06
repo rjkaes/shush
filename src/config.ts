@@ -84,7 +84,21 @@ export function parseConfigYaml(text: string): ShushConfig {
     }
   }
 
-  return { actions, sensitivePaths, classify, allowTools };
+  // Parse mcp_path_params
+  const mcpPathParams: Record<string, string[]> = {};
+  if (doc.mcp_path_params) {
+    for (const [key, val] of Object.entries(doc.mcp_path_params)) {
+      if (Array.isArray(val) && val.every((v) => typeof v === "string")) {
+        mcpPathParams[key] = val as string[];
+      } else if (typeof val === "string") {
+        mcpPathParams[key] = [val];
+      } else {
+        process.stderr.write(`shush: config: mcp_path_params "${key}" must be a string array, skipping\n`);
+      }
+    }
+  }
+
+  return { actions, sensitivePaths, classify, allowTools, mcpPathParams };
 }
 
 /**
@@ -143,7 +157,29 @@ export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConf
     }
   }
 
-  return { actions, sensitivePaths, classify, allowTools };
+  // Merge mcpPathParams: additive union of param names per glob pattern.
+  const baseMcpPP = base.mcpPathParams ?? {};
+  const overlayMcpPP = overlay.mcpPathParams ?? {};
+  const mcpPathParams: Record<string, string[]> = {};
+  const allMcpKeys = new Set([
+    ...Object.keys(baseMcpPP),
+    ...Object.keys(overlayMcpPP),
+  ]);
+  for (const key of allMcpKeys) {
+    const baseParams = baseMcpPP[key] ?? [];
+    const overlayParams = overlayMcpPP[key] ?? [];
+    const seen = new Set(baseParams);
+    const merged = [...baseParams];
+    for (const p of overlayParams) {
+      if (!seen.has(p)) {
+        merged.push(p);
+        seen.add(p);
+      }
+    }
+    mcpPathParams[key] = merged;
+  }
+
+  return { actions, sensitivePaths, classify, allowTools, mcpPathParams };
 }
 
 /** Load and parse a single config file. Returns null if file doesn't exist. */
@@ -243,6 +279,7 @@ export function loadConfig(
     sensitivePaths: globalConfig.sensitivePaths,
     classify: globalConfig.classify,
     allowTools: globalConfig.allowTools,
+    mcpPathParams: globalConfig.mcpPathParams,
   };
 
   // Filter project classify entries: only allow tightening.

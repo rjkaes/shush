@@ -120,6 +120,45 @@ actions:
     const config = parseConfigYaml(yaml);
     expect(config.allowTools).toEqual([]);
   });
+
+  test("parses mcp_path_params as glob-to-string-array mapping", () => {
+    const yaml = `
+mcp_path_params:
+  "mcp__plugin_trueline-mcp_mcp__trueline_*":
+    - file_path
+    - filePaths
+  "mcp__plugin_context-mode_context-mode__*":
+    - path
+`;
+    const config = parseConfigYaml(yaml);
+    expect(config.mcpPathParams).toEqual({
+      "mcp__plugin_trueline-mcp_mcp__trueline_*": ["file_path", "filePaths"],
+      "mcp__plugin_context-mode_context-mode__*": ["path"],
+    });
+  });
+
+  test("mcp_path_params defaults to empty when missing", () => {
+    const yaml = `
+actions:
+  lang_exec: allow
+`;
+    const config = parseConfigYaml(yaml);
+    expect(config.mcpPathParams).toEqual({});
+  });
+
+  test("mcp_path_params accepts single string as one-element array", () => {
+    const yaml = `
+mcp_path_params:
+  "mcp__good_*":
+    - file_path
+  "mcp__single_*": path
+`;
+    const config = parseConfigYaml(yaml);
+    expect(config.mcpPathParams).toEqual({
+      "mcp__good_*": ["file_path"],
+      "mcp__single_*": ["path"],
+    });
+  });
 });
 
 describe("mergeConfigs", () => {
@@ -218,6 +257,44 @@ describe("mergeConfigs", () => {
   test("merging two empty configs returns empty", () => {
     const merged = mergeConfigs(EMPTY_CONFIG, EMPTY_CONFIG);
     expect(merged).toEqual(EMPTY_CONFIG);
+  });
+
+  test("mcpPathParams entries are additive (union per pattern)", () => {
+    const base: ShushConfig = {
+      actions: {},
+      sensitivePaths: {},
+      classify: {},
+      mcpPathParams: { "mcp__trueline_*": ["file_path"] },
+    };
+    const overlay: ShushConfig = {
+      actions: {},
+      sensitivePaths: {},
+      classify: {},
+      mcpPathParams: {
+        "mcp__trueline_*": ["filePaths"],
+        "mcp__ctx_*": ["path"],
+      },
+    };
+    const merged = mergeConfigs(base, overlay);
+    expect(merged.mcpPathParams!["mcp__trueline_*"]).toEqual(["file_path", "filePaths"]);
+    expect(merged.mcpPathParams!["mcp__ctx_*"]).toEqual(["path"]);
+  });
+
+  test("mcpPathParams deduplicates param names", () => {
+    const base: ShushConfig = {
+      actions: {},
+      sensitivePaths: {},
+      classify: {},
+      mcpPathParams: { "mcp__trueline_*": ["file_path", "filePaths"] },
+    };
+    const overlay: ShushConfig = {
+      actions: {},
+      sensitivePaths: {},
+      classify: {},
+      mcpPathParams: { "mcp__trueline_*": ["file_path", "path"] },
+    };
+    const merged = mergeConfigs(base, overlay);
+    expect(merged.mcpPathParams!["mcp__trueline_*"]).toEqual(["file_path", "filePaths", "path"]);
   });
 });
 

@@ -76,6 +76,8 @@ export interface ShushConfig {
   classify: Record<string, string[]>;
   /** Tool name patterns to always allow (glob-style `*` wildcards). */
   allowTools?: string[];
+  /** MCP tool name pattern -> param names containing file paths. */
+  mcpPathParams?: Record<string, string[]>;
 }
 
 /** No-op config: no overrides, no custom paths, no custom classifications. */
@@ -84,6 +86,7 @@ export const EMPTY_CONFIG: ShushConfig = {
   sensitivePaths: {},
   classify: {},
   allowTools: [],
+  mcpPathParams: {},
 };
 
 /** Extract the basename from a possibly path-qualified command name. */
