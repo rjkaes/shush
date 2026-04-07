@@ -102,7 +102,7 @@ export function getPolicy(actionType: string, config?: ShushConfig): Decision {
 }
 
 // Shell wrappers that need unwrapping
-export const SHELL_WRAPPERS = new Set(["bash", "sh", "dash", "zsh"]);
+export const SHELL_WRAPPERS = new Set(["bash", "sh", "dash", "zsh", "pwsh", "powershell"]);
 
 // Exec sinks for pipe composition
 export const EXEC_SINKS = new Set([

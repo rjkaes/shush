@@ -31,6 +31,7 @@ interface WrapperSpec {
   defaultInner?: string[];
 }
 
+
 // PowerShell value flags: flags that take a separate argument.
 // -Command/-c, -File/-f, and -EncodedCommand/-e/-ec are intentionally excluded
 // so the next positional token (the script, command string, or opaque payload)
@@ -44,7 +45,6 @@ const PWSH_VALUE_FLAGS = new Set([
   "-SettingsFile",
   "-WorkingDirectory", "-wd",
 ]);
-
 const COMMAND_WRAPPERS: Record<string, WrapperSpec> = {
   xargs:   { valueFlags: new Set(["-I", "-L", "-n", "-P", "-s", "-R", "-S", "-E"]), defaultInner: ["echo"] },
   nice:    { valueFlags: new Set(["-n", "--adjustment"]) },
@@ -238,8 +238,27 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   // are unwrapped to expose the inner command without mutating the original
   // stage tokens.
   const stageResults: StageResult[] = stages.map((stage) => {
-    // Iteratively unwrap command wrappers (nice, nohup, timeout, env, sudo, etc.)
     let tokens = stage.tokens;
+
+    // Shell -c unwrapping FIRST: pwsh -c '...', bash -c '...', etc.
+    // Must run before command wrapper unwrapping so that `pwsh -c "cmd"`
+    // is treated as a shell invocation, not a wrapper with a positional arg.
+    if (depth < MAX_UNWRAP_DEPTH && tokens.length >= 3 && isShellWrapper(tokens[0])) {
+      const cIdx = tokens.indexOf("-c");
+      if (cIdx >= 1 && cIdx + 1 < tokens.length) {
+        const innerCommand = tokens.slice(cIdx + 1).join(" ");
+        const innerResult = classifyCommand(innerCommand, depth + 1, config);
+        return {
+          tokens,
+          actionType: innerResult.stages[0]?.actionType ?? LANG_EXEC,
+          decision: innerResult.finalDecision,
+          reason: innerResult.reason || `shell -c: ${innerCommand}`,
+        };
+      }
+    }
+
+    // Iteratively unwrap command wrappers (nice, nohup, timeout, env, sudo,
+    // pwsh without -c, etc.)
     let unwrapped = unwrapCommandWrapper(tokens);
     while (unwrapped) {
       tokens = unwrapped;
