@@ -98,7 +98,54 @@ export function parseConfigYaml(text: string): ShushConfig {
     }
   }
 
-  return { actions, sensitivePaths, classify, allowTools, mcpPathParams };
+  // Parse messages (glob pattern -> message string)
+  const messages: Record<string, string> = {};
+  if (doc.messages) {
+    for (const [key, val] of Object.entries(doc.messages)) {
+      if (typeof val === "string") {
+        messages[key] = val;
+      }
+    }
+  }
+
+  // Parse allow_redirects (glob patterns for redirect targets)
+  const allowRedirects: string[] = [];
+  if (doc.allow_redirects) {
+    for (const val of Object.values(doc.allow_redirects)) {
+      if (typeof val === "string") {
+        allowRedirects.push(val);
+      } else if (Array.isArray(val)) {
+        for (const item of val) {
+          if (typeof item === "string") allowRedirects.push(item);
+        }
+      }
+    }
+  }
+
+  // Parse deny_tools (glob pattern -> message string)
+  const denyTools: Record<string, string> = {};
+  if (doc.deny_tools) {
+    for (const [key, val] of Object.entries(doc.deny_tools)) {
+      if (typeof val === "string") {
+        denyTools[key] = val;
+      }
+    }
+  }
+
+  // Parse after_messages (glob pattern -> message string)
+  const afterMessages: Record<string, string> = {};
+  if (doc.after_messages) {
+    for (const [key, val] of Object.entries(doc.after_messages)) {
+      if (typeof val === "string") {
+        afterMessages[key] = val;
+      }
+    }
+  }
+
+  return {
+    actions, sensitivePaths, classify, allowTools, mcpPathParams,
+    messages, allowRedirects, denyTools, afterMessages,
+  };
 }
 
 /**
@@ -179,7 +226,31 @@ export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConf
     mcpPathParams[key] = merged;
   }
 
-  return { actions, sensitivePaths, classify, allowTools, mcpPathParams };
+  // Merge messages: additive (both layers' patterns apply).
+  const messages = { ...(base.messages ?? {}), ...(overlay.messages ?? {}) };
+
+  // Merge allowRedirects: union, deduplicated.
+  const baseRedirects = base.allowRedirects ?? [];
+  const overlayRedirects = overlay.allowRedirects ?? [];
+  const seenRedirects = new Set(baseRedirects);
+  const allowRedirects = [...baseRedirects];
+  for (const r of overlayRedirects) {
+    if (!seenRedirects.has(r)) {
+      allowRedirects.push(r);
+      seenRedirects.add(r);
+    }
+  }
+
+  // Merge denyTools: additive (both layers' patterns apply).
+  const denyTools = { ...(base.denyTools ?? {}), ...(overlay.denyTools ?? {}) };
+
+  // Merge afterMessages: additive.
+  const afterMessages = { ...(base.afterMessages ?? {}), ...(overlay.afterMessages ?? {}) };
+
+  return {
+    actions, sensitivePaths, classify, allowTools, mcpPathParams,
+    messages, allowRedirects, denyTools, afterMessages,
+  };
 }
 
 /** Load and parse a single config file. Returns null if file doesn't exist. */

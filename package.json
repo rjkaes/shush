@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
-    "build": "bun run scripts/build-trie.ts && bun run scripts/build-flag-rules.ts && bun build hooks/pretooluse.ts --outdir=hooks --target=node --format=esm --minify",
+    "build": "bun run scripts/build-trie.ts && bun run scripts/build-flag-rules.ts && bun build hooks/pretooluse.ts hooks/posttooluse.ts --outdir=hooks --target=node --format=esm --minify",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },

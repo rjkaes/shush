@@ -78,6 +78,14 @@ export interface ShushConfig {
   allowTools?: string[];
   /** MCP tool name pattern -> param names containing file paths. */
   mcpPathParams?: Record<string, string[]>;
+  /** Glob pattern -> message to append when decision is ask/block. */
+  messages?: Record<string, string>;
+  /** Glob patterns for redirect targets that should not escalate to filesystem_write. */
+  allowRedirects?: string[];
+  /** MCP tool glob pattern -> message. Matched tools are blocked with the message. */
+  denyTools?: Record<string, string>;
+  /** Glob pattern -> message to show after command completes (PostToolUse). */
+  afterMessages?: Record<string, string>;
 }
 
 /** No-op config: no overrides, no custom paths, no custom classifications. */
@@ -87,7 +95,26 @@ export const EMPTY_CONFIG: ShushConfig = {
   classify: {},
   allowTools: [],
   mcpPathParams: {},
+  messages: {},
+  allowRedirects: [],
+  denyTools: {},
+  afterMessages: {},
 };
+
+/** Simple glob matching: `*` matches any sequence of characters. */
+export function globMatch(pattern: string, text: string): boolean {
+  const parts = pattern.split("*");
+  if (parts.length === 1) return pattern === text;
+  if (!text.startsWith(parts[0])) return false;
+  if (!text.endsWith(parts[parts.length - 1])) return false;
+  let pos = parts[0].length;
+  for (let i = 1; i < parts.length - 1; i++) {
+    const idx = text.indexOf(parts[i], pos);
+    if (idx < 0) return false;
+    pos = idx + parts[i].length;
+  }
+  return true;
+}
 
 /** Extract the basename from a possibly path-qualified command name. */
 export function cmdBasename(cmd: string): string {

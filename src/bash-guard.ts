@@ -8,6 +8,7 @@ import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ,
 import { checkFlagRules } from "./flag-rules.js";
 import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
+import { globMatch } from "./types.js";
 import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
 import { stricter, cmdBasename } from "./types.js";
@@ -152,6 +153,54 @@ const EXEC_SINK_ENV_VARS = new Set([
  * Classify a single stage's tokens, returning an action type and decision.
  * Pipeline: flag rules -> procedural classifiers -> trie -> script-exec fallback.
  */
+/** Docker exec/run flags that consume the next token as a value. */
+const DOCKER_VALUE_FLAGS = new Set([
+  "-u", "--user", "-w", "--workdir", "-e", "--env",
+  "--env-file", "--name", "--network", "--pid", "--platform",
+  "--runtime", "--volumes-from", "-v", "--volume",
+  "--mount", "-p", "--publish", "--label", "-l",
+  "--memory", "-m", "--cpus", "--entrypoint",
+  "--hostname", "-h", "--ip", "--log-driver",
+  "--restart", "--shm-size", "--stop-signal",
+  "--ulimit", "--gpus", "--device", "--add-host",
+  "--dns", "--expose",
+]);
+
+/**
+ * Extract the inner command from `docker exec <flags> <container> <cmd...>`
+ * or `docker run <flags> <image> <cmd...>`.
+ * Returns the inner command tokens, or null if none found.
+ */
+function extractDockerInnerCommand(tokens: string[]): string[] | null {
+  // tokens[0] = "docker", tokens[1] = "exec" or "run"
+  let i = 2;
+  // Skip flags
+  while (i < tokens.length) {
+    const t = tokens[i];
+    if (t === "--") { i++; break; }  // explicit end of flags
+    if (t.startsWith("-")) {
+      // Flags like -it, -d, --rm, --privileged are boolean (no value)
+      if (DOCKER_VALUE_FLAGS.has(t)) {
+        i += 2;  // skip flag + value
+      } else if (t.startsWith("--") && t.includes("=")) {
+        i++;  // --flag=value, single token
+      } else {
+        i++;  // boolean flag
+      }
+    } else {
+      break;  // first non-flag = container/image name
+    }
+  }
+
+  // Now tokens[i] should be the container/image name
+  if (i >= tokens.length) return null;
+  i++;  // skip container/image name
+
+  // Everything after is the inner command
+  if (i >= tokens.length) return null;
+  return tokens.slice(i);
+}
+
 function classifyStage(tokens: string[], config?: ShushConfig): { actionType: string; decision: Decision } {
   // Bare assignments (e.g., `FOO=bar`) produce empty tokens. The assignment
   // itself is harmless; any command substitution in the value is extracted
@@ -291,6 +340,22 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       }
     }
 
+    // Docker exec/run delegation: extract the inner command and classify
+    // it instead of treating the whole thing as lang_exec.
+    if (depth < MAX_UNWRAP_DEPTH && tokens[0] === "docker" &&
+        (tokens[1] === "exec" || tokens[1] === "run")) {
+      const innerTokens = extractDockerInnerCommand(tokens);
+      if (innerTokens && innerTokens.length > 0) {
+        const innerResult = classifyCommand(innerTokens.join(" "), depth + 1, config);
+        return {
+          tokens,
+          actionType: innerResult.stages[0]?.actionType ?? LANG_EXEC,
+          decision: innerResult.finalDecision,
+          reason: innerResult.reason || `docker ${tokens[1]}: ${innerTokens.join(" ")}`,
+        };
+      }
+    }
+
     let { actionType, decision } = classifyStage(tokens, config);
     let reason = decision !== "allow" ? `${tokens[0]}: ${actionType}` : "";
 
@@ -315,8 +380,12 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
 
     // A redirect means this stage writes to a file, regardless of what
     // the command itself would normally be classified as.
-    // Exempt device-special targets that don't create real files.
-    if (stage.redirectTarget && !SAFE_REDIRECT_TARGETS.has(stage.redirectTarget)) {
+    // Exempt device-special targets and config-whitelisted patterns.
+    const redirectAllowed = stage.redirectTarget && (
+      SAFE_REDIRECT_TARGETS.has(stage.redirectTarget) ||
+      (config?.allowRedirects ?? []).some((pat) => globMatch(pat, stage.redirectTarget!))
+    );
+    if (stage.redirectTarget && !redirectAllowed) {
       const writePolicy = getPolicy(FILESYSTEM_WRITE, config);
       const combined = stricter(decision, writePolicy);
       if (combined !== decision) {
@@ -324,8 +393,11 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
         decision = combined;
         reason = `${tokens[0]} redirects to ${stage.redirectTarget}: ${FILESYSTEM_WRITE}`;
       }
+    }
 
-      // Check redirect target against sensitive/hook paths
+    // Check redirect target against sensitive/hook paths regardless of
+    // whether the redirect was whitelisted (sensitive paths always win).
+    if (stage.redirectTarget && !SAFE_REDIRECT_TARGETS.has(stage.redirectTarget)) {
       const pathResult = checkPath("Bash", stage.redirectTarget, config);
       if (pathResult) {
         decision = stricter(decision, pathResult.decision);

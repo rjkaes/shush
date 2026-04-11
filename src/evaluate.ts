@@ -12,7 +12,7 @@ import {
   formatContentMessage,
 } from "./content-guard.js";
 import type { Decision, ShushConfig, EvalInput, EvalResult } from "./types.js";
-import { EMPTY_CONFIG, stricter } from "./types.js";
+import { EMPTY_CONFIG, stricter, globMatch } from "./types.js";
 
 /**
  * Check whether a tool name matches any pattern in the allow list.
@@ -26,23 +26,6 @@ function isToolAllowed(toolName: string, patterns: string[]): boolean {
 }
 
 /** Simple glob match: `*` matches any substring, everything else is literal. */
-function globMatch(pattern: string, text: string): boolean {
-  const parts = pattern.split("*");
-  if (parts.length === 1) return pattern === text;
-  // Check prefix
-  if (!text.startsWith(parts[0])) return false;
-  // Check suffix
-  if (!text.endsWith(parts[parts.length - 1])) return false;
-  // Check middle parts appear in order
-  let pos = parts[0].length;
-  for (let i = 1; i < parts.length - 1; i++) {
-    const idx = text.indexOf(parts[i], pos);
-    if (idx < 0) return false;
-    pos = idx + parts[i].length;
-  }
-  return true;
-}
-
 /** Shared path + boundary + content check for file-writing tools. */
 function checkFileWrite(
   toolName: string,
@@ -210,8 +193,19 @@ export function evaluate(
     }
     default: {
       if (toolName.startsWith("mcp__")) {
-        // MCP tool classification: allow via allowTools, or ask for unknown.
-        if (!isToolAllowed(toolName, config.allowTools ?? [])) {
+        // MCP tool classification: deny_tools checked first, then allowTools.
+        const denyTools = config.denyTools ?? {};
+        let denied = false;
+        for (const [pattern, message] of Object.entries(denyTools)) {
+          if (globMatch(pattern, toolName)) {
+            decision = "block";
+            reason = `MCP tool denied: ${toolName} — ${message}`;
+            denied = true;
+            break;
+          }
+        }
+
+        if (!denied && !isToolAllowed(toolName, config.allowTools ?? [])) {
           decision = "ask";
           reason = `MCP tool call: ${toolName} (unclassified third-party tool)`;
         }
@@ -254,6 +248,17 @@ export function evaluate(
         }
       }
       break;
+    }
+  }
+
+  // Append config message if decision is not allow and a pattern matches.
+  if (decision !== "allow" && config.messages) {
+    const command = (toolInput.command as string) ?? "";
+    for (const [pattern, message] of Object.entries(config.messages)) {
+      if (globMatch(pattern, command)) {
+        reason = reason ? `${reason} — ${message}` : message;
+        break;
+      }
     }
   }
 
