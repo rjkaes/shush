@@ -121,7 +121,7 @@ For a safety tool, this matters.
 
 | Tool | What shush inspects |
 |------|---------------------|
-| **Bash** | Command classification, flag analysis, pipe composition, shell unwrapping |
+| **Bash** | Command classification, flag analysis, pipe composition, shell unwrapping, docker exec/run delegation |
 | **Read** | Sensitive path detection (`~/.ssh`, `~/.aws`, `.env`, ...) |
 | **Write** | Path + project boundary + content scanning (secrets, exfil, destructive payloads) |
 | **Edit** | Path + project boundary + content scanning on the replacement string |
@@ -290,12 +290,71 @@ allow_tools:
 This is a **global-only** setting. Per-project `.shush.yaml` cannot add
 `allow_tools` entries, since allowing tools is a loosening operation.
 
+### `messages` -- explain blocked commands to the AI
+
+When shush blocks or prompts for a command, you can attach a message
+that the AI sees. This guides Claude toward the right alternative:
+
+```yaml
+messages:
+  "python *": "Use uv run python instead"
+  "git push --force *": "Force-pushing rewrites shared history"
+  "rm -rf /*": "Never delete from root"
+```
+
+Messages are appended to the decision reason. Glob patterns match
+against the full command string. First matching pattern wins.
+
+### `allow_redirects` -- whitelist redirect targets
+
+By default, any output redirect (`>`, `>>`) escalates to
+`filesystem_write`. If you have known-safe output directories, exempt
+them:
+
+```yaml
+allow_redirects:
+  - "/tmp/**"
+  - "build/**"
+  - "dist/**"
+```
+
+Sensitive-path checks still apply independently, so
+`echo key > ~/.ssh/authorized_keys` is still caught even if you
+whitelist `**`.
+
+### `deny_tools` -- block specific MCP tools
+
+The inverse of `allow_tools`. Block specific MCP tool patterns with
+an explanation:
+
+```yaml
+deny_tools:
+  "mcp__*__delete_*": "Deletions not allowed"
+  "mcp__filesystem__write_*": "Use the Write tool instead"
+```
+
+`deny_tools` is checked before `allow_tools`, so a deny pattern wins
+even if the tool matches an allow pattern.
+
+### `after_messages` -- post-execution reminders
+
+Show the AI a reminder after specific commands complete. Requires
+registering the PostToolUse hook (the plugin handles this
+automatically):
+
+```yaml
+after_messages:
+  "git push *": "Check CI status"
+  "npm publish *": "Update the changelog"
+```
+
 ### Supply-chain safety
 
 Per-project `.shush.yaml` can add classifications and tighten policies,
 but **can never relax them**. A malicious repo cannot use `.shush.yaml`
 to allowlist dangerous commands or MCP tools. Only your global config
-has that power.
+has that power. Loosening-only settings (`allow_tools`, `allow_redirects`)
+are restricted to the global config.
 
 ## Development
 
@@ -307,7 +366,8 @@ bun run build         # rebuild trie + bundle hook
 
 ## Acknowledgements
 
-Inspired by [nah](https://github.com/manuelschipper/nah).
+Inspired by [nah](https://github.com/manuelschipper/nah) and
+[Dippy](https://github.com/ldayton/Dippy).
 
 ## License
 
