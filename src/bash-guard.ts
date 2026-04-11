@@ -123,6 +123,11 @@ function unwrapCommandWrapper(tokens: string[]): string[] | null {
 
 // Env vars whose values are executed by the shell or program they're set on.
 // Setting these to an attacker-controlled value is equivalent to arbitrary exec.
+/** Redirect targets that are device-special and don't create real files. */
+const SAFE_REDIRECT_TARGETS = new Set([
+  "/dev/null", "/dev/stdout", "/dev/stderr", "/dev/stdin",
+]);
+
 const EXEC_SINK_ENV_VARS = new Set([
   "PAGER",
   "GIT_PAGER",
@@ -310,7 +315,8 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
 
     // A redirect means this stage writes to a file, regardless of what
     // the command itself would normally be classified as.
-    if (stage.redirectTarget) {
+    // Exempt device-special targets that don't create real files.
+    if (stage.redirectTarget && !SAFE_REDIRECT_TARGETS.has(stage.redirectTarget)) {
       const writePolicy = getPolicy(FILESYSTEM_WRITE, config);
       const combined = stricter(decision, writePolicy);
       if (combined !== decision) {

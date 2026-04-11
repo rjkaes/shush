@@ -135,6 +135,36 @@ export function extractCommandSubs(command: string): { cleaned: string; subs: st
       continue;
     }
 
+    // Heredoc: skip the body so cmdsubs inside it are not extracted at the
+    // top level. Quoted delimiters (<<'EOF' or <<"EOF") suppress expansion
+    // in real bash, so cmdsubs in those bodies are literal text. Unquoted
+    // heredocs DO expand, so we only skip extraction for quoted delimiters.
+    if (ch === "<" && command[i + 1] === "<" && command[i + 2] !== "<") {
+      const hm = command.slice(i).match(/^<<[-~]?\s*(['"]?)(\w+)\1/);
+      if (hm) {
+        const isQuoted = hm[1] !== "";
+        const delim = hm[2];
+        const afterHeader = i + hm[0].length;
+        // Find the end of the heredoc body (delimiter on its own line)
+        const rest = command.slice(afterHeader);
+        const dm = rest.match(new RegExp(`\n\\t*${delim}[ \\t]*(?:\n|$)`));
+        if (dm != null && dm.index != null) {
+          const bodyEnd = afterHeader + dm.index + dm[0].length;
+          if (isQuoted) {
+            // Quoted heredoc: skip the entire body without extracting cmdsubs
+            result += command.slice(i, bodyEnd);
+            i = bodyEnd;
+          } else {
+            // Unquoted heredoc: just skip the operator and delimiter line,
+            // continue scanning the body so cmdsubs inside are extracted
+            result += command.slice(i, afterHeader);
+            i = afterHeader;
+          }
+          continue;
+        }
+      }
+    }
+
     // Detect $( - start of command substitution (but not $(( arithmetic))
     if (ch === "$" && command[i + 1] === "(" && command[i + 2] !== "(") {
       let depth = 1;
@@ -386,11 +416,13 @@ function commandToStage(node: Command, operator: string, stmtRedirects?: Redirec
   }
 
   // Extract redirects from Command node and parent Statement.
-  // Skip fd-duplication operators (>&, <&) — they duplicate file
-  // descriptors (e.g. 2>&1) and don't write to files.
+  // Skip operators that don't write to real files:
+  //   >&, <&  — fd duplication (e.g. 2>&1)
+  //   <<, <<- — heredocs (input, not file writes)
   const allRedirects = [...node.redirects, ...(stmtRedirects ?? [])];
   for (const r of allRedirects) {
-    if (r.target && r.operator !== ">&" && r.operator !== "<&") {
+    if (r.target && r.operator !== ">&" && r.operator !== "<&"
+        && r.operator !== "<<" && r.operator !== "<<-") {
       redirectTarget = r.target.value;
       redirectAppend = r.operator === ">>";
     }

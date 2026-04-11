@@ -5874,6 +5874,9 @@
       "_": "package_uninstall"
     }
   },
+  "read": {
+    "_": "filesystem_read"
+  },
   "readelf": {
     "_": "filesystem_read"
   },
