@@ -197,9 +197,12 @@ describe("symlink resolution", () => {
 
   test("resolvePath handles non-existent target gracefully", () => {
     const resolved = resolvePath("/tmp/does-not-exist-shush-test.txt");
-    // On Windows, path.resolve() prepends the current drive letter to
-    // absolute Unix-style paths (e.g. "D:\tmp\...").
-    const expected = path.resolve("/tmp/does-not-exist-shush-test.txt");
+    // Parent dir /tmp may be a symlink (e.g. /private/tmp on macOS),
+    // so expect the parent-resolved form.
+    const { realpathSync } = require("node:fs");
+    let parentReal: string;
+    try { parentReal = realpathSync("/tmp"); } catch { parentReal = path.resolve("/tmp"); }
+    const expected = path.join(parentReal, "does-not-exist-shush-test.txt");
     expect(resolved).toBe(expected);
   });
 });
