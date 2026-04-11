@@ -16,6 +16,14 @@ import { STRICTNESS } from "../types.js";
 // Git global flags that consume a value argument.
 const GIT_VALUE_FLAGS = new Set(["-C", "--git-dir", "--work-tree", "--namespace", "-c"]);
 
+/** Check if token is a value flag, handling --flag=value joined form. */
+function isValueFlag(tok: string): boolean {
+  if (GIT_VALUE_FLAGS.has(tok)) return true;
+  // Handle --flag=value joined form (e.g. --work-tree=/path)
+  const eq = tok.indexOf("=");
+  return eq > 0 && GIT_VALUE_FLAGS.has(tok.slice(0, eq));
+}
+
 // Git global flags that are standalone (no value argument).
 const GIT_BOOLEAN_FLAGS = new Set([
   "--no-pager", "--no-replace-objects", "--bare", "--literal-pathspecs",
@@ -37,8 +45,16 @@ export function extractGitDirPaths(tokens: string[]): string[] {
     if (GIT_DIR_FLAGS.has(tok) && i + 1 < tokens.length) {
       paths.push(tokens[i + 1]);
       i += 2;
-    } else if (GIT_VALUE_FLAGS.has(tok)) {
-      i += 2; // skip non-dir value flags (-c, --namespace)
+    } else if (tok.startsWith("--") && tok.includes("=")) {
+      // Handle --flag=value joined form for dir flags
+      const eq = tok.indexOf("=");
+      const flag = tok.slice(0, eq);
+      if (GIT_DIR_FLAGS.has(flag)) {
+        paths.push(tok.slice(eq + 1));
+      }
+      i += 1; // joined form is a single token
+    } else if (isValueFlag(tok)) {
+      i += tok.includes("=") ? 1 : 2; // joined form is single token
     } else if (GIT_BOOLEAN_FLAGS.has(tok)) {
       i += 1;
     } else {
@@ -57,8 +73,8 @@ export function stripGitGlobalFlags(tokens: string[]): string[] {
   let i = 1;
   while (i < tokens.length) {
     const tok = tokens[i];
-    if (GIT_VALUE_FLAGS.has(tok)) {
-      i += 2; // skip flag + its value
+    if (isValueFlag(tok)) {
+      i += tok.includes("=") ? 1 : 2; // joined form is single token
     } else if (GIT_BOOLEAN_FLAGS.has(tok)) {
       i += 1; // skip flag only
     } else {
