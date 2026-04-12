@@ -450,6 +450,57 @@ describe("BG property: file-reading commands check sensitive path args", () => {
     ), { numRuns: 50 });
   });
 });
+
+describe("BG property: Read/cat and Write/redirect equivalence", () => {
+  // Core principle: Bash tool must enforce same path restrictions as
+  // equivalent file tools. cat path = Read path, echo > path = Write path.
+
+  test("Read decision matches cat decision on sensitive paths", () => {
+    const allSensPaths = [...sensBlockPaths, ...sensAskPaths];
+    fc.assert(fc.property(
+      fc.constantFrom(...allSensPaths),
+      (path) => {
+        const readResult = ev("Read", { file_path: path });
+        const catResult = classifyCommand(`cat ${path}`, 0);
+        return readResult.decision === catResult.finalDecision;
+      },
+    ), { numRuns: 200 });
+  });
+
+  test("Write decision matches redirect decision on sensitive paths", () => {
+    const allSensPaths = [...sensBlockPaths, ...sensAskPaths];
+    fc.assert(fc.property(
+      fc.constantFrom(...allSensPaths),
+      (path) => {
+        const writeResult = ev("Write", { file_path: path, content: "x" });
+        const redirResult = classifyCommand(`echo x > ${path}`, 0);
+        return writeResult.decision === redirResult.finalDecision;
+      },
+    ), { numRuns: 200 });
+  });
+
+  test("Read allows hooks, cat also allows hooks", () => {
+    fc.assert(fc.property(
+      fc.constantFrom(...hookPaths),
+      (path) => {
+        const readResult = ev("Read", { file_path: path });
+        const catResult = classifyCommand(`cat ${path}`, 0);
+        return readResult.decision === "allow" && catResult.finalDecision === "allow";
+      },
+    ), { numRuns: 50 });
+  });
+
+  test("Write blocks hooks, redirect also blocks hooks", () => {
+    fc.assert(fc.property(
+      fc.constantFrom(...hookPaths),
+      (path) => {
+        const writeResult = ev("Write", { file_path: path, content: "x" });
+        const redirResult = classifyCommand(`echo x > ${path}`, 0);
+        return writeResult.decision === "block" && redirResult.finalDecision === "block";
+      },
+    ), { numRuns: 50 });
+  });
+});
   test("unrecognized command -> at least ask", () => {
     const unknownCmds = [
       "mysterious_tool --flag",
