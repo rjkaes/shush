@@ -5,7 +5,9 @@
      1. Per-stage classification (flag rules -> classifiers -> trie -> fallback)
      2. Env var escalation (PAGER, EDITOR, GIT_SSH_COMMAND, etc. -> lang_exec)
      3. Redirect escalation (> file -> filesystem_write + path check)
-     4. Safe redirect exemption (/dev/null, /dev/stdout, config allowRedirects)
+     4. Safe redirect exemption: two distinct mechanisms:
+        a. Device files (/dev/null etc.) exempt from BOTH write-policy AND path check
+        b. Config allowRedirects exempt from write-policy BUT NOT path check
      5. Git path validation (-C, --git-dir, --work-tree)
      6. Git dangerous -c config detection
      7. Composition detection (5 rules, with inline-code-flag suppression)
@@ -25,7 +27,8 @@ VARIABLES
     stagePolicy,       \* Base policy for that action
     hasExecEnv,        \* Stage has PAGER/EDITOR/GIT_SSH_COMMAND env assignment
     hasRedirect,       \* Stage redirects to a file
-    redirectSafe,      \* Redirect target is /dev/null or config-allowed
+    redirectIsDevice,  \* Target is /dev/null, /dev/stdout, etc.
+    redirectConfigAllowed, \* Target matched by config.allowRedirects
     redirectPath,      \* Category of redirect target path
     hasGitPath,        \* git command with -C/--git-dir/--work-tree
     gitPathCategory,   \* Category of git dir path
@@ -44,11 +47,12 @@ VARIABLES
 
 (* ---------- Action types and default policies ---------- *)
 
+(* All 22 action types from data/policies.json *)
 ActionTypes == {
     "filesystem_read",    "filesystem_write",   "filesystem_delete",
     "git_safe",           "git_write",          "git_discard",
     "git_history_rewrite",
-    "network_outbound",   "network_write",
+    "network_outbound",   "network_write",      "network_diagnostic",
     "package_install",    "package_run",        "package_uninstall",
     "script_exec",        "lang_exec",
     "process_signal",     "container_destructive", "disk_destructive",
@@ -66,6 +70,7 @@ DefaultPolicy(at) ==
       [] at = "git_history_rewrite"  -> Ask
       [] at = "network_outbound"     -> Context
       [] at = "network_write"        -> Ask
+      [] at = "network_diagnostic"   -> Allow
       [] at = "package_install"      -> Allow
       [] at = "package_run"          -> Allow
       [] at = "package_uninstall"    -> Ask
@@ -85,12 +90,6 @@ PathCategories == {"hook", "sensitive_block", "sensitive_ask", "normal"}
 
 (* ---------- Composition patterns ---------- *)
 
-(* All 5 rules from composition.ts:
-   1. sensitive_read | network -> block (exfiltration)
-   2. network | exec -> block (remote code execution)
-   3. decode | exec -> block (obfuscation)
-   4. any_read | exec -> ask (local code execution)
-   5. sensitive_read | exec -> ask (covered by #4 + path) *)
 CompositionTypes == {
     "none",
     "sensitive_read_network",  \* sensitive read | ... | network -> block
@@ -118,7 +117,13 @@ PathDecision(cat) ==
 
 (* ---------- Full decision computation ---------- *)
 
-ComputeBashDecision(sp, execEnv, redir, rSafe, rPath,
+(* Redirect logic mirrors bash-guard.ts lines 384-406 exactly:
+   - redirectAllowed = redirectIsDevice OR redirectConfigAllowed
+   - Write-policy escalation: only when NOT redirectAllowed (line 388)
+   - Path-sensitivity check: only when NOT redirectIsDevice (line 400)
+     Config-allowed redirects still get path-checked! *)
+ComputeBashDecision(sp, execEnv,
+                     redir, rDevice, rConfigOk, rPath,
                      gp, gpCat, dangerousGit,
                      wrapper, innerD,
                      dockerExec, dockerD,
@@ -128,11 +133,15 @@ ComputeBashDecision(sp, execEnv, redir, rSafe, rPath,
         baseD     == sp
         envD      == IF execEnv THEN DefaultPolicy("lang_exec") ELSE Allow
 
-        \* Redirect: exempted if safe, but sensitive path check always runs
-        redirBase == IF redir /\ ~rSafe
+        \* Redirect write-policy: exempt when device OR config-allowed
+        redirectAllowed == rDevice \/ rConfigOk
+        redirBase == IF redir /\ ~redirectAllowed
                      THEN DefaultPolicy("filesystem_write")
                      ELSE Allow
-        redirPath == IF redir THEN PathDecision(rPath) ELSE Allow
+
+        \* Redirect path check: exempt ONLY for device files
+        \* Config-allowed redirects still get path-checked (line 400)
+        redirPath == IF redir /\ ~rDevice THEN PathDecision(rPath) ELSE Allow
 
         gitD      == IF gp THEN PathDecision(gpCat) ELSE Allow
         gitCfgD   == IF dangerousGit THEN DefaultPolicy("lang_exec") ELSE Allow
@@ -147,16 +156,14 @@ ComputeBashDecision(sp, execEnv, redir, rSafe, rPath,
 
 (* ---------- State machine ---------- *)
 
-(* Constrained init: when a boolean is FALSE, fix its associated
-   variable to the neutral value. This eliminates irrelevant combinations
-   and keeps the state space tractable. *)
 Init ==
     /\ stageAction          \in ActionTypes
     /\ stagePolicy          = DefaultPolicy(stageAction)
     /\ hasExecEnv           \in BOOLEAN
     /\ hasRedirect          \in BOOLEAN
-    /\ redirectSafe         \in IF hasRedirect THEN BOOLEAN ELSE {FALSE}
-    /\ redirectPath         \in IF hasRedirect THEN PathCategories ELSE {"normal"}
+    /\ redirectIsDevice     \in IF hasRedirect THEN BOOLEAN ELSE {FALSE}
+    /\ redirectConfigAllowed \in IF hasRedirect THEN BOOLEAN ELSE {FALSE}
+    /\ redirectPath         \in IF hasRedirect /\ ~redirectIsDevice THEN PathCategories ELSE {"normal"}
     /\ hasGitPath           \in BOOLEAN
     /\ gitPathCategory      \in IF hasGitPath THEN PathCategories ELSE {"normal"}
     /\ hasDangerousGitConfig \in BOOLEAN
@@ -171,7 +178,8 @@ Init ==
     /\ compositionType      \in CompositionTypes
     /\ execIgnoresStdin     \in BOOLEAN
     /\ finalDecision        = ComputeBashDecision(
-            stagePolicy, hasExecEnv, hasRedirect, redirectSafe, redirectPath,
+            stagePolicy, hasExecEnv,
+            hasRedirect, redirectIsDevice, redirectConfigAllowed, redirectPath,
             hasGitPath, gitPathCategory, hasDangerousGitConfig,
             isShellWrapper, innerDecision,
             isDockerExec, dockerInnerDecision,
@@ -180,7 +188,8 @@ Init ==
             compositionType, execIgnoresStdin)
 
 Next == UNCHANGED <<stageAction, stagePolicy, hasExecEnv, hasRedirect,
-                     redirectSafe, redirectPath, hasGitPath, gitPathCategory,
+                     redirectIsDevice, redirectConfigAllowed, redirectPath,
+                     hasGitPath, gitPathCategory,
                      hasDangerousGitConfig, isShellWrapper, innerDecision,
                      isDockerExec, dockerInnerDecision,
                      hasProcSub, procSubDecision, hasCmdSub, cmdSubDecision,
@@ -207,8 +216,7 @@ ExfilAlwaysBlocked ==
     compositionType = "sensitive_read_network"
     => finalDecision = Block
 
-(* INV-4: network|exec always Block (remote code execution,
-   unless exec has inline code flag) *)
+(* INV-4: network|exec always Block (unless inline code flag) *)
 NetworkExecBlocked ==
     (compositionType = "network_exec" /\ ~execIgnoresStdin)
     => finalDecision = Block
@@ -229,14 +237,14 @@ ExecEnvEscalation ==
     hasExecEnv => Strictness[finalDecision] >= Strictness[Ask]
 
 (* INV-8: Redirect to sensitive-block path -> Block
-   (even when redirect itself is config-safe, path check always runs) *)
+   (device files are never sensitive, so this only fires for real paths) *)
 RedirectToSensitiveBlocked ==
-    (hasRedirect /\ redirectPath = "sensitive_block")
+    (hasRedirect /\ ~redirectIsDevice /\ redirectPath = "sensitive_block")
     => finalDecision = Block
 
 (* INV-9: Redirect to hook path -> Block *)
 RedirectToHookBlocked ==
-    (hasRedirect /\ redirectPath = "hook")
+    (hasRedirect /\ ~redirectIsDevice /\ redirectPath = "hook")
     => finalDecision = Block
 
 (* INV-10: Git -C to sensitive-block -> Block *)
@@ -244,7 +252,7 @@ GitPathSensitiveEscalated ==
     (hasGitPath /\ gitPathCategory = "sensitive_block")
     => finalDecision = Block
 
-(* INV-11: Git dangerous config (-c LD_PRELOAD etc.) -> >= Ask *)
+(* INV-11: Git dangerous config -> >= Ask *)
 GitDangerousConfigEscalated ==
     hasDangerousGitConfig
     => Strictness[finalDecision] >= Strictness[Ask]
@@ -288,13 +296,16 @@ NetworkWriteAlwaysAsk ==
     stageAction = "network_write"
     => Strictness[finalDecision] >= Strictness[Ask]
 
-(* INV-20: Safe redirect exemption doesn't bypass sensitive path check *)
-SafeRedirectNoPathBypass ==
-    (hasRedirect /\ redirectSafe /\ redirectPath = "sensitive_block")
+(* INV-20: Config-allowed redirect does NOT bypass sensitive path check.
+   Even with config exemption, non-device sensitive targets still block. *)
+ConfigAllowedRedirectNoPathBypass ==
+    (hasRedirect /\ redirectConfigAllowed /\ ~redirectIsDevice
+     /\ redirectPath = "sensitive_block")
     => finalDecision = Block
 
-(* INV-21: Inline code flag suppression doesn't bypass base classification.
-   A dangerous base command (obfuscated, disk_destructive) not suppressed. *)
+(* INV-21 removed: device redirect constraint now enforced in Init *)
+
+(* INV-22: Inline code flag suppression doesn't bypass base classification *)
 InlineFlagNoBaseBypass ==
     (stageAction = "obfuscated" /\ execIgnoresStdin)
     => finalDecision = Block
@@ -321,7 +332,7 @@ SafetyInvariant ==
     /\ UnknownDefaultsToAsk
     /\ LangExecAlwaysAsk
     /\ NetworkWriteAlwaysAsk
-    /\ SafeRedirectNoPathBypass
+    /\ ConfigAllowedRedirectNoPathBypass
     /\ InlineFlagNoBaseBypass
 
 =========================================================================

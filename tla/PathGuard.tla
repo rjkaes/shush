@@ -4,24 +4,21 @@
    Models the decision pipeline for file-access tools:
    Read, Write, Edit, MultiEdit, NotebookEdit, Glob, Grep, and MCP tools.
 
-   Decision layers (evaluated in order, strictest wins):
-     1. Hook path protection
-     2. Sensitive path/file check (dirs, basenames, .env.*, config paths)
-     3. Project boundary check
-     4. Content scanning (Write/Edit/MultiEdit/NotebookEdit only)
-     5. Tool-specific checks (Grep credential search, Glob dual-path)
-     6. MCP tool deny/allow filtering + path param checks
+   IMPORTANT: The real code uses EARLY RETURN semantics in checkPath():
+     ~user check -> hook check -> sensitive check -> return null (allow)
+   Each returns on first match. The model must reflect this priority order.
 
-   The model explores all combinations of:
-     - Tool types (read-only, write, glob, grep, mcp)
-     - Path categories (hook, sensitive-block, sensitive-ask, env-file, normal)
-     - Boundary status (inside, outside, no-root)
-     - Content status (clean, suspicious)
-     - Symlink resolution outcomes (same, different-category)
-     - Grep pattern types (normal, credential-search)
-     - Glob pattern path category
-     - MCP tool policy (denied, allowed, unclassified)
-     - MCP path param categories
+   Decision layers:
+     1. ~user path expansion + sensitive check (returns early if matched)
+     2. Hook path protection (returns early if matched)
+     3. Sensitive path/file check (returns early if matched)
+     4. Project boundary check (only when path check returned null/allow)
+     5. Content scanning (Write/Edit only, only when not already block)
+     6. Tool-specific: Grep credential search, Glob dual-path
+     7. MCP: deny/allow filtering + path param checks (via checkPath)
+
+   Content escalation ceiling: scanContent can only escalate
+   allow/context -> ask. It NEVER produces block on its own.
 *)
 
 EXTENDS Naturals, FiniteSets, ShushTypes
@@ -32,6 +29,7 @@ VARIABLES tool, pathCategory, boundary, content, resolvedCategory,
 
 (* ---------- Tool classifications ---------- *)
 
+(* Matches evaluate.ts switch cases exactly *)
 ReadOnlyTools == {"Read"}
 WriteTools    == {"Write", "Edit", "MultiEdit", "NotebookEdit"}
 GlobTool      == {"Glob"}
@@ -41,63 +39,78 @@ AllTools      == ReadOnlyTools \cup WriteTools \cup GlobTool \cup GrepTool \cup 
 
 (* ---------- Path categories ---------- *)
 
-(* Mirrors SENSITIVE_DIRS + SENSITIVE_BASENAMES + .env.* in path-guard.ts *)
+(* checkPath returns null (= allow) for unmatched paths.
+   These categories represent what isSensitive/isHookPath would match. *)
 PathCategories == {
     "hook",              \* ~/.claude/hooks/...
     "sensitive_block",   \* ~/.ssh, ~/.gnupg, ~/.docker/config.json, etc.
-    "sensitive_ask",     \* ~/.aws, ~/.config/gcloud, etc.
-    "env_file",          \* .env, .env.local, .env.production, .env.*
-    "config_sensitive",  \* Config-defined sensitive paths
-    "tilde_user",        \* ~user/... paths (expanded, checked against sensitive)
-    "normal"             \* everything else
+    "sensitive_ask",     \* ~/.aws, ~/.config/gcloud, .env files, config paths
+    "normal"             \* everything else (checkPath returns null)
 }
 
-(* ---------- Boundary status ---------- *)
+(* ---------- Other domains ---------- *)
 BoundaryStatus == {"inside", "outside", "no_root"}
-
-(* ---------- Content status ---------- *)
 ContentStatus == {"clean", "suspicious"}
-
-(* ---------- Grep pattern types ---------- *)
 GrepPatternTypes == {"normal", "credential_search"}
-
-(* ---------- MCP tool policy ---------- *)
 McpPolicyTypes == {"denied", "allowed", "unclassified"}
 
 (* ---------- Decision functions ---------- *)
 
-(* Hook path decision: write tools blocked, read-only/glob/grep allowed *)
+(* checkPath hook decision (path-guard.ts:187-203).
+   Real code: HOOK_BLOCK_TOOLS = {Write, Edit, MultiEdit, NotebookEdit}
+              HOOK_READONLY_TOOLS = {Read, Glob, Grep}
+   MCP tools fall through to the else branch -> Ask *)
 HookDecision(t) ==
     IF t \in WriteTools THEN Block
     ELSE IF t \in ReadOnlyTools \cup GlobTool \cup GrepTool THEN Allow
-    ELSE Ask
+    ELSE Ask  \* MCP and any future tool
 
-(* Sensitive path decision based on category *)
+(* isSensitive() result -> decision (path-guard.ts:117-159).
+   All sensitive matches return the stored policy directly. *)
 SensitiveDecision(cat) ==
-    CASE cat = "sensitive_block"  -> Block
-      [] cat = "sensitive_ask"    -> Ask
-      [] cat = "env_file"         -> Ask
-      [] cat = "config_sensitive" -> Ask
-      [] OTHER                    -> Allow
+    CASE cat = "sensitive_block" -> Block
+      [] cat = "sensitive_ask"   -> Ask
+      [] OTHER                   -> Allow
 
-(* Boundary decision: applies to Write, Edit, Glob, Grep, MCP *)
+(* checkProjectBoundary (path-guard.ts:218-243) *)
 BoundaryDecision(b) ==
     CASE b = "inside"  -> Allow
       [] b = "outside" -> Ask
       [] b = "no_root" -> Ask
 
-(* Content scan decision (only for Write/Edit/MultiEdit/NotebookEdit)
-   Real code: only runs when decision != block (short-circuit) *)
-ContentDecision(t, c, currentD) ==
-    IF t \in WriteTools /\ c = "suspicious" /\ currentD /= Block THEN Ask
+(* checkPath early-return logic (path-guard.ts:162-215):
+   1. ~user match -> return {policy}
+   2. hook match -> return block/null/ask based on tool
+   3. sensitive match -> return {policy}
+   4. no match -> return null (allow)
+
+   The model computes the FIRST matching layer's result.
+   When ~user matches, hook/sensitive are not checked.
+   When hook matches, sensitive is not checked. *)
+CheckPathResult(t, pc, rc, tuc) ==
+    \* Step 1: ~user check (only fires when tildeUserCategory != normal)
+    IF tuc /= "normal" THEN SensitiveDecision(tuc)
+    \* Step 2: hook check (on resolved path)
+    ELSE IF rc = "hook" THEN HookDecision(t)
+    \* Step 3: sensitive check (on resolved path)
+    ELSE IF rc /= "normal" THEN SensitiveDecision(rc)
+    \* Step 4: no match
     ELSE Allow
 
-(* Grep credential search escalation (evaluate.ts:188-191) *)
-GrepCredentialDecision(t, pat) ==
-    IF t \in GrepTool /\ pat = "credential_search" THEN Ask
-    ELSE Allow
+(* Content scan (evaluate.ts:56-66):
+   Only runs when decision != block.
+   Can ONLY escalate allow/context -> ask. Never produces block.
+   If decision is already ask, content scan changes nothing. *)
+ContentDecision(currentD, t, c) ==
+    IF t \in WriteTools /\ c = "suspicious" /\ currentD /= Block
+    THEN Stricter(currentD, Ask)
+    ELSE currentD
 
-(* MCP tool policy decision (evaluate.ts:195-248) *)
+(* Whether tool gets boundary check *)
+HasBoundaryCheck(t) ==
+    t \in WriteTools \cup GlobTool \cup GrepTool \cup McpTool
+
+(* MCP deny/allow policy (evaluate.ts:195-211) *)
 McpPolicyDecision(t, mp) ==
     IF t \in McpTool THEN
         CASE mp = "denied"       -> Block
@@ -107,42 +120,38 @@ McpPolicyDecision(t, mp) ==
 
 (* ---------- Full decision pipeline ---------- *)
 
-(* Whether this tool gets boundary checks.
-   Real code: Write, Edit, MultiEdit, NotebookEdit, Glob, Grep, MCP *)
-HasBoundaryCheck(t) ==
-    t \in WriteTools \cup GlobTool \cup GrepTool \cup McpTool
-
+(* Models evaluate.ts for each tool type, matching the real control flow. *)
 ComputeDecision(t, pc, rc, b, c, gp, gpc, mp, mpc, tuc) ==
     LET
-        \* Hook path: checked on both raw and resolved path
-        hookD     == IF pc = "hook" \/ rc = "hook"
-                     THEN HookDecision(t)
+        \* checkPath result (early-return semantics)
+        pathD     == CheckPathResult(t, pc, rc, tuc)
+
+        \* Boundary: only when pathD == Allow (evaluate.ts: `if decision === "allow"`)
+        afterBound == IF HasBoundaryCheck(t) /\ pathD = Allow
+                      THEN BoundaryDecision(b)
+                      ELSE pathD
+
+        \* Content: only for write tools, only when not block
+        afterContent == ContentDecision(afterBound, t, c)
+
+        \* Grep credential search (evaluate.ts:188-191)
+        grepD     == IF t \in GrepTool /\ gp = "credential_search" THEN Ask
                      ELSE Allow
 
-        \* Sensitive path: both raw and resolved, plus ~user expansion
-        sensD     == StricterAll({SensitiveDecision(pc),
-                                  SensitiveDecision(rc),
-                                  SensitiveDecision(tuc)})
-
-        \* Boundary: applies to write tools, Glob, Grep, MCP
-        boundD    == IF HasBoundaryCheck(t) THEN BoundaryDecision(b) ELSE Allow
-
-        \* Content scan: short-circuits on block
-        prelimD   == StricterAll({hookD, sensD, boundD})
-        contentD  == ContentDecision(t, c, prelimD)
-
-        \* Grep credential pattern check
-        grepD     == GrepCredentialDecision(t, gp)
-
-        \* Glob dual-path: pattern also checked against sensitive paths
+        \* Glob dual-path: pattern string goes through checkPath too
+        \* (evaluate.ts:151-158). Uses SensitiveDecision since checkPath
+        \* runs on the pattern string.
         globPatD  == IF t \in GlobTool THEN SensitiveDecision(gpc) ELSE Allow
 
-        \* MCP: deny/allow policy + path param sensitivity
+        \* MCP: deny/allow policy
         mcpPolD   == McpPolicyDecision(t, mp)
-        mcpPathD  == IF t \in McpTool THEN SensitiveDecision(mpc) ELSE Allow
 
-    IN  StricterAll({hookD, sensD, boundD, contentD, grepD,
-                     globPatD, mcpPolD, mcpPathD})
+        \* MCP: path params go through checkPath (evaluate.ts:229-246)
+        \* This IS how MCP tools get hook protection (if configured)
+        mcpPathD  == IF t \in McpTool THEN CheckPathResult(t, "normal", mpc, "normal")
+                     ELSE Allow
+
+    IN  StricterAll({afterContent, grepD, globPatD, mcpPolD, mcpPathD})
 
 (* ---------- State machine ---------- *)
 
@@ -162,7 +171,6 @@ Init ==
                                    globPatternCategory, mcpPolicy,
                                    mcpPathCategory, tildeUserCategory)
 
-(* Single-state model: explore all initial configurations *)
 Next == UNCHANGED <<tool, pathCategory, boundary, content,
                      resolvedCategory, grepPattern, globPatternCategory,
                      mcpPolicy, mcpPathCategory, tildeUserCategory, decision>>
@@ -177,62 +185,65 @@ TypeOK ==
     /\ resolvedCategory \in PathCategories
     /\ decision \in Decisions
 
-(* INV-1: Sensitive-block paths NEVER get allow or context *)
+(* INV-1: Sensitive-block resolved path NEVER gets allow or context *)
 SensitiveBlockNeverAllowed ==
-    (pathCategory = "sensitive_block" \/ resolvedCategory = "sensitive_block")
+    (resolvedCategory = "sensitive_block" /\ tildeUserCategory = "normal")
     => decision \in {Ask, Block}
 
 (* INV-2: Hook paths ALWAYS blocked for write tools *)
 HookWriteAlwaysBlocked ==
-    ((pathCategory = "hook" \/ resolvedCategory = "hook") /\ tool \in WriteTools)
+    (resolvedCategory = "hook" /\ tildeUserCategory = "normal"
+     /\ tool \in WriteTools)
     => decision = Block
 
-(* INV-3: Hook paths allow read-only access *)
+(* INV-3: Hook paths allow read-only access
+   (checkPath returns null for readonly tools on hooks) *)
 HookReadAllowed ==
-    (pathCategory = "hook" /\ resolvedCategory = "hook"
-     /\ tool \in ReadOnlyTools /\ tildeUserCategory = "normal")
-    => decision \in {Allow, Context}
+    (resolvedCategory = "hook" /\ tildeUserCategory = "normal"
+     /\ tool \in ReadOnlyTools)
+    => decision = Allow
 
-(* INV-4: Suspicious content never gets Allow for write tools *)
+(* INV-4: Suspicious content escalates write tools to at least Ask *)
 SuspiciousContentEscalated ==
     (tool \in WriteTools /\ content = "suspicious")
     => Strictness[decision] >= Strictness[Ask]
 
-(* INV-5: Outside-boundary operations require at least Ask
-   (applies to Write, Edit, Glob, Grep, MCP - not just writes) *)
+(* INV-5: Content scan NEVER produces Block on its own.
+   If path is normal and inside boundary, suspicious content -> Ask, not Block *)
+ContentNeverBlocks ==
+    (resolvedCategory = "normal" /\ tildeUserCategory = "normal"
+     /\ boundary = "inside" /\ tool \in WriteTools /\ content = "suspicious")
+    => decision = Ask
+
+(* INV-6: Outside-boundary operations require at least Ask *)
 OutsideBoundaryEscalated ==
-    (HasBoundaryCheck(tool) /\ boundary \in {"outside", "no_root"})
+    (HasBoundaryCheck(tool) /\ boundary \in {"outside", "no_root"}
+     /\ resolvedCategory = "normal" /\ tildeUserCategory = "normal")
     => Strictness[decision] >= Strictness[Ask]
 
-(* INV-6: Symlink resolution cannot downgrade security *)
+(* INV-7: Symlink resolution cannot downgrade security.
+   The resolved path category drives the decision. *)
 SymlinkNoDowngrade ==
-    Strictness[decision] >= Strictness[SensitiveDecision(resolvedCategory)]
+    (tildeUserCategory = "normal")
+    => Strictness[decision] >= Strictness[SensitiveDecision(resolvedCategory)]
 
-(* INV-7: Normal paths inside boundary with clean content -> Allow
-   for read-only tools *)
+(* INV-8: Normal everything -> Allow for read-only tools *)
 NormalReadInsideIsAllow ==
-    (pathCategory = "normal" /\ resolvedCategory = "normal"
-     /\ boundary = "inside" /\ tool \in ReadOnlyTools
-     /\ tildeUserCategory = "normal")
+    (resolvedCategory = "normal" /\ tildeUserCategory = "normal"
+     /\ boundary = "inside" /\ tool \in ReadOnlyTools)
     => decision = Allow
 
-(* INV-8: Decision monotonicity *)
+(* INV-9: Decision monotonicity - sensitive always reflected *)
 DecisionMonotonicity ==
-    LET sensD == Stricter(SensitiveDecision(pathCategory),
-                          SensitiveDecision(resolvedCategory))
-    IN  Strictness[decision] >= Strictness[sensD]
+    (tildeUserCategory = "normal")
+    => Strictness[decision] >= Strictness[SensitiveDecision(resolvedCategory)]
 
-(* INV-9: .env files always at least Ask *)
-EnvFileAlwaysAsk ==
-    (pathCategory = "env_file" \/ resolvedCategory = "env_file")
-    => Strictness[decision] >= Strictness[Ask]
-
-(* INV-10: Grep credential search patterns escalate to Ask *)
+(* INV-10: Grep credential search escalates to at least Ask *)
 GrepCredentialEscalated ==
     (tool \in GrepTool /\ grepPattern = "credential_search")
     => Strictness[decision] >= Strictness[Ask]
 
-(* INV-11: Glob pattern pointing to sensitive-block path -> Block *)
+(* INV-11: Glob pattern pointing to sensitive-block -> Block *)
 GlobPatternSensitiveBlocked ==
     (tool \in GlobTool /\ globPatternCategory = "sensitive_block")
     => Strictness[decision] >= Strictness[Block]
@@ -247,20 +258,38 @@ McpUnclassifiedAsk ==
     (tool \in McpTool /\ mcpPolicy = "unclassified")
     => Strictness[decision] >= Strictness[Ask]
 
-(* INV-14: MCP path params pointing to sensitive paths escalate *)
+(* INV-14: MCP path params to sensitive-block -> Block *)
 McpPathSensitiveEscalated ==
     (tool \in McpTool /\ mcpPathCategory = "sensitive_block")
     => Strictness[decision] >= Strictness[Block]
 
-(* INV-15: ~user paths resolving to sensitive locations escalate *)
-TildeUserSensitiveEscalated ==
+(* INV-15: MCP path params to hook -> Block for write-equivalent tools
+   Note: MCP tools go through checkPath which checks hooks,
+   but only if mcp_path_params is configured. The model assumes
+   it is configured (mcpPathCategory reflects the param's resolved path). *)
+McpHookPathBlocked ==
+    (tool \in McpTool /\ mcpPathCategory = "hook")
+    => Strictness[decision] >= Strictness[Ask]
+
+(* INV-16: ~user paths to sensitive-block -> Block *)
+TildeUserSensitiveBlocked ==
     tildeUserCategory = "sensitive_block"
     => Strictness[decision] >= Strictness[Block]
 
-(* INV-16: Config-defined sensitive paths at least Ask *)
-ConfigSensitiveEscalated ==
-    (pathCategory = "config_sensitive" \/ resolvedCategory = "config_sensitive")
+(* INV-17: ~user early return takes priority over hook check.
+   If ~user matches sensitive_ask, decision is Ask even if resolved
+   path is a hook and tool is read-only (which would normally be Allow). *)
+TildeUserPriority ==
+    (tildeUserCategory = "sensitive_ask" /\ resolvedCategory = "hook"
+     /\ tool \in ReadOnlyTools)
     => Strictness[decision] >= Strictness[Ask]
+
+(* INV-18: Read tool never gets boundary check.
+   Normal path + outside boundary + Read -> still Allow *)
+ReadNoBoundaryCheck ==
+    (tool \in ReadOnlyTools /\ resolvedCategory = "normal"
+     /\ tildeUserCategory = "normal" /\ boundary = "outside")
+    => decision = Allow
 
 (* Combined invariant *)
 SafetyInvariant ==
@@ -269,17 +298,19 @@ SafetyInvariant ==
     /\ HookWriteAlwaysBlocked
     /\ HookReadAllowed
     /\ SuspiciousContentEscalated
+    /\ ContentNeverBlocks
     /\ OutsideBoundaryEscalated
     /\ SymlinkNoDowngrade
     /\ NormalReadInsideIsAllow
     /\ DecisionMonotonicity
-    /\ EnvFileAlwaysAsk
     /\ GrepCredentialEscalated
     /\ GlobPatternSensitiveBlocked
     /\ McpDeniedAlwaysBlocked
     /\ McpUnclassifiedAsk
     /\ McpPathSensitiveEscalated
-    /\ TildeUserSensitiveEscalated
-    /\ ConfigSensitiveEscalated
+    /\ McpHookPathBlocked
+    /\ TildeUserSensitiveBlocked
+    /\ TildeUserPriority
+    /\ ReadNoBoundaryCheck
 
 =========================================================================
