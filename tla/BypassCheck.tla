@@ -179,33 +179,18 @@ PGBypassInvariant ==
     /\ PG_NoWriteOutsideBoundaryAllow
 
 (* ======================================================================
-   KNOWN VULNERABILITIES (documented, not yet fixed)
-
-   These are confirmed bypasses preserved as specifications of desired
-   behavior. They cannot be expressed as TLA+ invariants because they
-   involve pre-resolution behavior (shell variable expansion) that the
-   model abstracts away.
+   RESOLVED VULNERABILITIES
    ====================================================================== *)
 
-(* VULN-1: $HOME variable expansion bypass.
-   resolvePath() only expands ~ and ~/..., not $HOME or ${HOME}.
-   Paths like $HOME/.ssh/id_rsa resolve to CWD-relative, bypass
-   all sensitive path checks. CONFIRMED: Read $HOME/.ssh/id_rsa -> allow.
-
-   Fix: resolvePath() should detect and expand $HOME/${HOME}, or
-   reject paths containing unexpanded shell variables.
+(* VULN-1 (FIXED): $HOME variable expansion bypass.
+   resolvePath() now expands $HOME and ${HOME} before path resolution.
 *)
 
-(* VULN-2: Shell unwrap depth exhaustion (MAX_UNWRAP_DEPTH=3).
-   bash -c at depth >= 3 classified as unknown -> ask.
-   Not an allow bypass (ask is safe), but action type is wrong.
-   If default policy for unknown ever changed to allow, exploitable.
+(* VULN-2 (ACCEPTED RISK): Shell unwrap depth exhaustion.
+   MAX_UNWRAP_DEPTH=3 means bash -c at depth >= 3 -> unknown -> ask.
+   Not an allow bypass. Safe because unknown policy is ask.
 *)
 
-(* VULN-3: $HOME in Bash redirect targets.
-   echo evil > $HOME/.ssh/authorized_keys -> context (not block).
-   Redirect path check fails because $HOME not expanded by resolvePath.
-   Same root cause as VULN-1.
-*)
+(* VULN-3 (FIXED): Same root cause as VULN-1. Fixed together. *)
 
 =========================================================================
