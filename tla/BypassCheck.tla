@@ -179,15 +179,33 @@ PGBypassInvariant ==
     /\ PG_NoWriteOutsideBoundaryAllow
 
 (* ======================================================================
-   PART 2: BashGuard bypass analysis
+   KNOWN VULNERABILITIES (documented, not yet fixed)
 
-   Key question: when does a dangerous Bash command get Allow?
-   Focus on composition suppression, redirect exemption, and
-   wrapper/substitution edge cases.
+   These are confirmed bypasses preserved as specifications of desired
+   behavior. They cannot be expressed as TLA+ invariants because they
+   involve pre-resolution behavior (shell variable expansion) that the
+   model abstracts away.
    ====================================================================== *)
 
-(* Import BashGuard logic. Since TLA+ doesn't support multi-module
-   invariant checking easily, we define a separate cfg for BashGuard
-   bypass checks. See BypassCheckBash.tla *)
+(* VULN-1: $HOME variable expansion bypass.
+   resolvePath() only expands ~ and ~/..., not $HOME or ${HOME}.
+   Paths like $HOME/.ssh/id_rsa resolve to CWD-relative, bypass
+   all sensitive path checks. CONFIRMED: Read $HOME/.ssh/id_rsa -> allow.
+
+   Fix: resolvePath() should detect and expand $HOME/${HOME}, or
+   reject paths containing unexpanded shell variables.
+*)
+
+(* VULN-2: Shell unwrap depth exhaustion (MAX_UNWRAP_DEPTH=3).
+   bash -c at depth >= 3 classified as unknown -> ask.
+   Not an allow bypass (ask is safe), but action type is wrong.
+   If default policy for unknown ever changed to allow, exploitable.
+*)
+
+(* VULN-3: $HOME in Bash redirect targets.
+   echo evil > $HOME/.ssh/authorized_keys -> context (not block).
+   Redirect path check fails because $HOME not expanded by resolvePath.
+   Same root cause as VULN-1.
+*)
 
 =========================================================================
