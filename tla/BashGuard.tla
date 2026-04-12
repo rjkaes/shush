@@ -2,27 +2,44 @@
 (* TLA+ model of shush's Bash command classification pipeline.
 
    Models the multi-stage decision pipeline:
-     1. Per-stage classification (trie lookup → actionType → policy)
-     2. Env var escalation (PAGER, EDITOR → lang_exec)
-     3. Redirect escalation (> file → filesystem_write + path check)
-     4. Git path validation (-C, --git-dir flags)
-     5. Composition detection (exfil, decode→exec, obfuscation)
-     6. Shell -c unwrapping (recursive classification)
-     7. Final: stricter() across all stages *)
+     1. Per-stage classification (flag rules -> classifiers -> trie -> fallback)
+     2. Env var escalation (PAGER, EDITOR, GIT_SSH_COMMAND, etc. -> lang_exec)
+     3. Redirect escalation (> file -> filesystem_write + path check)
+     4. Safe redirect exemption (/dev/null, /dev/stdout, config allowRedirects)
+     5. Git path validation (-C, --git-dir, --work-tree)
+     6. Git dangerous -c config detection
+     7. Composition detection (5 rules, with inline-code-flag suppression)
+     8. Shell -c unwrapping (recursive, depth-limited to 3)
+     9. Docker exec/run inner command extraction
+    10. Process substitution >(cmd) and command substitution $(cmd)
+    11. Final: stricter() across all stages + subs
+
+   State space is constrained: when a boolean flag is FALSE, its associated
+   path/decision variable is fixed to "normal"/"allow" to avoid exploring
+   irrelevant combinations. *)
 
 EXTENDS Naturals, FiniteSets, Sequences, ShushTypes
 
 VARIABLES
     stageAction,       \* Action type from trie/classifier
     stagePolicy,       \* Base policy for that action
-    hasExecEnv,        \* Stage has PAGER/EDITOR env assignment
+    hasExecEnv,        \* Stage has PAGER/EDITOR/GIT_SSH_COMMAND env assignment
     hasRedirect,       \* Stage redirects to a file
+    redirectSafe,      \* Redirect target is /dev/null or config-allowed
     redirectPath,      \* Category of redirect target path
-    hasGitPath,        \* git command with -C/--git-dir
+    hasGitPath,        \* git command with -C/--git-dir/--work-tree
     gitPathCategory,   \* Category of git dir path
+    hasDangerousGitConfig, \* git -c with dangerous key (LD_PRELOAD etc.)
     isShellWrapper,    \* bash -c / sh -c wrapper
     innerDecision,     \* Decision from recursive inner classification
+    isDockerExec,      \* docker exec/run with inner command
+    dockerInnerDecision, \* Decision from docker inner command
+    hasProcSub,        \* Process substitution >(cmd) or <(cmd) present
+    procSubDecision,   \* Decision from process sub inner command
+    hasCmdSub,         \* Command substitution $(cmd) present
+    cmdSubDecision,    \* Decision from command sub inner command
     compositionType,   \* Multi-stage composition pattern detected
+    execIgnoresStdin,  \* Exec sink has inline code flag (-e, --eval)
     finalDecision      \* Computed final decision
 
 (* ---------- Action types and default policies ---------- *)
@@ -68,18 +85,28 @@ PathCategories == {"hook", "sensitive_block", "sensitive_ask", "normal"}
 
 (* ---------- Composition patterns ---------- *)
 
+(* All 5 rules from composition.ts:
+   1. sensitive_read | network -> block (exfiltration)
+   2. network | exec -> block (remote code execution)
+   3. decode | exec -> block (obfuscation)
+   4. any_read | exec -> ask (local code execution)
+   5. sensitive_read | exec -> ask (covered by #4 + path) *)
 CompositionTypes == {
-    "none",           \* No composition pattern
-    "exfil",          \* Sensitive read piped to exec/network
-    "decode_exec",    \* Decode piped to exec (obfuscation)
-    "sensitive_exec"  \* Sensitive read piped to exec sink
+    "none",
+    "sensitive_read_network",  \* sensitive read | ... | network -> block
+    "network_exec",            \* network | ... | exec -> block
+    "decode_exec",             \* decode | ... | exec -> block
+    "any_read_exec"            \* any read | ... | exec -> ask
 }
 
-CompositionDecision(ct) ==
-    CASE ct = "none"          -> Allow
-      [] ct = "exfil"         -> Ask
-      [] ct = "decode_exec"   -> Block
-      [] ct = "sensitive_exec" -> Ask
+(* Composition decision with inline-code-flag suppression.
+   network|exec and decode|exec suppressed when exec has -e/--eval. *)
+CompositionDecisionFn(ct, ignoresStdin) ==
+    CASE ct = "none"                   -> Allow
+      [] ct = "sensitive_read_network" -> Block
+      [] ct = "network_exec"           -> IF ignoresStdin THEN Allow ELSE Block
+      [] ct = "decode_exec"            -> IF ignoresStdin THEN Allow ELSE Block
+      [] ct = "any_read_exec"          -> IF ignoresStdin THEN Allow ELSE Ask
 
 (* ---------- Path-based decision ---------- *)
 
@@ -91,40 +118,73 @@ PathDecision(cat) ==
 
 (* ---------- Full decision computation ---------- *)
 
-ComputeBashDecision(sp, execEnv, redir, rPath,
-                     gp, gpCat, wrapper, innerD, comp) ==
+ComputeBashDecision(sp, execEnv, redir, rSafe, rPath,
+                     gp, gpCat, dangerousGit,
+                     wrapper, innerD,
+                     dockerExec, dockerD,
+                     pSub, pSubD, cSub, cSubD,
+                     comp, ignoresStdin) ==
     LET
         baseD     == sp
         envD      == IF execEnv THEN DefaultPolicy("lang_exec") ELSE Allow
-        redirBase == IF redir THEN DefaultPolicy("filesystem_write") ELSE Allow
+
+        \* Redirect: exempted if safe, but sensitive path check always runs
+        redirBase == IF redir /\ ~rSafe
+                     THEN DefaultPolicy("filesystem_write")
+                     ELSE Allow
         redirPath == IF redir THEN PathDecision(rPath) ELSE Allow
+
         gitD      == IF gp THEN PathDecision(gpCat) ELSE Allow
+        gitCfgD   == IF dangerousGit THEN DefaultPolicy("lang_exec") ELSE Allow
         wrapD     == IF wrapper THEN innerD ELSE Allow
-        compD     == CompositionDecision(comp)
-    IN  StricterAll({baseD, envD, redirBase, redirPath, gitD, wrapD, compD})
+        dockerExecD == IF dockerExec THEN dockerD ELSE Allow
+        procSubD  == IF pSub THEN pSubD ELSE Allow
+        cmdSubD   == IF cSub THEN cSubD ELSE Allow
+        compD     == CompositionDecisionFn(comp, ignoresStdin)
+
+    IN  StricterAll({baseD, envD, redirBase, redirPath, gitD, gitCfgD,
+                     wrapD, dockerExecD, procSubD, cmdSubD, compD})
 
 (* ---------- State machine ---------- *)
 
+(* Constrained init: when a boolean is FALSE, fix its associated
+   variable to the neutral value. This eliminates irrelevant combinations
+   and keeps the state space tractable. *)
 Init ==
-    /\ stageAction     \in ActionTypes
-    /\ stagePolicy     = DefaultPolicy(stageAction)
-    /\ hasExecEnv      \in BOOLEAN
-    /\ hasRedirect     \in BOOLEAN
-    /\ redirectPath    \in PathCategories
-    /\ hasGitPath      \in BOOLEAN
-    /\ gitPathCategory \in PathCategories
-    /\ isShellWrapper  \in BOOLEAN
-    /\ innerDecision   \in Decisions
-    /\ compositionType \in CompositionTypes
-    /\ finalDecision   = ComputeBashDecision(
-            stagePolicy, hasExecEnv, hasRedirect, redirectPath,
-            hasGitPath, gitPathCategory, isShellWrapper,
-            innerDecision, compositionType)
+    /\ stageAction          \in ActionTypes
+    /\ stagePolicy          = DefaultPolicy(stageAction)
+    /\ hasExecEnv           \in BOOLEAN
+    /\ hasRedirect          \in BOOLEAN
+    /\ redirectSafe         \in IF hasRedirect THEN BOOLEAN ELSE {FALSE}
+    /\ redirectPath         \in IF hasRedirect THEN PathCategories ELSE {"normal"}
+    /\ hasGitPath           \in BOOLEAN
+    /\ gitPathCategory      \in IF hasGitPath THEN PathCategories ELSE {"normal"}
+    /\ hasDangerousGitConfig \in BOOLEAN
+    /\ isShellWrapper       \in BOOLEAN
+    /\ innerDecision        \in IF isShellWrapper THEN Decisions ELSE {Allow}
+    /\ isDockerExec         \in BOOLEAN
+    /\ dockerInnerDecision  \in IF isDockerExec THEN Decisions ELSE {Allow}
+    /\ hasProcSub           \in BOOLEAN
+    /\ procSubDecision      \in IF hasProcSub THEN Decisions ELSE {Allow}
+    /\ hasCmdSub            \in BOOLEAN
+    /\ cmdSubDecision       \in IF hasCmdSub THEN Decisions ELSE {Allow}
+    /\ compositionType      \in CompositionTypes
+    /\ execIgnoresStdin     \in BOOLEAN
+    /\ finalDecision        = ComputeBashDecision(
+            stagePolicy, hasExecEnv, hasRedirect, redirectSafe, redirectPath,
+            hasGitPath, gitPathCategory, hasDangerousGitConfig,
+            isShellWrapper, innerDecision,
+            isDockerExec, dockerInnerDecision,
+            hasProcSub, procSubDecision,
+            hasCmdSub, cmdSubDecision,
+            compositionType, execIgnoresStdin)
 
 Next == UNCHANGED <<stageAction, stagePolicy, hasExecEnv, hasRedirect,
-                     redirectPath, hasGitPath, gitPathCategory,
-                     isShellWrapper, innerDecision, compositionType,
-                     finalDecision>>
+                     redirectSafe, redirectPath, hasGitPath, gitPathCategory,
+                     hasDangerousGitConfig, isShellWrapper, innerDecision,
+                     isDockerExec, dockerInnerDecision,
+                     hasProcSub, procSubDecision, hasCmdSub, cmdSubDecision,
+                     compositionType, execIgnoresStdin, finalDecision>>
 
 (* ---------- SAFETY INVARIANTS ---------- *)
 
@@ -133,79 +193,135 @@ TypeOK ==
     /\ stagePolicy \in Decisions
     /\ finalDecision \in Decisions
 
-(* INV-1: Obfuscated/decode→exec always Block *)
+(* INV-1: Obfuscated commands always Block *)
 ObfuscatedAlwaysBlocked ==
-    (stageAction = "obfuscated" \/ compositionType = "decode_exec")
+    stageAction = "obfuscated" => finalDecision = Block
+
+(* INV-2: decode|exec always Block (unless exec ignores stdin) *)
+DecodeExecBlocked ==
+    (compositionType = "decode_exec" /\ ~execIgnoresStdin)
     => finalDecision = Block
 
-(* INV-2: Destructive ops never Allow *)
+(* INV-3: sensitive_read|network always Block (exfiltration) *)
+ExfilAlwaysBlocked ==
+    compositionType = "sensitive_read_network"
+    => finalDecision = Block
+
+(* INV-4: network|exec always Block (remote code execution,
+   unless exec has inline code flag) *)
+NetworkExecBlocked ==
+    (compositionType = "network_exec" /\ ~execIgnoresStdin)
+    => finalDecision = Block
+
+(* INV-5: any_read|exec at least Ask (unless exec ignores stdin) *)
+ReadExecEscalated ==
+    (compositionType = "any_read_exec" /\ ~execIgnoresStdin)
+    => Strictness[finalDecision] >= Strictness[Ask]
+
+(* INV-6: Destructive ops never Allow *)
 DestructiveNeverAllow ==
     stageAction \in {"disk_destructive", "container_destructive",
                       "filesystem_delete"}
     => Strictness[finalDecision] >= Strictness[Context]
 
-(* INV-3: Exec env always escalates to >= Ask *)
+(* INV-7: Exec env always escalates to >= Ask *)
 ExecEnvEscalation ==
     hasExecEnv => Strictness[finalDecision] >= Strictness[Ask]
 
-(* INV-4: Redirect to sensitive-block path → Block *)
+(* INV-8: Redirect to sensitive-block path -> Block
+   (even when redirect itself is config-safe, path check always runs) *)
 RedirectToSensitiveBlocked ==
     (hasRedirect /\ redirectPath = "sensitive_block")
     => finalDecision = Block
 
-(* INV-5: Redirect to hook path → Block *)
+(* INV-9: Redirect to hook path -> Block *)
 RedirectToHookBlocked ==
     (hasRedirect /\ redirectPath = "hook")
     => finalDecision = Block
 
-(* INV-6: Git -C to sensitive-block → Block *)
+(* INV-10: Git -C to sensitive-block -> Block *)
 GitPathSensitiveEscalated ==
     (hasGitPath /\ gitPathCategory = "sensitive_block")
     => finalDecision = Block
 
-(* INV-7: Shell wrapper never downgrades inner decision *)
+(* INV-11: Git dangerous config (-c LD_PRELOAD etc.) -> >= Ask *)
+GitDangerousConfigEscalated ==
+    hasDangerousGitConfig
+    => Strictness[finalDecision] >= Strictness[Ask]
+
+(* INV-12: Shell wrapper never downgrades inner decision *)
 ShellWrapperNoDowngrade ==
     isShellWrapper
     => Strictness[finalDecision] >= Strictness[innerDecision]
 
-(* INV-8: Composition exfil/sensitive_exec → >= Ask *)
-CompositionEscalation ==
-    compositionType \in {"exfil", "sensitive_exec"}
-    => Strictness[finalDecision] >= Strictness[Ask]
+(* INV-13: Docker exec/run never downgrades inner decision *)
+DockerExecNoDowngrade ==
+    isDockerExec
+    => Strictness[finalDecision] >= Strictness[dockerInnerDecision]
 
-(* INV-9: Final never weaker than base policy *)
+(* INV-14: Process substitution never downgrades inner decision *)
+ProcSubNoDowngrade ==
+    hasProcSub
+    => Strictness[finalDecision] >= Strictness[procSubDecision]
+
+(* INV-15: Command substitution never downgrades inner decision *)
+CmdSubNoDowngrade ==
+    hasCmdSub
+    => Strictness[finalDecision] >= Strictness[cmdSubDecision]
+
+(* INV-16: Final never weaker than base policy *)
 NoDowngradeFromBase ==
     Strictness[finalDecision] >= Strictness[stagePolicy]
 
-(* INV-10: Unknown → >= Ask *)
+(* INV-17: Unknown -> >= Ask *)
 UnknownDefaultsToAsk ==
     stageAction = "unknown"
     => Strictness[finalDecision] >= Strictness[Ask]
 
-(* INV-11: lang_exec → >= Ask *)
+(* INV-18: lang_exec -> >= Ask *)
 LangExecAlwaysAsk ==
     stageAction = "lang_exec"
     => Strictness[finalDecision] >= Strictness[Ask]
 
-(* INV-12: network_write → >= Ask *)
+(* INV-19: network_write -> >= Ask *)
 NetworkWriteAlwaysAsk ==
     stageAction = "network_write"
     => Strictness[finalDecision] >= Strictness[Ask]
+
+(* INV-20: Safe redirect exemption doesn't bypass sensitive path check *)
+SafeRedirectNoPathBypass ==
+    (hasRedirect /\ redirectSafe /\ redirectPath = "sensitive_block")
+    => finalDecision = Block
+
+(* INV-21: Inline code flag suppression doesn't bypass base classification.
+   A dangerous base command (obfuscated, disk_destructive) not suppressed. *)
+InlineFlagNoBaseBypass ==
+    (stageAction = "obfuscated" /\ execIgnoresStdin)
+    => finalDecision = Block
 
 (* Combined *)
 SafetyInvariant ==
     /\ TypeOK
     /\ ObfuscatedAlwaysBlocked
+    /\ DecodeExecBlocked
+    /\ ExfilAlwaysBlocked
+    /\ NetworkExecBlocked
+    /\ ReadExecEscalated
     /\ DestructiveNeverAllow
     /\ ExecEnvEscalation
     /\ RedirectToSensitiveBlocked
     /\ RedirectToHookBlocked
     /\ GitPathSensitiveEscalated
+    /\ GitDangerousConfigEscalated
     /\ ShellWrapperNoDowngrade
-    /\ CompositionEscalation
+    /\ DockerExecNoDowngrade
+    /\ ProcSubNoDowngrade
+    /\ CmdSubNoDowngrade
     /\ NoDowngradeFromBase
     /\ UnknownDefaultsToAsk
     /\ LangExecAlwaysAsk
     /\ NetworkWriteAlwaysAsk
+    /\ SafeRedirectNoPathBypass
+    /\ InlineFlagNoBaseBypass
 
 =========================================================================
