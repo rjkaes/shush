@@ -75,12 +75,15 @@ const SENSITIVE_BASENAMES: Array<[string, string, Decision]> = [
   [".pypirc", ".pypirc", "ask"],
 ];
 
-/** Expand ~ and resolve to absolute canonical path. */
+/** Expand ~, $HOME, ${HOME} and resolve to absolute canonical path. */
 export function resolvePath(raw: string): string {
   if (!raw) return "";
   // Truncate at first null byte (C-string truncation attacks)
   let cleaned = raw.includes("\0") ? raw.slice(0, raw.indexOf("\0")) : raw;
-  // Only expand ~ or ~/... (not ~user paths, which need OS lookup).
+  // Expand $HOME and ${HOME} to home directory (before ~ expansion,
+  // since $HOME/... doesn't start with ~).
+  cleaned = cleaned.replace(/\$\{HOME\}/g, HOME).replace(/\$HOME(?=\/|$)/g, HOME);
+  // Expand ~ or ~/... (not ~user paths, which need OS lookup).
   const expanded = (cleaned === "~" || cleaned.startsWith("~/"))
     ? path.join(HOME, cleaned.slice(1))
     : cleaned;

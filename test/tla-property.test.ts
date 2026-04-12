@@ -434,26 +434,33 @@ describe("BG property: unknown commands default to ask", () => {
 // Known vulnerabilities (document current behavior, catch regressions)
 // =============================================================================
 
-describe("VULN-1: $HOME variable expansion bypass", () => {
-  // resolvePath() only expands ~ and ~/..., not $HOME or ${HOME}.
-  // These tests document the current (broken) behavior.
-  // When fixed, flip the assertions.
+describe("$HOME variable expansion", () => {
+  // resolvePath() now expands $HOME and ${HOME} to home directory.
 
-  test("Read $HOME/.ssh/id_rsa currently ALLOWS (known vuln)", () => {
+  test("Read $HOME/.ssh/id_rsa -> block", () => {
     const result = ev("Read", { file_path: "$HOME/.ssh/id_rsa" });
-    // BUG: should be block, currently allow
-    expect(result.decision).toBe("allow");
+    expect(result.decision).toBe("block");
   });
 
-  test("Read ${HOME}/.ssh/id_rsa currently ALLOWS (known vuln)", () => {
+  test("Read ${HOME}/.ssh/id_rsa -> block", () => {
     const result = ev("Read", { file_path: "${HOME}/.ssh/id_rsa" });
-    expect(result.decision).toBe("allow");
+    expect(result.decision).toBe("block");
   });
 
-  test("Write $HOME/.claude/hooks/guard.py misses hook block (known vuln)", () => {
+  test("Write $HOME/.claude/hooks/guard.py -> block", () => {
     const result = ev("Write", { file_path: "$HOME/.claude/hooks/guard.py", content: "evil" });
-    // BUG: should be block (hook protection), currently ask (boundary only)
-    expect(result.decision).not.toBe("block");
+    expect(result.decision).toBe("block");
+  });
+
+  test("Read $HOME/.aws/credentials -> ask", () => {
+    const result = ev("Read", { file_path: "$HOME/.aws/credentials" });
+    expect(atLeast(result.decision, "ask")).toBe(true);
+  });
+
+  test("$HOME at end of string (no trailing slash)", () => {
+    // $HOME alone should expand but not match sensitive
+    const result = ev("Read", { file_path: "$HOME" });
+    expect(result.decision).toBe("allow");
   });
 });
 
@@ -473,16 +480,15 @@ describe("VULN-2: depth exhaustion at MAX_UNWRAP_DEPTH", () => {
   });
 });
 
-describe("VULN-3: $HOME in Bash redirect targets", () => {
-  test("redirect to $HOME/.ssh -> context, not block (known vuln)", () => {
+describe("$HOME in Bash redirect targets", () => {
+  test("redirect to $HOME/.ssh -> block", () => {
     const result = classifyCommand("echo evil > $HOME/.ssh/authorized_keys", 0);
-    // BUG: should be block (sensitive path), currently context (write policy)
-    expect(result.finalDecision).toBe("context");
+    expect(result.finalDecision).toBe("block");
   });
 
-  test("redirect to ${HOME}/.claude/hooks -> context, not block (known vuln)", () => {
+  test("redirect to ${HOME}/.claude/hooks -> at least ask", () => {
     const result = classifyCommand("echo evil > ${HOME}/.claude/hooks/guard.py", 0);
-    // BUG: should be ask/block (hook), currently context (write policy)
-    expect(result.finalDecision).toBe("context");
+    // Bash tool gets ask for hook paths (not in HOOK_BLOCK_TOOLS)
+    expect(atLeast(result.finalDecision, "ask")).toBe(true);
   });
 });
