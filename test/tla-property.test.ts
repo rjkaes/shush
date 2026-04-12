@@ -414,6 +414,42 @@ describe("BG property: exec env vars escalate to at least ask", () => {
 });
 
 describe("BG property: unknown commands default to ask", () => {
+
+describe("BG property: file-reading commands check sensitive path args", () => {
+  test("cat/head/tail on sensitive-block paths -> block", () => {
+    const readCmds = ["cat", "head", "tail", "xxd", "strings"];
+    fc.assert(fc.property(
+      fc.constantFrom(...readCmds),
+      fc.constantFrom(...sensBlockPaths),
+      (cmd, path) => {
+        const result = classifyCommand(`${cmd} ${path}`, 0);
+        return result.finalDecision === "block";
+      },
+    ), { numRuns: 200 });
+  });
+
+  test("cat/head on sensitive-ask paths -> at least ask", () => {
+    const readCmds = ["cat", "head", "tail"];
+    fc.assert(fc.property(
+      fc.constantFrom(...readCmds),
+      fc.constantFrom(...sensAskPaths),
+      (cmd, path) => {
+        const result = classifyCommand(`${cmd} ${path}`, 0);
+        return atLeast(result.finalDecision, "ask");
+      },
+    ), { numRuns: 200 });
+  });
+
+  test("cat on normal paths -> allow", () => {
+    fc.assert(fc.property(
+      fc.constantFrom(...normalPaths),
+      (path) => {
+        const result = classifyCommand(`cat ${path}`, 0);
+        return result.finalDecision === "allow";
+      },
+    ), { numRuns: 50 });
+  });
+});
   test("unrecognized command -> at least ask", () => {
     const unknownCmds = [
       "mysterious_tool --flag",

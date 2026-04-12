@@ -397,8 +397,10 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
 
     // Check redirect target against sensitive/hook paths regardless of
     // whether the redirect was whitelisted (sensitive paths always win).
+    // Use "Write" as the tool name so hook paths get Block (matching
+    // the Write tool's hook protection), not Ask (Bash's default).
     if (stage.redirectTarget && !SAFE_REDIRECT_TARGETS.has(stage.redirectTarget)) {
-      const pathResult = checkPath("Bash", stage.redirectTarget, config);
+      const pathResult = checkPath("Write", stage.redirectTarget, config);
       if (pathResult) {
         decision = stricter(decision, pathResult.decision);
         reason = pathResult.reason;
@@ -417,6 +419,29 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       }
     }
 
+    // File-reading commands (cat, head, less, etc.) classified as
+    // filesystem_read: check positional arguments against sensitive paths.
+    // Without this, "cat ~/.ssh/id_rsa" gets allow because the default
+    // policy for filesystem_read is allow and bash-guard doesn't otherwise
+    // inspect file arguments.
+    if (actionType === FILESYSTEM_READ || actionType === FILESYSTEM_WRITE) {
+      for (let ti = 1; ti < tokens.length; ti++) {
+        const tok = tokens[ti];
+        // Skip flags and flag values
+        if (tok.startsWith("-")) continue;
+        // Skip tokens that look like non-path arguments
+        if (!tok.includes("/") && !tok.startsWith("~") && !tok.startsWith("$")) continue;
+        // Use matching tool name: Read for filesystem_read, Write for writes.
+        // This ensures hook paths get the same treatment as the equivalent
+        // file tool (Read allows hooks, Write blocks hooks).
+        const proxyTool = actionType === FILESYSTEM_READ ? "Read" : "Write";
+        const pathResult = checkPath(proxyTool, tok, config);
+        if (pathResult) {
+          decision = stricter(decision, pathResult.decision);
+          reason = pathResult.reason;
+        }
+      }
+    }
     return {
       tokens,
       actionType,

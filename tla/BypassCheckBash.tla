@@ -16,41 +16,19 @@ VARIABLES
     hasProcSub, procSubDecision, hasCmdSub, cmdSubDecision,
     compositionType, execIgnoresStdin, finalDecision
 
+(* Symmetry reduction: one representative per policy group *)
 ActionTypes == {
-    "filesystem_read",    "filesystem_write",   "filesystem_delete",
-    "git_safe",           "git_write",          "git_discard",
-    "git_history_rewrite",
-    "network_outbound",   "network_write",      "network_diagnostic",
-    "package_install",    "package_run",        "package_uninstall",
-    "script_exec",        "lang_exec",
-    "process_signal",     "container_destructive", "disk_destructive",
-    "db_read",            "db_write",
-    "obfuscated",         "unknown"
+    "filesystem_read",    \* representative: allow
+    "filesystem_write",   \* representative: context
+    "unknown",            \* representative: ask
+    "obfuscated"          \* representative: block
 }
 
 DefaultPolicy(at) ==
     CASE at = "filesystem_read"      -> Allow
       [] at = "filesystem_write"     -> Context
-      [] at = "filesystem_delete"    -> Context
-      [] at = "git_safe"             -> Allow
-      [] at = "git_write"            -> Allow
-      [] at = "git_discard"          -> Ask
-      [] at = "git_history_rewrite"  -> Ask
-      [] at = "network_outbound"     -> Context
-      [] at = "network_write"        -> Ask
-      [] at = "network_diagnostic"   -> Allow
-      [] at = "package_install"      -> Allow
-      [] at = "package_run"          -> Allow
-      [] at = "package_uninstall"    -> Ask
-      [] at = "script_exec"          -> Context
-      [] at = "lang_exec"            -> Ask
-      [] at = "process_signal"       -> Ask
-      [] at = "container_destructive" -> Ask
-      [] at = "disk_destructive"     -> Ask
-      [] at = "db_read"              -> Allow
-      [] at = "db_write"             -> Ask
-      [] at = "obfuscated"           -> Block
       [] at = "unknown"              -> Ask
+      [] at = "obfuscated"           -> Block
 
 PathCategories == {"hook", "sensitive_block", "sensitive_ask", "normal"}
 
@@ -80,14 +58,14 @@ ComputeBashDecision(sp, execEnv,
                      pSub, pSubD, cSub, cSubD,
                      comp, ignoresStdin) ==
     LET baseD     == sp
-        envD      == IF execEnv THEN DefaultPolicy("lang_exec") ELSE Allow
+        envD      == IF execEnv THEN Ask ELSE Allow
         redirectAllowed == rDevice \/ rConfigOk
         redirBase == IF redir /\ ~redirectAllowed
-                     THEN DefaultPolicy("filesystem_write")
+                     THEN Context
                      ELSE Allow
         redirPath == IF redir /\ ~rDevice THEN PathDecision(rPath) ELSE Allow
         gitD      == IF gp THEN PathDecision(gpCat) ELSE Allow
-        gitCfgD   == IF dangerousGit THEN DefaultPolicy("lang_exec") ELSE Allow
+        gitCfgD   == IF dangerousGit THEN Ask ELSE Allow
         wrapD     == IF wrapper THEN innerD ELSE Allow
         dockerExecD == IF dockerExec THEN dockerD ELSE Allow
         procSubD  == IF pSub THEN pSubD ELSE Allow

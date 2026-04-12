@@ -43,46 +43,36 @@ VARIABLES
     cmdSubDecision,    \* Decision from command sub inner command
     compositionType,   \* Multi-stage composition pattern detected
     execIgnoresStdin,  \* Exec sink has inline code flag (-e, --eval)
+    hasFileArgs,        \* Stage has file path arguments (cat, head, etc.)
+    fileArgCategory,    \* Sensitivity category of file argument path
     finalDecision      \* Computed final decision
 
 (* ---------- Action types and default policies ---------- *)
 
-(* All 22 action types from data/policies.json *)
+(* Symmetry reduction: 22 action types share only 4 distinct policies.
+   One representative per policy group is sufficient for model checking
+   since the decision logic only depends on the policy value, not the
+   action type name (except for specific invariants that name types).
+
+   allow:   filesystem_read (+ 6 others)
+   context: filesystem_write (+ 3 others)
+   ask:     unknown (+ 9 others, including lang_exec, disk_destructive)
+   block:   obfuscated (only one)
+
+   We keep filesystem_read and filesystem_write because the file-arg
+   path check branches on policy=Allow to distinguish read vs write. *)
 ActionTypes == {
-    "filesystem_read",    "filesystem_write",   "filesystem_delete",
-    "git_safe",           "git_write",          "git_discard",
-    "git_history_rewrite",
-    "network_outbound",   "network_write",      "network_diagnostic",
-    "package_install",    "package_run",        "package_uninstall",
-    "script_exec",        "lang_exec",
-    "process_signal",     "container_destructive", "disk_destructive",
-    "db_read",            "db_write",
-    "obfuscated",         "unknown"
+    "filesystem_read",    \* representative: allow policy
+    "filesystem_write",   \* representative: context policy
+    "unknown",            \* representative: ask policy
+    "obfuscated"          \* representative: block policy
 }
 
 DefaultPolicy(at) ==
     CASE at = "filesystem_read"      -> Allow
       [] at = "filesystem_write"     -> Context
-      [] at = "filesystem_delete"    -> Context
-      [] at = "git_safe"             -> Allow
-      [] at = "git_write"            -> Allow
-      [] at = "git_discard"          -> Ask
-      [] at = "git_history_rewrite"  -> Ask
-      [] at = "network_outbound"     -> Context
-      [] at = "network_write"        -> Ask
-      [] at = "network_diagnostic"   -> Allow
-      [] at = "package_install"      -> Allow
-      [] at = "package_run"          -> Allow
-      [] at = "package_uninstall"    -> Ask
-      [] at = "script_exec"          -> Context
-      [] at = "lang_exec"            -> Ask
-      [] at = "process_signal"       -> Ask
-      [] at = "container_destructive" -> Ask
-      [] at = "disk_destructive"     -> Ask
-      [] at = "db_read"              -> Allow
-      [] at = "db_write"             -> Ask
-      [] at = "obfuscated"           -> Block
       [] at = "unknown"              -> Ask
+      [] at = "obfuscated"           -> Block
 
 (* ---------- Path categories ---------- *)
 
@@ -111,10 +101,34 @@ CompositionDecisionFn(ct, ignoresStdin) ==
    checkPath("Bash", ...) is called. "Bash" is not in HOOK_BLOCK_TOOLS
    (Write/Edit/MultiEdit/NotebookEdit) or HOOK_READONLY_TOOLS (Read/Glob/Grep),
    so hook paths get Ask (the else branch), not Block. *)
-PathDecision(cat) ==
+(* Path decisions differ by context because checkPath uses different
+   tool names for different checks:
+   - Redirects use "Write" -> hooks get Block
+   - Git paths use "Bash" -> hooks get Ask
+   - File args use "Read" or "Write" depending on actionType *)
+RedirectPathDecision(cat) ==
     CASE cat = "sensitive_block" -> Block
       [] cat = "sensitive_ask"   -> Ask
-      [] cat = "hook"            -> Ask   \* Bash tool -> else branch -> Ask
+      [] cat = "hook"            -> Block  \* checkPath("Write", ...) -> HOOK_BLOCK_TOOLS
+      [] cat = "normal"          -> Allow
+
+GitPathDecision(cat) ==
+    CASE cat = "sensitive_block" -> Block
+      [] cat = "sensitive_ask"   -> Ask
+      [] cat = "hook"            -> Ask    \* checkPath("Bash", ...) -> else branch
+      [] cat = "normal"          -> Allow
+
+(* File arg path check: Read for reads (hooks allowed), Write for writes *)
+FileArgReadPathDecision(cat) ==
+    CASE cat = "sensitive_block" -> Block
+      [] cat = "sensitive_ask"   -> Ask
+      [] cat = "hook"            -> Allow  \* checkPath("Read", ...) -> HOOK_READONLY_TOOLS
+      [] cat = "normal"          -> Allow
+
+FileArgWritePathDecision(cat) ==
+    CASE cat = "sensitive_block" -> Block
+      [] cat = "sensitive_ask"   -> Ask
+      [] cat = "hook"            -> Block  \* checkPath("Write", ...) -> HOOK_BLOCK_TOOLS
       [] cat = "normal"          -> Allow
 
 (* ---------- Full decision computation ---------- *)
@@ -130,10 +144,11 @@ ComputeBashDecision(sp, execEnv,
                      wrapper, innerD,
                      dockerExec, dockerD,
                      pSub, pSubD, cSub, cSubD,
-                     comp, ignoresStdin) ==
+                     comp, ignoresStdin,
+                     fileArgs, fileArgCat) ==
     LET
         baseD     == sp
-        envD      == IF execEnv THEN DefaultPolicy("lang_exec") ELSE Allow
+        envD      == IF execEnv THEN Ask ELSE Allow  \* lang_exec policy = Ask
 
         \* Redirect write-policy: exempt when device OR config-allowed
         redirectAllowed == rDevice \/ rConfigOk
@@ -142,19 +157,27 @@ ComputeBashDecision(sp, execEnv,
                      ELSE Allow
 
         \* Redirect path check: exempt ONLY for device files
-        \* Config-allowed redirects still get path-checked (line 400)
-        redirPath == IF redir /\ ~rDevice THEN PathDecision(rPath) ELSE Allow
+        redirPath == IF redir /\ ~rDevice THEN RedirectPathDecision(rPath) ELSE Allow
 
-        gitD      == IF gp THEN PathDecision(gpCat) ELSE Allow
-        gitCfgD   == IF dangerousGit THEN DefaultPolicy("lang_exec") ELSE Allow
+        gitD      == IF gp THEN GitPathDecision(gpCat) ELSE Allow
+        gitCfgD   == IF dangerousGit THEN Ask ELSE Allow  \* lang_exec policy = Ask
         wrapD     == IF wrapper THEN innerD ELSE Allow
         dockerExecD == IF dockerExec THEN dockerD ELSE Allow
         procSubD  == IF pSub THEN pSubD ELSE Allow
         cmdSubD   == IF cSub THEN cSubD ELSE Allow
         compD     == CompositionDecisionFn(comp, ignoresStdin)
 
+        \* File argument path check: filesystem_read/write commands
+        \* check positional args against sensitive paths.
+        \* File args: Read for reads (hooks allowed), Write for writes (hooks blocked)
+        fileArgD  == IF fileArgs
+                     THEN IF sp = Allow \* filesystem_read -> allow policy
+                          THEN FileArgReadPathDecision(fileArgCat)
+                          ELSE FileArgWritePathDecision(fileArgCat)
+                     ELSE Allow
+
     IN  StricterAll({baseD, envD, redirBase, redirPath, gitD, gitCfgD,
-                     wrapD, dockerExecD, procSubD, cmdSubD, compD})
+                     wrapD, dockerExecD, procSubD, cmdSubD, compD, fileArgD})
 
 (* ---------- State machine ---------- *)
 
@@ -179,6 +202,8 @@ Init ==
     /\ cmdSubDecision       \in IF hasCmdSub THEN Decisions ELSE {Allow}
     /\ compositionType      \in CompositionTypes
     /\ execIgnoresStdin     \in BOOLEAN
+    /\ hasFileArgs          \in BOOLEAN
+    /\ fileArgCategory      \in IF hasFileArgs THEN PathCategories ELSE {"normal"}
     /\ finalDecision        = ComputeBashDecision(
             stagePolicy, hasExecEnv,
             hasRedirect, redirectIsDevice, redirectConfigAllowed, redirectPath,
@@ -187,7 +212,8 @@ Init ==
             isDockerExec, dockerInnerDecision,
             hasProcSub, procSubDecision,
             hasCmdSub, cmdSubDecision,
-            compositionType, execIgnoresStdin)
+            compositionType, execIgnoresStdin,
+            hasFileArgs, fileArgCategory)
 
 Next == UNCHANGED <<stageAction, stagePolicy, hasExecEnv, hasRedirect,
                      redirectIsDevice, redirectConfigAllowed, redirectPath,
@@ -195,7 +221,8 @@ Next == UNCHANGED <<stageAction, stagePolicy, hasExecEnv, hasRedirect,
                      hasDangerousGitConfig, isShellWrapper, innerDecision,
                      isDockerExec, dockerInnerDecision,
                      hasProcSub, procSubDecision, hasCmdSub, cmdSubDecision,
-                     compositionType, execIgnoresStdin, finalDecision>>
+                     compositionType, execIgnoresStdin,
+                     hasFileArgs, fileArgCategory, finalDecision>>
 
 (* ---------- SAFETY INVARIANTS ---------- *)
 
@@ -228,11 +255,13 @@ ReadExecEscalated ==
     (compositionType = "any_read_exec" /\ ~execIgnoresStdin)
     => Strictness[finalDecision] >= Strictness[Ask]
 
-(* INV-6: Destructive ops never Allow *)
-DestructiveNeverAllow ==
-    stageAction \in {"disk_destructive", "container_destructive",
-                      "filesystem_delete"}
-    => Strictness[finalDecision] >= Strictness[Context]
+(* INV-6: Non-allow policy types never get Allow.
+   Covers disk_destructive, container_destructive, filesystem_delete,
+   etc. via their representative: filesystem_write (context) and
+   unknown (ask). *)
+NonAllowPolicyNeverAllow ==
+    stagePolicy /= Allow
+    => finalDecision /= Allow
 
 (* INV-7: Exec env always escalates to >= Ask *)
 ExecEnvEscalation ==
@@ -244,11 +273,11 @@ RedirectToSensitiveBlocked ==
     (hasRedirect /\ ~redirectIsDevice /\ redirectPath = "sensitive_block")
     => finalDecision = Block
 
-(* INV-9: Redirect to hook path -> at least Ask.
-   Bash tool is not in HOOK_BLOCK_TOOLS, so hook paths get Ask, not Block. *)
-RedirectToHookNotAllow ==
+(* INV-9: Redirect to hook path -> Block.
+   Redirects now use checkPath("Write", ...) so hooks get Block. *)
+RedirectToHookBlocked ==
     (hasRedirect /\ ~redirectIsDevice /\ redirectPath = "hook")
-    => Strictness[finalDecision] >= Strictness[Ask]
+    => finalDecision = Block
 
 (* INV-10: Git -C to sensitive-block -> Block *)
 GitPathSensitiveEscalated ==
@@ -289,15 +318,31 @@ UnknownDefaultsToAsk ==
     stageAction = "unknown"
     => Strictness[finalDecision] >= Strictness[Ask]
 
-(* INV-18: lang_exec -> >= Ask *)
-LangExecAlwaysAsk ==
-    stageAction = "lang_exec"
+(* INV-18: ask-policy types -> >= Ask.
+   Covers lang_exec, network_write, unknown, disk_destructive, etc. *)
+AskPolicyAlwaysAsk ==
+    stagePolicy = Ask
     => Strictness[finalDecision] >= Strictness[Ask]
 
-(* INV-19: network_write -> >= Ask *)
-NetworkWriteAlwaysAsk ==
-    stageAction = "network_write"
+(* INV-19: removed - subsumed by AskPolicyAlwaysAsk *)
+
+(* INV-20: File args targeting sensitive-block paths -> Block *)
+FileArgSensitiveBlocked ==
+    (hasFileArgs /\ fileArgCategory = "sensitive_block")
+    => finalDecision = Block
+
+(* INV-21: File args targeting sensitive-ask paths -> >= Ask *)
+FileArgSensitiveAsk ==
+    (hasFileArgs /\ fileArgCategory = "sensitive_ask")
     => Strictness[finalDecision] >= Strictness[Ask]
+
+(* INV-22: File args targeting hook paths:
+   - filesystem_write -> Block (checkPath("Write", ...) -> HOOK_BLOCK_TOOLS)
+   - filesystem_read -> Allow (checkPath("Read", ...) -> HOOK_READONLY_TOOLS)
+   We can only express the write case since read legitimately allows hooks. *)
+FileArgHookWriteBlocked ==
+    (hasFileArgs /\ fileArgCategory = "hook" /\ stagePolicy /= Allow)
+    => finalDecision = Block
 
 (* INV-20: Config-allowed redirect does NOT bypass sensitive path check.
    Even with config exemption, non-device sensitive targets still block. *)
@@ -321,10 +366,10 @@ SafetyInvariant ==
     /\ ExfilAlwaysBlocked
     /\ NetworkExecBlocked
     /\ ReadExecEscalated
-    /\ DestructiveNeverAllow
+    /\ NonAllowPolicyNeverAllow
     /\ ExecEnvEscalation
     /\ RedirectToSensitiveBlocked
-    /\ RedirectToHookNotAllow
+    /\ RedirectToHookBlocked
     /\ GitPathSensitiveEscalated
     /\ GitDangerousConfigEscalated
     /\ ShellWrapperNoDowngrade
@@ -333,9 +378,11 @@ SafetyInvariant ==
     /\ CmdSubNoDowngrade
     /\ NoDowngradeFromBase
     /\ UnknownDefaultsToAsk
-    /\ LangExecAlwaysAsk
-    /\ NetworkWriteAlwaysAsk
+    /\ AskPolicyAlwaysAsk
     /\ ConfigAllowedRedirectNoPathBypass
+    /\ FileArgSensitiveBlocked
+    /\ FileArgSensitiveAsk
+    /\ FileArgHookWriteBlocked
     /\ InlineFlagNoBaseBypass
 
 =========================================================================
