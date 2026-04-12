@@ -178,6 +178,8 @@ export interface ShushConfig {
   denyTools?: Record<string, string>;
   /** Glob pattern -> message to show after command completes (PostToolUse). */
   afterMessages?: Record<string, string>;
+  /** Paths outside project boundary to allow (global-only, bypasses boundary check only). */
+  allowedPaths?: string[];
 }
 
 /** No-op config: no overrides, no custom paths, no custom classifications. */
@@ -191,6 +193,7 @@ export const EMPTY_CONFIG: ShushConfig = {
   allowRedirects: [],
   denyTools: {},
   afterMessages: {},
+  allowedPaths: [],
 };
 
 // ---------------------------------------------------------------------------

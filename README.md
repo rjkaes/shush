@@ -348,13 +348,33 @@ after_messages:
   "npm publish *": "Update the changelog"
 ```
 
+
+### `allowed_paths` -- whitelist paths outside the project
+
+Grant read/write access to directories outside the project boundary.
+Useful for MCP tools that need access to config or memory files:
+
+```yaml
+allowed_paths:
+  - "~/.claude/"
+  - "~/Documents/shared-configs/"
+```
+
+Trailing `/` means "this directory and everything under it". Without
+a trailing slash, matches the exact file. `~` is expanded to your home
+directory.
+
+**Global-only.** Per-project `.shush.yaml` cannot add allowed paths
+(same restriction as `allow_tools`). Allowed paths bypass the project
+boundary check only; sensitive-path detection and content scanning
+still apply.
 ### Supply-chain safety
 
 Per-project `.shush.yaml` can add classifications and tighten policies,
 but **can never relax them**. A malicious repo cannot use `.shush.yaml`
 to allowlist dangerous commands or MCP tools. Only your global config
-has that power. Loosening-only settings (`allow_tools`, `allow_redirects`)
-are restricted to the global config.
+has that power. Loosening-only settings (`allow_tools`, `allow_redirects`,
+`allowed_paths`) are restricted to the global config.
 
 ## Development
 

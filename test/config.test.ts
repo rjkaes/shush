@@ -159,8 +159,17 @@ mcp_path_params:
       "mcp__single_*": ["path"],
     });
   });
-});
 
+  test("parses allowed_paths from YAML", () => {
+    const yaml = `
+allowed_paths:
+  - "~/.claude/"
+  - "~/Documents/shared/"
+`;
+    const config = parseConfigYaml(yaml);
+    expect(config.allowedPaths).toEqual(["~/.claude/", "~/Documents/shared/"]);
+  });
+});
 describe("mergeConfigs", () => {
   test("overlay tightens actions", () => {
     const base: ShushConfig = {
@@ -296,8 +305,24 @@ describe("mergeConfigs", () => {
     const merged = mergeConfigs(base, overlay);
     expect(merged.mcpPathParams!["mcp__trueline_*"]).toEqual(["file_path", "filePaths", "path"]);
   });
-});
 
+  test("merges allowedPaths with union semantics", () => {
+    const base: ShushConfig = {
+      actions: {},
+      sensitivePaths: {},
+      classify: {},
+      allowedPaths: ["~/.claude/"],
+    };
+    const overlay: ShushConfig = {
+      actions: {},
+      sensitivePaths: {},
+      classify: {},
+      allowedPaths: ["~/.claude/", "~/Documents/shared/"],
+    };
+    const merged = mergeConfigs(base, overlay);
+    expect(merged.allowedPaths).toEqual(["~/.claude/", "~/Documents/shared/"]);
+  });
+});
 describe("filterClassifyTightenOnly", () => {
   test("drops classify entries that loosen classification", () => {
     // "rm -rf /" is classified as disk_destructive (policy: "ask") by the trie.
@@ -456,8 +481,21 @@ describe("loadConfig", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
-});
 
+  test("project config cannot add allowed_paths (global-only)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "shush-test-"));
+    const globalPath = join(dir, "global.yaml");
+    writeFileSync(globalPath, 'allowed_paths:\n  - "~/.claude/"\n');
+    writeFileSync(join(dir, ".shush.yaml"), 'allowed_paths:\n  - "/etc/secrets/"\n');
+    try {
+      const result = loadConfig(dir, globalPath);
+      // Global allowed_paths preserved, project ones stripped
+      expect(result.allowedPaths).toEqual(["~/.claude/"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
 import { getPolicy, classifyTokens } from "../src/taxonomy.js";
 
 describe("getPolicy with config", () => {

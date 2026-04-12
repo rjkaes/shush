@@ -107,8 +107,59 @@ describe("checkProjectBoundary", () => {
       checkProjectBoundary("Edit", "/home/user/myproject/src/deep/nested/file.ts", projectRoot),
     ).toBeNull();
   });
-});
 
+  test("file under allowedPaths bypasses boundary check", () => {
+    const result = checkProjectBoundary(
+      "Read",
+      "/outside/allowed-dir/file.txt",
+      projectRoot,
+      ["/outside/allowed-dir/"],
+    );
+    expect(result).toBeNull();
+  });
+
+  test("exact allowedPaths match bypasses boundary check", () => {
+    const result = checkProjectBoundary(
+      "Read",
+      "/outside/specific-file.txt",
+      projectRoot,
+      ["/outside/specific-file.txt"],
+    );
+    expect(result).toBeNull();
+  });
+
+  test("file NOT under allowedPaths still triggers ask", () => {
+    const result = checkProjectBoundary(
+      "Read",
+      "/tmp/secret.txt",
+      projectRoot,
+      ["/outside/allowed-dir/"],
+    );
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
+  });
+
+  test("allowedPaths bypasses even with null projectRoot", () => {
+    const result = checkProjectBoundary(
+      "Write",
+      "/outside/allowed-dir/file.txt",
+      null,
+      ["/outside/allowed-dir/"],
+    );
+    expect(result).toBeNull();
+  });
+
+  test("empty allowedPaths array has no effect", () => {
+    const result = checkProjectBoundary(
+      "Read",
+      "/tmp/secret.txt",
+      projectRoot,
+      [],
+    );
+    expect(result).not.toBeNull();
+    expect(result!.decision).toBe("ask");
+  });
+});
 describe("cross-platform path handling", () => {
   const home = homedir();
 

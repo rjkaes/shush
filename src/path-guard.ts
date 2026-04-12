@@ -222,10 +222,20 @@ export function checkProjectBoundary(
   toolName: string,
   rawPath: string,
   projectRoot: string | null,
+  allowedPaths?: string[],
 ): { decision: Decision; reason: string } | null {
   if (!rawPath) return null;
 
   const resolved = resolvePath(rawPath);
+
+  if (allowedPaths) {
+    for (const raw of allowedPaths) {
+      const allowed = resolvePath(raw);
+      if (resolved === allowed || resolved.startsWith(allowed + path.sep)) {
+        return null; // inside allowed path, no boundary violation
+      }
+    }
+  }
 
   if (projectRoot === null) {
     return {

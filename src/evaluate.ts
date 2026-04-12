@@ -47,6 +47,7 @@ function checkFileWrite(
       toolName,
       filePath,
       projectRoot,
+      config.allowedPaths,
     );
     if (boundaryResult) {
       decision = boundaryResult.decision;
@@ -159,7 +160,7 @@ export function evaluate(
       }
       // Project boundary check (same as Write/Edit).
       if (decision === "allow" && globPath) {
-        const boundaryResult = checkProjectBoundary("Glob", globPath, projectRoot);
+        const boundaryResult = checkProjectBoundary("Glob", globPath, projectRoot, config.allowedPaths);
         if (boundaryResult) {
           decision = boundaryResult.decision;
           reason = boundaryResult.reason;
@@ -178,7 +179,7 @@ export function evaluate(
         }
         // Project boundary check (same as Write/Edit).
         if (decision === "allow") {
-          const boundaryResult = checkProjectBoundary("Grep", grepPath, projectRoot);
+          const boundaryResult = checkProjectBoundary("Grep", grepPath, projectRoot, config.allowedPaths);
           if (boundaryResult) {
             decision = boundaryResult.decision;
             reason = boundaryResult.reason;
@@ -235,7 +236,7 @@ export function evaluate(
                 }
                 decision = combined;
               }
-              const boundaryResult = checkProjectBoundary(toolName, p, projectRoot);
+              const boundaryResult = checkProjectBoundary(toolName, p, projectRoot, config.allowedPaths);
               if (boundaryResult) {
                 const combined = stricter(decision, boundaryResult.decision);
                 if (combined !== decision) {

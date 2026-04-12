@@ -121,6 +121,20 @@ export function parseConfigYaml(text: string): ShushConfig {
     }
   }
 
+  // Parse allowed_paths (paths outside project boundary to allow)
+  const allowedPaths: string[] = [];
+  if (doc.allowed_paths) {
+    for (const val of Object.values(doc.allowed_paths)) {
+      if (typeof val === "string") {
+        allowedPaths.push(val);
+      } else if (Array.isArray(val)) {
+        for (const item of val) {
+          if (typeof item === "string") allowedPaths.push(item);
+        }
+      }
+    }
+  }
+
   // Parse deny_tools (glob pattern -> message string)
   const denyTools: Record<string, string> = {};
   if (doc.deny_tools) {
@@ -143,7 +157,7 @@ export function parseConfigYaml(text: string): ShushConfig {
 
   return {
     actions, sensitivePaths, classify, allowTools, mcpPathParams,
-    messages, allowRedirects, denyTools, afterMessages,
+    messages, allowRedirects, denyTools, afterMessages, allowedPaths,
   };
 }
 
@@ -246,9 +260,21 @@ export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConf
   // Merge afterMessages: additive.
   const afterMessages = { ...(base.afterMessages ?? {}), ...(overlay.afterMessages ?? {}) };
 
+  // Merge allowedPaths: union, deduplicated.
+  const basePaths = base.allowedPaths ?? [];
+  const overlayPaths = overlay.allowedPaths ?? [];
+  const seenPaths = new Set(basePaths);
+  const allowedPaths = [...basePaths];
+  for (const p of overlayPaths) {
+    if (!seenPaths.has(p)) {
+      allowedPaths.push(p);
+      seenPaths.add(p);
+    }
+  }
+
   return {
     actions, sensitivePaths, classify, allowTools, mcpPathParams,
-    messages, allowRedirects, denyTools, afterMessages,
+    messages, allowRedirects, denyTools, afterMessages, allowedPaths,
   };
 }
 
@@ -350,6 +376,7 @@ export function loadConfig(
     classify: globalConfig.classify,
     allowTools: globalConfig.allowTools,
     mcpPathParams: globalConfig.mcpPathParams,
+    allowedPaths: globalConfig.allowedPaths,
   };
 
   // Filter project classify entries: only allow tightening.
@@ -363,6 +390,8 @@ export function loadConfig(
     classify: filteredClassify,
     // allowTools is a loosening operation: only the global config can grant it.
     allowTools: [],
+    // allowedPaths is a loosening operation: only the global config can grant it.
+    allowedPaths: [],
   };
 
   return mergeConfigs(effectiveBase, filteredProject);
