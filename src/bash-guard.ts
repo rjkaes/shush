@@ -11,7 +11,7 @@ import { checkComposition } from "./composition.js";
 import { globMatch } from "./types.js";
 import { checkPath } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
-import { stricter, cmdBasename } from "./types.js";
+import { stricter, asFinal, cmdBasename } from "./types.js";
 
 const MAX_UNWRAP_DEPTH = 3;
 
@@ -257,7 +257,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     return {
       command,
       stages: [],
-      finalDecision: "allow",
+      finalDecision: asFinal("allow"),
       actionType: UNKNOWN,
       reason: "",
     };
@@ -455,7 +455,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
 
   // Aggregate: most restrictive stage decision, keeping the reason
   // from whichever stage produced the strictest decision.
-  let finalDecision: Decision = "allow";
+  let finalDecision = asFinal("allow");
   let actionType = stageResults[0]?.actionType ?? UNKNOWN;
   let reason = "";
   for (const sr of stageResults) {

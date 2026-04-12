@@ -7,7 +7,7 @@ import {
   NETWORK_WRITE,
   DEFAULT_POLICIES,
 } from "../taxonomy.js";
-import { STRICTNESS } from "../types.js";
+import { STRICTNESS, type Decision } from "../types.js";
 
 // ==============================================================================
 // Git Global Flag Stripping
@@ -109,8 +109,9 @@ export function checkDangerousGitConfig(tokens: string[]): string | null {
 
 /** Return the more dangerous of two action types (by default policy). */
 function stricterType(a: string, b: string): string {
-  const aRank = STRICTNESS[DEFAULT_POLICIES[a] ?? "ask"] ?? 2;
-  const bRank = STRICTNESS[DEFAULT_POLICIES[b] ?? "ask"] ?? 2;
+  const policies = DEFAULT_POLICIES as Record<string, Decision>;
+  const aRank = STRICTNESS[policies[a] ?? "ask"] ?? 2;
+  const bRank = STRICTNESS[policies[b] ?? "ask"] ?? 2;
   return bRank > aRank ? b : a;
 }
 
@@ -143,7 +144,7 @@ export function classifyGit(tokens: string[]): string | null {
 
   if (sub === "branch") {
     if (!args.length) return GIT_SAFE;
-    let branchResult = GIT_WRITE;
+    let branchResult: string = GIT_WRITE;
     let hasListFlag = false;
     for (const a of args) {
       if (["-a", "-r", "--list", "-v", "-vv"].includes(a)) hasListFlag = true;

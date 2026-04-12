@@ -8,8 +8,7 @@ import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { parseSimpleYaml } from "./mini-yaml.js";
-import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter } from "./types.js";
-import ACTION_TYPES from "../data/types.json";
+import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter, isActionType } from "./types.js";
 import { DEFAULT_POLICIES, prefixMatch } from "./taxonomy.js";
 
 const VALID_DECISIONS = new Set<string>(Object.keys(STRICTNESS));
@@ -32,7 +31,7 @@ export function parseConfigYaml(text: string): ShushConfig {
   const actions: Record<string, Decision> = {};
   if (doc.actions) {
     for (const [key, val] of Object.entries(doc.actions)) {
-      if (!(key in ACTION_TYPES)) {
+      if (!isActionType(key)) {
         process.stderr.write(`shush: config: unknown action type "${key}", skipping\n`);
         continue;
       }
@@ -283,7 +282,7 @@ export function filterClassifyTightenOnly(
   const filtered: Record<string, string[]> = {};
   for (const [targetActionType, patterns] of Object.entries(projectClassify)) {
     const targetPolicy = effectiveActions[targetActionType]
-      ?? DEFAULT_POLICIES[targetActionType]
+      ?? (DEFAULT_POLICIES as Record<string, Decision>)[targetActionType]
       ?? "ask";
     const kept: string[] = [];
     for (const pattern of patterns) {
@@ -341,7 +340,7 @@ export function loadConfig(
   const baseActions: Record<string, Decision> = { ...globalConfig.actions };
   for (const key of Object.keys(projectConfig.actions)) {
     if (!(key in baseActions)) {
-      const hardcoded = DEFAULT_POLICIES[key];
+      const hardcoded = (DEFAULT_POLICIES as Record<string, Decision>)[key];
       if (hardcoded) baseActions[key] = hardcoded;
     }
   }

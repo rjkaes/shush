@@ -3,7 +3,7 @@
 import { homedir } from "node:os";
 import path from "node:path";
 import { realpathSync } from "node:fs";
-import type { Decision, ShushConfig } from "./types.js";
+import type { Decision, ShushConfig, SensitivePathEntry, WriteTool, ReadTool } from "./types.js";
 
 const IS_MACOS = process.platform === "darwin";
 const HOME = homedir();
@@ -40,39 +40,39 @@ const HOOKS_DIR = path.resolve(HOME, ".claude", "hooks");
 const HOOKS_DIR_REAL = resolveReal(HOME, ".claude", "hooks");
 
 // Sensitive directories and files: [resolved_path, display_name, policy]
-const SENSITIVE_DIRS: Array<[string, string, Decision]> = [
-  [resolveReal(HOME, ".ssh"), "~/.ssh", "block"],
-  [resolveReal(HOME, ".gnupg"), "~/.gnupg", "block"],
-  [resolveReal(HOME, ".git-credentials"), "~/.git-credentials", "block"],
-  [resolveReal(HOME, ".netrc"), "~/.netrc", "block"],
-  [resolveReal("/etc/shadow"), "/etc/shadow", "block"],
-  [resolveReal("/etc/master.passwd"), "/etc/master.passwd", "block"],
-  [resolveReal(HOME, ".aws"), "~/.aws", "ask"],
-  [resolveReal(HOME, ".config", "gcloud"), "~/.config/gcloud", "ask"],
-  [resolveReal(HOME, ".docker", "config.json"), "~/.docker/config.json", "block"],
-  [resolveReal(HOME, ".kube", "config"), "~/.kube/config", "block"],
-  [resolveReal(HOME, ".config", "gh", "hosts.yml"), "~/.config/gh/hosts.yml", "block"],
-  [resolveReal(HOME, ".claude", "settings.json"), "~/.claude/settings.json", "ask"],
-  [resolveReal(HOME, ".claude", "settings.local.json"), "~/.claude/settings.local.json", "ask"],
-  [resolveReal(HOME, ".config", "op"), "~/.config/op", "ask"],
-  [resolveReal(HOME, ".vault-token"), "~/.vault-token", "ask"],
-  [resolveReal(HOME, ".config", "hub"), "~/.config/hub", "ask"],
-  [resolveReal(HOME, ".terraform.d", "credentials.tfrc.json"), "~/.terraform.d/credentials.tfrc.json", "ask"],
-  [resolveReal(HOME, ".local", "share", "keyrings"), "~/.local/share/keyrings", "ask"],
-  [resolveReal(HOME, ".password-store"), "~/.password-store", "ask"],
+const SENSITIVE_DIRS: SensitivePathEntry[] = [
+  { resolved: resolveReal(HOME, ".ssh"), display: "~/.ssh", policy: "block" },
+  { resolved: resolveReal(HOME, ".gnupg"), display: "~/.gnupg", policy: "block" },
+  { resolved: resolveReal(HOME, ".git-credentials"), display: "~/.git-credentials", policy: "block" },
+  { resolved: resolveReal(HOME, ".netrc"), display: "~/.netrc", policy: "block" },
+  { resolved: resolveReal("/etc/shadow"), display: "/etc/shadow", policy: "block" },
+  { resolved: resolveReal("/etc/master.passwd"), display: "/etc/master.passwd", policy: "block" },
+  { resolved: resolveReal(HOME, ".aws"), display: "~/.aws", policy: "ask" },
+  { resolved: resolveReal(HOME, ".config", "gcloud"), display: "~/.config/gcloud", policy: "ask" },
+  { resolved: resolveReal(HOME, ".docker", "config.json"), display: "~/.docker/config.json", policy: "block" },
+  { resolved: resolveReal(HOME, ".kube", "config"), display: "~/.kube/config", policy: "block" },
+  { resolved: resolveReal(HOME, ".config", "gh", "hosts.yml"), display: "~/.config/gh/hosts.yml", policy: "block" },
+  { resolved: resolveReal(HOME, ".claude", "settings.json"), display: "~/.claude/settings.json", policy: "ask" },
+  { resolved: resolveReal(HOME, ".claude", "settings.local.json"), display: "~/.claude/settings.local.json", policy: "ask" },
+  { resolved: resolveReal(HOME, ".config", "op"), display: "~/.config/op", policy: "ask" },
+  { resolved: resolveReal(HOME, ".vault-token"), display: "~/.vault-token", policy: "ask" },
+  { resolved: resolveReal(HOME, ".config", "hub"), display: "~/.config/hub", policy: "ask" },
+  { resolved: resolveReal(HOME, ".terraform.d", "credentials.tfrc.json"), display: "~/.terraform.d/credentials.tfrc.json", policy: "ask" },
+  { resolved: resolveReal(HOME, ".local", "share", "keyrings"), display: "~/.local/share/keyrings", policy: "ask" },
+  { resolved: resolveReal(HOME, ".password-store"), display: "~/.password-store", policy: "ask" },
 ];
 
 // Sensitive basenames: [basename, display_name, policy]
 // Tool sets for hook-path protection (hoisted to avoid per-call allocation).
-const HOOK_BLOCK_TOOLS = new Set(["Write", "Edit", "MultiEdit", "NotebookEdit"]);
-const HOOK_READONLY_TOOLS = new Set(["Read", "Glob", "Grep"]);
+const HOOK_BLOCK_TOOLS: Set<string> = new Set(["Write", "Edit", "MultiEdit", "NotebookEdit"] satisfies WriteTool[]);
+const HOOK_READONLY_TOOLS: Set<string> = new Set(["Read", "Glob", "Grep"] satisfies ReadTool[]);
 
-const SENSITIVE_BASENAMES: Array<[string, string, Decision]> = [
-  [".env", ".env", "ask"],
-  [".env.local", ".env.local", "ask"],
-  [".env.production", ".env.production", "ask"],
-  [".npmrc", ".npmrc", "ask"],
-  [".pypirc", ".pypirc", "ask"],
+const SENSITIVE_BASENAMES: SensitivePathEntry[] = [
+  { resolved: ".env", display: ".env", policy: "ask" },
+  { resolved: ".env.local", display: ".env.local", policy: "ask" },
+  { resolved: ".env.production", display: ".env.production", policy: "ask" },
+  { resolved: ".npmrc", display: ".npmrc", policy: "ask" },
+  { resolved: ".pypirc", display: ".pypirc", policy: "ask" },
 ];
 
 /** Expand ~, $HOME, ${HOME} and resolve to absolute canonical path. */
@@ -124,7 +124,7 @@ export function isSensitive(resolved: string, config?: ShushConfig): { matched: 
   const cmp = IS_MACOS ? resolved.toLowerCase() : resolved;
 
   // Check directory patterns
-  for (const [dirPath, display, policy] of SENSITIVE_DIRS) {
+  for (const { resolved: dirPath, display, policy } of SENSITIVE_DIRS) {
     const dirCmp = IS_MACOS ? dirPath.toLowerCase() : dirPath;
     if (cmp === dirCmp || cmp.startsWith(dirCmp + path.sep)) {
       return { matched: true, pattern: display, policy };
@@ -134,7 +134,7 @@ export function isSensitive(resolved: string, config?: ShushConfig): { matched: 
   // Check basename patterns
   const basename = path.basename(resolved);
   const basenameCmp = IS_MACOS ? basename.toLowerCase() : basename;
-  for (const [name, display, policy] of SENSITIVE_BASENAMES) {
+  for (const { resolved: name, display, policy } of SENSITIVE_BASENAMES) {
     const nameCmp = IS_MACOS ? name.toLowerCase() : name;
     if (basenameCmp === nameCmp) {
       return { matched: true, pattern: display, policy };

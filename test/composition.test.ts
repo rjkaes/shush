@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { checkComposition } from "../src/composition";
-import type { StageResult, Stage } from "../src/types";
+import type { StageResult, Stage, PipelineOperator } from "../src/types";
 
 function makeStageResult(tokens: string[], actionType: string): StageResult {
   return { tokens, actionType, decision: "allow", reason: "" };
 }
-function makeStage(tokens: string[], op: string): Stage {
+function makeStage(tokens: string[], op: PipelineOperator): Stage {
   return { tokens, operator: op };
 }
 

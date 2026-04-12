@@ -5,7 +5,7 @@ import type {
   If, While, For, Case,
   ArithmeticFor, Select,
 } from "unbash";
-import type { Stage } from "./types.js";
+import type { Stage, PipelineOperator } from "./types.js";
 
 /** Sentinel token replacing extracted process substitutions. */
 export const PROCSUB_PLACEHOLDER = "__PROCSUB__";
@@ -257,11 +257,11 @@ function walkScript(ast: Script): Stage[] {
 }
 
 /** Unwrap a Statement node and dispatch on its inner command. */
-function walkStatement(stmt: Statement, trailingOp: string): Stage[] {
+function walkStatement(stmt: Statement, trailingOp: PipelineOperator): Stage[] {
   return walkNode(stmt.command, trailingOp, stmt.redirects);
 }
 
-function walkNode(node: Node, trailingOp: string, stmtRedirects?: Redirect[]): Stage[] {
+function walkNode(node: Node, trailingOp: PipelineOperator, stmtRedirects?: Redirect[]): Stage[] {
   switch (node.type) {
     case "Command":
       return [commandToStage(node, trailingOp, stmtRedirects)];
@@ -309,7 +309,7 @@ function walkNode(node: Node, trailingOp: string, stmtRedirects?: Redirect[]): S
   }
 }
 
-function walkPipeline(node: Pipeline, trailingOp: string): Stage[] {
+function walkPipeline(node: Pipeline, trailingOp: PipelineOperator): Stage[] {
   const stages: Stage[] = [];
   for (let i = 0; i < node.commands.length; i++) {
     const isLast = i === node.commands.length - 1;
@@ -320,17 +320,17 @@ function walkPipeline(node: Pipeline, trailingOp: string): Stage[] {
 }
 
 /** AndOr uses a flat commands[] + operators[] instead of binary left/right. */
-function walkAndOr(node: AndOr, trailingOp: string): Stage[] {
+function walkAndOr(node: AndOr, trailingOp: PipelineOperator): Stage[] {
   const stages: Stage[] = [];
   for (let i = 0; i < node.commands.length; i++) {
     const isLast = i === node.commands.length - 1;
-    const op = isLast ? trailingOp : node.operators[i];
+    const op = isLast ? trailingOp : node.operators[i] as PipelineOperator;
     stages.push(...walkNode(node.commands[i], op));
   }
   return stages;
 }
 
-function walkCompoundList(node: CompoundList, trailingOp: string): Stage[] {
+function walkCompoundList(node: CompoundList, trailingOp: PipelineOperator): Stage[] {
   if (!node.commands.length) return [];
 
   const stages: Stage[] = [];
@@ -341,7 +341,7 @@ function walkCompoundList(node: CompoundList, trailingOp: string): Stage[] {
   return stages;
 }
 
-function walkIf(node: If, trailingOp: string): Stage[] {
+function walkIf(node: If, trailingOp: PipelineOperator): Stage[] {
   const stages: Stage[] = [];
   stages.push(...walkCompoundList(node.clause, ""));
   stages.push(...walkCompoundList(node.then, ""));
@@ -358,7 +358,7 @@ function walkIf(node: If, trailingOp: string): Stage[] {
   return stages;
 }
 
-function walkWhile(node: While, trailingOp: string): Stage[] {
+function walkWhile(node: While, trailingOp: PipelineOperator): Stage[] {
   const stages: Stage[] = [];
   stages.push(...walkCompoundList(node.clause, ""));
   stages.push(...walkCompoundList(node.body, ""));
@@ -368,7 +368,7 @@ function walkWhile(node: While, trailingOp: string): Stage[] {
   return stages;
 }
 
-function walkLoop(node: For | ArithmeticFor | Select, trailingOp: string): Stage[] {
+function walkLoop(node: For | ArithmeticFor | Select, trailingOp: PipelineOperator): Stage[] {
   const stages = walkCompoundList(node.body, "");
   if (stages.length > 0 && trailingOp) {
     stages[stages.length - 1].operator = trailingOp;
@@ -376,7 +376,7 @@ function walkLoop(node: For | ArithmeticFor | Select, trailingOp: string): Stage
   return stages;
 }
 
-function walkCase(node: Case, trailingOp: string): Stage[] {
+function walkCase(node: Case, trailingOp: PipelineOperator): Stage[] {
   const stages: Stage[] = [];
   for (const item of node.items) {
     stages.push(...walkCompoundList(item.body, ""));
@@ -391,7 +391,7 @@ function walkCase(node: Case, trailingOp: string): Stage[] {
 // Command → Stage conversion
 // ==============================================================================
 
-function commandToStage(node: Command, operator: string, stmtRedirects?: Redirect[]): Stage {
+function commandToStage(node: Command, operator: PipelineOperator, stmtRedirects?: Redirect[]): Stage {
   const tokens: string[] = [];
   const envAssignments: string[] = [];
   let redirectTarget: string | undefined;
@@ -504,8 +504,8 @@ function extractRedirectFromTokens(tokens: string[]): {
 }
 
 /** Split command on |, &&, ||, ; that are outside quotes. */
-function splitOnUnquotedOperators(command: string): Array<{ text: string; operator: string }> {
-  const results: Array<{ text: string; operator: string }> = [];
+function splitOnUnquotedOperators(command: string): Array<{ text: string; operator: PipelineOperator }> {
+  const results: Array<{ text: string; operator: PipelineOperator }> = [];
   let current = "";
   let inSingle = false;
   let inDouble = false;
@@ -522,7 +522,7 @@ function splitOnUnquotedOperators(command: string): Array<{ text: string; operat
     if (!inSingle && !inDouble) {
       // Check for || and &&
       if ((ch === "|" || ch === "&") && command[i + 1] === ch) {
-        const op = ch + ch;
+        const op = (ch + ch) as PipelineOperator;
         results.push({ text: current, operator: op });
         current = "";
         i++; // skip second char

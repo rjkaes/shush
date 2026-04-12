@@ -1,6 +1,7 @@
 import { evaluate } from "../src/evaluate.js";
 import { loadConfig } from "../src/config.js";
 import type { HookInput, HookOutput } from "../src/types.js";
+import { toPermissionDecision } from "../src/types.js";
 
 async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
@@ -33,7 +34,7 @@ async function main() {
     );
   }
 
-  const permissionDecision = decision === "block" ? "deny" : "ask";
+  const permissionDecision = toPermissionDecision(decision);
 
   const output: HookOutput = {
     hookSpecificOutput: {

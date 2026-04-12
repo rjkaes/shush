@@ -5,7 +5,7 @@ import {
   FILESYSTEM_DELETE,
   DEFAULT_POLICIES,
 } from "../taxonomy.js";
-import { STRICTNESS } from "../types.js";
+import { STRICTNESS, type Decision } from "../types.js";
 
 function classifyExecTokens(tokens: string[]): string {
   const flagResult = checkFlagRules(tokens[0], tokens);
@@ -14,15 +14,16 @@ function classifyExecTokens(tokens: string[]): string {
 }
 
 function stricterType(a: string, b: string): string {
-  const aRank = STRICTNESS[DEFAULT_POLICIES[a] ?? "ask"] ?? 2;
-  const bRank = STRICTNESS[DEFAULT_POLICIES[b] ?? "ask"] ?? 2;
+  const policies = DEFAULT_POLICIES as Record<string, Decision>;
+  const aRank = STRICTNESS[policies[a] ?? "ask"] ?? 2;
+  const bRank = STRICTNESS[policies[b] ?? "ask"] ?? 2;
   return bRank > aRank ? b : a;
 }
 
 export function classifyFind(tokens: string[]): string | null {
   if (!tokens.length || tokens[0] !== "find") return null;
 
-  let worst = FILESYSTEM_READ;
+  let worst: string = FILESYSTEM_READ;
   for (let i = 1; i < tokens.length; i++) {
     const tok = tokens[i];
 

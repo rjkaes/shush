@@ -1,13 +1,14 @@
-import { type Decision, type ShushConfig, cmdBasename, normalizeVersionedCmd } from "./types.js";
+import {
+  type ActionType, type Decision, type ShushConfig,
+  isActionType, cmdBasename, normalizeVersionedCmd,
+} from "./types.js";
 import ACTION_TYPES from "../data/types.json";
 import DEFAULT_POLICIES_JSON from "../data/policies.json";
 import classifyTrieJSON from "../data/classifier-trie.json";
 
 // Derive constants from the JSON keys for use throughout the codebase.
-const t = (key: string): string => {
-  if (!(key in ACTION_TYPES)) throw new Error(`Unknown action type: ${key}`);
-  return key;
-};
+// The return type is ActionType, enforced at compile time.
+const t = <K extends ActionType>(key: K): K => key;
 export const FILESYSTEM_READ = t("filesystem_read");
 export const FILESYSTEM_WRITE = t("filesystem_write");
 export const FILESYSTEM_DELETE = t("filesystem_delete");
@@ -32,7 +33,7 @@ export const OBFUSCATED = t("obfuscated");
 export const UNKNOWN = t("unknown");
 
 // Default policies loaded from data/policies.json
-export const DEFAULT_POLICIES: Record<string, Decision> = DEFAULT_POLICIES_JSON as Record<string, Decision>;
+export const DEFAULT_POLICIES: Record<ActionType, Decision> = DEFAULT_POLICIES_JSON as Record<ActionType, Decision>;
 
 // ==============================================================================
 // Prefix Trie (pre-built at build time by scripts/build-trie.ts)
@@ -42,7 +43,7 @@ export const DEFAULT_POLICIES: Record<string, Decision> = DEFAULT_POLICIES_JSON 
 // an export for tests that pass ad-hoc tables to prefixMatch.
 export interface PrefixEntry {
   prefix: string[];
-  actionType: string;
+  actionType: ActionType;
 }
 
 // Trie node shape matches the JSON: keys are tokens, "_" holds the action type.
@@ -52,13 +53,13 @@ interface TrieNode {
 }
 
 /** Walk the trie, returning the deepest (longest-prefix) action found. */
-function trieLookup(root: TrieNode, tokens: string[]): string {
+function trieLookup(root: TrieNode, tokens: string[]): ActionType {
   let node = root;
-  let bestAction = UNKNOWN;
+  let bestAction: ActionType = UNKNOWN;
   for (const token of tokens) {
     const child: TrieNode[string] = node[token];
     if (!child || typeof child === "string") break;
-    if (child._ !== undefined) bestAction = child._;
+    if (child._ !== undefined) bestAction = child._ as ActionType;
     node = child;
   }
   return bestAction;
@@ -71,7 +72,7 @@ const classifyTrie: TrieNode = classifyTrieJSON as unknown as TrieNode;
 export function prefixMatch(
   tokens: string[],
   table?: PrefixEntry[],
-): string {
+): ActionType {
   // Fast path: built-in trie lookup, O(prefix depth).
   if (!table) return trieLookup(classifyTrie, tokens);
 
@@ -98,7 +99,7 @@ export function prefixMatch(
  *  prevented untrusted (project) config from loosening policies. */
 export function getPolicy(actionType: string, config?: ShushConfig): Decision {
   if (config?.actions[actionType]) return config.actions[actionType];
-  return DEFAULT_POLICIES[actionType] ?? "ask";
+  return (DEFAULT_POLICIES as Record<string, Decision>)[actionType] ?? "ask";
 }
 
 // Shell wrappers that need unwrapping
