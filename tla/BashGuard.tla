@@ -107,12 +107,14 @@ CompositionDecisionFn(ct, ignoresStdin) ==
       [] ct = "decode_exec"            -> IF ignoresStdin THEN Allow ELSE Block
       [] ct = "any_read_exec"          -> IF ignoresStdin THEN Allow ELSE Ask
 
-(* ---------- Path-based decision ---------- *)
-
+(* Path decision for Bash tool redirect/git-dir targets.
+   checkPath("Bash", ...) is called. "Bash" is not in HOOK_BLOCK_TOOLS
+   (Write/Edit/MultiEdit/NotebookEdit) or HOOK_READONLY_TOOLS (Read/Glob/Grep),
+   so hook paths get Ask (the else branch), not Block. *)
 PathDecision(cat) ==
     CASE cat = "sensitive_block" -> Block
       [] cat = "sensitive_ask"   -> Ask
-      [] cat = "hook"            -> Block
+      [] cat = "hook"            -> Ask   \* Bash tool -> else branch -> Ask
       [] cat = "normal"          -> Allow
 
 (* ---------- Full decision computation ---------- *)
@@ -242,10 +244,11 @@ RedirectToSensitiveBlocked ==
     (hasRedirect /\ ~redirectIsDevice /\ redirectPath = "sensitive_block")
     => finalDecision = Block
 
-(* INV-9: Redirect to hook path -> Block *)
-RedirectToHookBlocked ==
+(* INV-9: Redirect to hook path -> at least Ask.
+   Bash tool is not in HOOK_BLOCK_TOOLS, so hook paths get Ask, not Block. *)
+RedirectToHookNotAllow ==
     (hasRedirect /\ ~redirectIsDevice /\ redirectPath = "hook")
-    => finalDecision = Block
+    => Strictness[finalDecision] >= Strictness[Ask]
 
 (* INV-10: Git -C to sensitive-block -> Block *)
 GitPathSensitiveEscalated ==
@@ -321,7 +324,7 @@ SafetyInvariant ==
     /\ DestructiveNeverAllow
     /\ ExecEnvEscalation
     /\ RedirectToSensitiveBlocked
-    /\ RedirectToHookBlocked
+    /\ RedirectToHookNotAllow
     /\ GitPathSensitiveEscalated
     /\ GitDangerousConfigEscalated
     /\ ShellWrapperNoDowngrade

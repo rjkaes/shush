@@ -69,7 +69,7 @@ CompositionDecisionFn(ct, ignoresStdin) ==
 PathDecision(cat) ==
     CASE cat = "sensitive_block" -> Block
       [] cat = "sensitive_ask"   -> Ask
-      [] cat = "hook"            -> Block
+      [] cat = "hook"            -> Ask   \* Bash tool -> else branch -> Ask
       [] cat = "normal"          -> Allow
 
 ComputeBashDecision(sp, execEnv,
