@@ -9,6 +9,7 @@
 // showing exactly which input breaks the invariant.
 
 import { describe, expect, test } from "bun:test";
+import { homedir } from "node:os";
 import fc from "fast-check";
 import { evaluate } from "../src/evaluate";
 import { classifyCommand } from "../src/bash-guard";
@@ -629,7 +630,7 @@ describe("BG property: rm decision >= Write decision on same path", () => {
       fc.constantFrom(...sensBlockPaths, ...sensAskPaths),
       (path) => {
         const rmResult = classifyCommand(`rm ${path}`, 0);
-        const writeResult = ev("Write", { file_path: path.replace("~", process.env.HOME!), content: "x" });
+        const writeResult = ev("Write", { file_path: path.replace("~", homedir()), content: "x" });
         return atLeast(rmResult.finalDecision, writeResult.decision);
       },
     ), { numRuns: 50 });
@@ -801,7 +802,7 @@ describe("META: path-check coverage invariant", () => {
 
 describe("M4: hook self-protection across all tools + bash", () => {
   // Resolve ~ to actual home dir for file tool tests (evaluate expands ~)
-  const home = process.env.HOME!;
+  const home = homedir();
   const resolvedHookPaths = hookPaths.map(p => p.replace("~", home));
 
   // --- File tools: block ---
