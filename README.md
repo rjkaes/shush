@@ -195,6 +195,20 @@ Read, Write, Edit, Glob, and Grep are checked for:
 - **Project boundary** -- flags writes outside the working directory
 - **Content scanning** -- destructive patterns, exfiltration, credential access, obfuscation, embedded secrets
 
+
+### Formal verification
+
+Security invariants are verified by [Z3](https://github.com/Z3Prover/z3)
+SMT proofs that run on every commit. 41 proofs across 9 test files
+check properties including:
+
+- **No bypass**: no input combination yields Allow for sensitive or hook paths
+- **Policy completeness**: every input maps to exactly one decision
+- **Bash/file equivalence**: `cat path` is at least as strict as `Read path`; `echo > path` at least as strict as `Write path`
+- **Composition safety**: pipe patterns like `curl | sh` always block
+- **Config safety**: user config can tighten policies but never loosen them
+- **Hook self-protection**: all modifying tools are blocked for hook paths
+- **Decision algebra**: the `stricter()` function forms a correct join-semilattice
 ## Configuration
 
 Works out of the box with zero config. Optionally tune behavior with
@@ -379,7 +393,7 @@ has that power. Loosening-only settings (`allow_tools`, `allow_redirects`,
 ## Development
 
 ```bash
-bun test              # run all tests
+bun test              # run all tests (includes Z3 proofs)
 bun run typecheck     # type-check without emitting
 bun run build         # rebuild trie + bundle hook
 ```
