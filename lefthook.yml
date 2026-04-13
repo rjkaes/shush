@@ -11,3 +11,8 @@ pre-commit:
       run: bun run typecheck
     test:
       run: bun test
+
+pre-push:
+  commands:
+    z3-proofs:
+      run: bun test --grep z3

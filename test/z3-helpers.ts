@@ -1,10 +1,5 @@
 import { init } from "z3-solver";
 
-/**
- * When BUN_Z3=0, skip Z3 tests for fast iteration.
- * Lefthook pre-commit always runs the full suite.
- */
-export const Z3_ENABLED = process.env.BUN_Z3 !== "0";
 import policiesJson from "../data/policies.json";
 
 // Decision encoding: allow=0, context=1, ask=2, block=3

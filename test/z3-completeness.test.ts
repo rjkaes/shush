@@ -1,9 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { runProof } from "./z3-run";
-import { Z3_ENABLED } from "./z3-helpers";
 
-(Z3_ENABLED ? describe : describe.skip)("z3 completeness proofs", () => {
-  const results = Z3_ENABLED ? runProof("test/z3-proofs/completeness.ts") : [];
+describe("z3 completeness proofs", () => {
+  const results = runProof("test/z3-proofs/completeness.ts");
 
   test("C1: all action types map to valid decisions", () => {
     expect(results.find((r) => r.name === "C1")?.result).toBe("unsat");
