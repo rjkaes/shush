@@ -4,7 +4,7 @@
 // extractStages -> classify each stage -> check composition -> aggregate.
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
-import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, NETWORK_OUTBOUND, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
+import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, NETWORK_OUTBOUND, GIT_SAFE, GIT_WRITE, GIT_DISCARD, GIT_HISTORY_REWRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
 import { checkFlagRules } from "./flag-rules.js";
 import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec, extractFindRoots } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
@@ -201,6 +201,62 @@ function extractDockerInnerCommand(tokens: string[]): string[] | null {
   return tokens.slice(i);
 }
 
+/**
+ * Extract host paths from docker -v/--volume and --mount flags.
+ * -v host_path:container_path[:opts]  →  host_path
+ * --volume host_path:container_path   →  host_path
+ * --mount type=bind,source=host,...   →  host_path
+ */
+function extractDockerMountPaths(tokens: string[]): string[] {
+  const paths: string[] = [];
+  for (let i = 2; i < tokens.length; i++) {
+    const tok = tokens[i];
+    if (tok === "-v" || tok === "--volume") {
+      if (i + 1 < tokens.length) {
+        const val = tokens[i + 1];
+        // Format: host:container[:opts] or named_volume:container
+        const colonIdx = val.indexOf(":");
+        if (colonIdx > 0) {
+          const hostPart = val.slice(0, colonIdx);
+          // Named volumes don't start with / ~ $ . — skip them
+          if (hostPart.startsWith("/") || hostPart.startsWith("~") ||
+              hostPart.startsWith("$") || hostPart.startsWith(".")) {
+            paths.push(hostPart);
+          }
+        }
+        i++; // skip value
+      }
+    } else if (tok === "--mount" && i + 1 < tokens.length) {
+      // --mount type=bind,source=/host/path,target=/container/path
+      const val = tokens[i + 1];
+      const srcMatch = val.match(/(?:^|,)(?:source|src)=([^,]+)/);
+      if (srcMatch) {
+        paths.push(srcMatch[1]);
+      }
+      i++;
+    } else if (tok.startsWith("--volume=")) {
+      const val = tok.slice("--volume=".length);
+      const colonIdx = val.indexOf(":");
+      if (colonIdx > 0) {
+        const hostPart = val.slice(0, colonIdx);
+        if (hostPart.startsWith("/") || hostPart.startsWith("~") ||
+            hostPart.startsWith("$") || hostPart.startsWith(".")) {
+          paths.push(hostPart);
+        }
+      }
+    } else if (tok.startsWith("--mount=")) {
+      const val = tok.slice("--mount=".length);
+      const srcMatch = val.match(/(?:^|,)(?:source|src)=([^,]+)/);
+      if (srcMatch) {
+        paths.push(srcMatch[1]);
+      }
+    } else if (!tok.startsWith("-")) {
+      break; // reached container/image name — stop
+    }
+  }
+  return paths;
+}
+
 function classifyStage(tokens: string[], config?: ShushConfig): { actionType: string; decision: Decision } {
   // Bare assignments (e.g., `FOO=bar`) produce empty tokens. The assignment
   // itself is harmless; any command substitution in the value is extracted
@@ -347,11 +403,25 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       const innerTokens = extractDockerInnerCommand(tokens);
       if (innerTokens && innerTokens.length > 0) {
         const innerResult = classifyCommand(innerTokens.join(" "), depth + 1, config);
+        let dockerDecision = innerResult.finalDecision;
+        let dockerReason = innerResult.reason || `docker ${tokens[1]}: ${innerTokens.join(" ")}`;
+
+        // Check volume mount host paths against sensitive-path rules.
+        // -v ~/.ssh:/keys mounts a sensitive host directory into the
+        // container, enabling exfiltration regardless of inner command.
+        for (const mountPath of extractDockerMountPaths(tokens)) {
+          const pathResult = checkPath("Write", mountPath, config);
+          if (pathResult) {
+            dockerDecision = stricter(dockerDecision, pathResult.decision);
+            dockerReason = pathResult.reason;
+          }
+        }
+
         return {
           tokens,
           actionType: innerResult.stages[0]?.actionType ?? LANG_EXEC,
-          decision: innerResult.finalDecision,
-          reason: innerResult.reason || `docker ${tokens[1]}: ${innerTokens.join(" ")}`,
+          decision: dockerDecision,
+          reason: dockerReason,
         };
       }
     }
@@ -419,17 +489,23 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       }
     }
 
-    // File-reading/writing/deleting commands: check positional arguments
+    // Commands that operate on file paths: check positional arguments
     // against sensitive paths. Without this, "cat ~/.ssh/id_rsa" gets allow
     // because the default policy for filesystem_read is allow and bash-guard
-    // doesn't otherwise inspect file arguments. Network commands (rsync, scp)
-    // also operate on file paths and need the same treatment.
-    if (actionType === FILESYSTEM_READ || actionType === FILESYSTEM_WRITE || actionType === FILESYSTEM_DELETE || actionType === NETWORK_OUTBOUND) {
+    // doesn't otherwise inspect file arguments. Git subcommands (clone,
+    // init, archive) can write to arbitrary destinations. Network commands
+    // (rsync, scp) exfiltrate via file paths.
+    const PATH_CHECKED_TYPES: Set<string> = new Set([
+      FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, NETWORK_OUTBOUND,
+      GIT_SAFE, GIT_WRITE, GIT_DISCARD, GIT_HISTORY_REWRITE,
+    ]);
+    if (PATH_CHECKED_TYPES.has(actionType)) {
       // Use matching tool name: Read for filesystem_read, Write for writes,
       // deletes, and network commands. Network commands that touch files
       // (scp, rsync) can both read and exfiltrate, so "Write" proxy is
       // conservative — blocks hook-path exfiltration.
-      const proxyTool = actionType === FILESYSTEM_READ ? "Read" : "Write";
+      const isReadOnly = actionType === FILESYSTEM_READ || actionType === GIT_SAFE;
+      const proxyTool = isReadOnly ? "Read" : "Write";
 
       // find is special: search roots come before predicate flags, and
       // predicate arguments (e.g. -name "*.log") are not paths.
@@ -437,6 +513,8 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
         ? extractFindRoots(tokens)
         : tokens.slice(1).filter((tok) => {
             if (tok.startsWith("-")) return false;
+            // Skip URLs (git clone https://..., git remote add origin ...)
+            if (/^[a-z+]+:\/\//i.test(tok)) return false;
             if (!tok.includes("/") && !tok.startsWith("~") && !tok.startsWith("$")) return false;
             return true;
           });

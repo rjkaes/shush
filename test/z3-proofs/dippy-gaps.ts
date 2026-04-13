@@ -186,7 +186,53 @@ async function main() {
     solver.add(networkDecision.lt(readDecision));
     report("D6", await solver.check());
   }
+
+  // D7: git clone to sensitive path >= Write to that path
+  // git_write policy is "allow" (0). Path-check adds
+  // stricter(allow, pathPolicy) = pathPolicy. Write tool gets pathPolicy.
+  // So git clone to sensitive path gets exactly the same as Write.
+  {
+    const ctx = new Context("D7");
+    const { Solver, Int } = ctx;
+    const solver = new Solver();
+
+    const pathPolicy = Int.const("pathPolicy");
+    const gitWritePolicy = Int.val(POLICIES["git_write"]);
+    solver.add(validDecision(ctx, pathPolicy));
+
+    const writeDecision = pathPolicy;
+    const gitCloneDecision = stricter(ctx, gitWritePolicy, pathPolicy);
+
+    // Try to find: git clone decision < Write decision
+    solver.add(gitCloneDecision.lt(writeDecision));
+    report("D7", await solver.check());
+  }
+
+  // D8: docker -v mount of sensitive path >= Write to that path
+  // Docker inner command gets some decision D_inner. Volume mount
+  // path-check adds stricter(D_inner, pathPolicy). Write tool gets
+  // pathPolicy. Since stricter(D_inner, pathPolicy) >= pathPolicy,
+  // docker with sensitive mount is always >= Write.
+  {
+    const ctx = new Context("D8");
+    const { Solver, Int } = ctx;
+    const solver = new Solver();
+
+    const pathPolicy = Int.const("pathPolicy");
+    const innerDecision = Int.const("innerDecision");
+    solver.add(validDecision(ctx, pathPolicy));
+    solver.add(validDecision(ctx, innerDecision));
+
+    const writeDecision = pathPolicy;
+    const dockerDecision = stricter(ctx, innerDecision, pathPolicy);
+
+    // Try to find: docker decision < Write decision
+    solver.add(dockerDecision.lt(writeDecision));
+    report("D8", await solver.check());
+  }
 }
+
+main().then(() => process.exit(0));
 
 main().then(() => process.exit(0));
 

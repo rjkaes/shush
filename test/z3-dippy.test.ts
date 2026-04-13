@@ -22,4 +22,10 @@ describe("z3 dippy-gap proofs", () => {
   test("D6: network_outbound sensitive path >= Read sensitive path", () => {
     expect(results.find((r) => r.name === "D6")?.result).toBe("unsat");
   });
+  test("D7: git clone sensitive dest >= Write sensitive path", () => {
+    expect(results.find((r) => r.name === "D7")?.result).toBe("unsat");
+  });
+  test("D8: docker -v sensitive mount >= Write sensitive path", () => {
+    expect(results.find((r) => r.name === "D8")?.result).toBe("unsat");
+  });
 });

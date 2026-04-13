@@ -678,3 +678,33 @@ describe("BG property: rsync sensitive path never allows", () => {
     ), { numRuns: 50 });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Git destination + docker volume mount properties
+// ---------------------------------------------------------------------------
+
+describe("BG property: git clone to sensitive path never allows", () => {
+  test("git clone url <sensitive-block-path>/repo -> not allow", () => {
+    const cmds = sensBlockPaths.map(p => `git clone https://example.com ${p}/repo`);
+    fc.assert(fc.property(
+      fc.constantFrom(...cmds),
+      (cmd) => {
+        const result = classifyCommand(cmd, 0);
+        return result.finalDecision !== "allow";
+      },
+    ), { numRuns: 50 });
+  });
+});
+
+describe("BG property: docker -v sensitive mount never allows", () => {
+  test("docker run -v <sensitive-block-path>:/mnt alpine sh -> not allow", () => {
+    const cmds = sensBlockPaths.map(p => `docker run -v ${p}:/mnt alpine sh`);
+    fc.assert(fc.property(
+      fc.constantFrom(...cmds),
+      (cmd) => {
+        const result = classifyCommand(cmd, 0);
+        return result.finalDecision !== "allow";
+      },
+    ), { numRuns: 50 });
+  });
+});
