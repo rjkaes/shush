@@ -8,6 +8,33 @@ You're approving dozens of completely safe commands per session, because the alt
 
 shush *is* the middle ground. It classifies every tool call by what it actually does, then applies the right policy. No LLMs in the loop; every decision is deterministic, fast, and traceable.
 
+## Table of contents
+
+- [Install](#install)
+- [Why AST, not regex?](#why-ast-not-regex)
+- [What gets checked](#what-gets-checked)
+- [How classification works](#how-classification-works)
+  - [Decisions](#decisions)
+  - [Action types](#action-types)
+  - [Pipe composition](#pipe-composition)
+  - [File tool guards](#file-tool-guards)
+  - [Formal verification](#formal-verification)
+- [Configuration](#configuration)
+  - [`actions`](#actions----override-default-policies)
+  - [`sensitive_paths`](#sensitive_paths----protect-additional-locations)
+  - [`classify`](#classify----teach-shush-new-commands)
+  - [`allow_tools`](#allow_tools----allowlist-mcp-tools)
+  - [`messages`](#messages----explain-blocked-commands-to-the-ai)
+  - [`allow_redirects`](#allow_redirects----whitelist-redirect-targets)
+  - [`deny_tools`](#deny_tools----block-specific-mcp-tools)
+  - [`after_messages`](#after_messages----post-execution-reminders)
+  - [`allowed_paths`](#allowed_paths----whitelist-paths-outside-the-project)
+  - [Supply-chain safety](#supply-chain-safety)
+- [Development](#development)
+- [Comparison](#comparison)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
+
 ```
 git push              -> allow
 git push --force      -> shush.
