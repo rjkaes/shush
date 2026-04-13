@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { runProof } from "./z3-run";
+import { Z3_ENABLED } from "./z3-helpers";
 
-describe("z3 smoke", () => {
-  const results = runProof("test/z3-proofs/smoke.ts");
+(Z3_ENABLED ? describe : describe.skip)("z3 smoke", () => {
+  const results = Z3_ENABLED ? runProof("test/z3-proofs/smoke.ts") : [];
 
   test("UNSAT for contradiction", () => {
     const r = results.find((r) => r.name === "contradiction");

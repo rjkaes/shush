@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { runProof } from "./z3-run";
+import { Z3_ENABLED } from "./z3-helpers";
 
-describe("z3 composition proofs", () => {
-  const results = runProof("test/z3-proofs/composition.ts");
+(Z3_ENABLED ? describe : describe.skip)("z3 composition proofs", () => {
+  const results = Z3_ENABLED ? runProof("test/z3-proofs/composition.ts") : [];
 
   test("X1: network | exec always blocks", () => {
     expect(results.find((r) => r.name === "X1")?.result).toBe("unsat");
