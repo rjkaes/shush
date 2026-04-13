@@ -4,9 +4,9 @@
 // extractStages -> classify each stage -> check composition -> aggregate.
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
-import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
+import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
 import { checkFlagRules } from "./flag-rules.js";
-import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec } from "./classifiers/index.js";
+import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec, extractFindRoots } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
 import { globMatch } from "./types.js";
 import { checkPath } from "./path-guard.js";
@@ -419,23 +419,28 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       }
     }
 
-    // File-reading commands (cat, head, less, etc.) classified as
-    // filesystem_read: check positional arguments against sensitive paths.
-    // Without this, "cat ~/.ssh/id_rsa" gets allow because the default
-    // policy for filesystem_read is allow and bash-guard doesn't otherwise
-    // inspect file arguments.
-    if (actionType === FILESYSTEM_READ || actionType === FILESYSTEM_WRITE) {
-      for (let ti = 1; ti < tokens.length; ti++) {
-        const tok = tokens[ti];
-        // Skip flags and flag values
-        if (tok.startsWith("-")) continue;
-        // Skip tokens that look like non-path arguments
-        if (!tok.includes("/") && !tok.startsWith("~") && !tok.startsWith("$")) continue;
-        // Use matching tool name: Read for filesystem_read, Write for writes.
-        // This ensures hook paths get the same treatment as the equivalent
-        // file tool (Read allows hooks, Write blocks hooks).
-        const proxyTool = actionType === FILESYSTEM_READ ? "Read" : "Write";
-        const pathResult = checkPath(proxyTool, tok, config);
+    // File-reading/writing/deleting commands: check positional arguments
+    // against sensitive paths. Without this, "cat ~/.ssh/id_rsa" gets allow
+    // because the default policy for filesystem_read is allow and bash-guard
+    // doesn't otherwise inspect file arguments.
+    if (actionType === FILESYSTEM_READ || actionType === FILESYSTEM_WRITE || actionType === FILESYSTEM_DELETE) {
+      // Use matching tool name: Read for filesystem_read, Write for writes
+      // and deletes. This ensures hook paths get the same treatment as the
+      // equivalent file tool (Read allows hooks, Write blocks hooks).
+      const proxyTool = actionType === FILESYSTEM_READ ? "Read" : "Write";
+
+      // find is special: search roots come before predicate flags, and
+      // predicate arguments (e.g. -name "*.log") are not paths.
+      const pathArgs = tokens[0] === "find"
+        ? extractFindRoots(tokens)
+        : tokens.slice(1).filter((tok) => {
+            if (tok.startsWith("-")) return false;
+            if (!tok.includes("/") && !tok.startsWith("~") && !tok.startsWith("$")) return false;
+            return true;
+          });
+
+      for (const pathArg of pathArgs) {
+        const pathResult = checkPath(proxyTool, pathArg, config);
         if (pathResult) {
           decision = stricter(decision, pathResult.decision);
           reason = pathResult.reason;

@@ -579,3 +579,72 @@ describe("$HOME in Bash redirect targets", () => {
     expect(atLeast(result.finalDecision, "ask")).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Delete path-guard equivalence properties
+// ---------------------------------------------------------------------------
+
+describe("BG property: rm sensitive path never allows", () => {
+  test("rm <sensitive-block-path> -> not allow", () => {
+    const rmCmds = sensBlockPaths.map(p => `rm ${p}`);
+    fc.assert(fc.property(
+      fc.constantFrom(...rmCmds),
+      (cmd) => {
+        const result = classifyCommand(cmd, 0);
+        return result.finalDecision !== "allow";
+      },
+    ), { numRuns: 50 });
+  });
+});
+
+describe("BG property: rm -rf sensitive path never allows", () => {
+  test("rm -rf <sensitive-block-path> -> not allow", () => {
+    const rmCmds = sensBlockPaths.map(p => `rm -rf ${p}`);
+    fc.assert(fc.property(
+      fc.constantFrom(...rmCmds),
+      (cmd) => {
+        const result = classifyCommand(cmd, 0);
+        return result.finalDecision !== "allow";
+      },
+    ), { numRuns: 50 });
+  });
+});
+
+describe("BG property: find -delete sensitive root never allows", () => {
+  test("find <sensitive-block-path> -delete -> not allow", () => {
+    const findCmds = sensBlockPaths.map(p => `find ${p} -delete`);
+    fc.assert(fc.property(
+      fc.constantFrom(...findCmds),
+      (cmd) => {
+        const result = classifyCommand(cmd, 0);
+        return result.finalDecision !== "allow";
+      },
+    ), { numRuns: 50 });
+  });
+});
+
+describe("BG property: rm decision >= Write decision on same path", () => {
+  test("rm path at least as strict as Write path for sensitive paths", () => {
+    fc.assert(fc.property(
+      fc.constantFrom(...sensBlockPaths, ...sensAskPaths),
+      (path) => {
+        const rmResult = classifyCommand(`rm ${path}`, 0);
+        const writeResult = ev("Write", { file_path: path.replace("~", process.env.HOME!), content: "x" });
+        return atLeast(rmResult.finalDecision, writeResult.decision);
+      },
+    ), { numRuns: 50 });
+  });
+});
+
+describe("BG property: find -delete on hook path -> at least ask", () => {
+  test("find <hook-path> -delete -> at least ask", () => {
+    const findCmds = hookPaths.map(p => `find ${p} -delete`);
+    fc.assert(fc.property(
+      fc.constantFrom(...findCmds),
+      (cmd) => {
+        const result = classifyCommand(cmd, 0);
+        return atLeast(result.finalDecision, "ask");
+      },
+    ), { numRuns: 50 });
+  });
+});

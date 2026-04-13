@@ -10,7 +10,7 @@ import { cmdBasename } from "../types.js";
 import { INLINE_CODE_CMDS } from "./inline-code.js";
 import { classifyGhApi } from "./gh-api.js";
 import { classifyTar } from "./tar.js";
-import { classifyFind } from "./find.js";
+import { classifyFind, extractFindRoots } from "./find.js";
 import { classifyCurl } from "./curl.js";
 import { classifyWget } from "./wget.js";
 import { classifyHttpie } from "./httpie.js";
@@ -133,3 +133,4 @@ export function classifyWithFlags(tokens: string[]): string | null {
 export { checkDangerousGitConfig } from "./git.js";
 export { stripGitGlobalFlags, extractGitDirPaths } from "./git.js";
 export { classifyScriptExec } from "./script-exec.js";
+export { extractFindRoots } from "./find.js";
