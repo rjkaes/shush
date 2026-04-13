@@ -1,12 +1,12 @@
-// test/tla-property.test.ts
+// test/property.test.ts
 //
-// Property-based tests that bridge the TLA+ model to shush's real code.
-// Uses fast-check to systematically explore the same state space the
-// model checker covers, but exercises the actual evaluate() function.
+// Property-based tests for shush's security invariants.
+// Uses fast-check to systematically explore the input space and exercise
+// the actual evaluate() and classifyCommand() functions with concrete
+// command strings and file paths.
 //
-// These tests ensure code changes don't silently violate the model's
-// invariants. If a property fails, fast-check prints the minimal
-// counterexample showing exactly which input breaks the invariant.
+// If a property fails, fast-check prints the minimal counterexample
+// showing exactly which input breaks the invariant.
 
 import { describe, expect, test } from "bun:test";
 import fc from "fast-check";
@@ -43,7 +43,7 @@ function ev(toolName: string, toolInput: Record<string, unknown>,
 }
 
 // =============================================================================
-// Arbitraries: generate inputs that map to TLA+ state categories
+// Arbitraries: generate inputs for property-based invariant checks
 // =============================================================================
 
 // Sensitive paths by block/ask policy (from SENSITIVE_DIRS)
