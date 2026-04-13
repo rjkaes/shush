@@ -1,7 +1,6 @@
 import {
   getZ3,
   D,
-  stricter,
   validDecision,
   report,
 } from "../z3-helpers";
@@ -29,7 +28,7 @@ async function main() {
   // Tool categories
   const T_WRITE = 0;
   const T_READ = 1;
-  const T_SEARCH = 2;
+  const _T_SEARCH = 2;
   const T_MCP_WRITE = 3;
 
   /**
