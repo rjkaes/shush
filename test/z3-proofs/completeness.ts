@@ -2,9 +2,7 @@ import {
   getZ3,
   D,
   ACTION_TYPES,
-  POLICIES,
   buildPolicyFunction,
-  validDecision,
   report,
 } from "../z3-helpers";
 
@@ -30,7 +28,7 @@ async function main() {
 
   // Tool categories
   const T_WRITE = 0;
-  const T_READ = 1;
+  const _T_READ = 1;
   const T_SEARCH = 2;
 
   // =====================================================================
