@@ -28,4 +28,7 @@ describe("z3 dippy-gap proofs", () => {
   test("D8: docker -v sensitive mount >= Write sensitive path", () => {
     expect(results.find((r) => r.name === "D8")?.result).toBe("unsat");
   });
+  test("D9: universal path-check guarantee (stricter never weakens path policy)", () => {
+    expect(results.find((r) => r.name === "D9")?.result).toBe("unsat");
+  });
 });

@@ -230,7 +230,34 @@ async function main() {
     solver.add(dockerDecision.lt(writeDecision));
     report("D8", await solver.check());
   }
+
+  // D9: Universal path-check guarantee (meta-proof)
+  // For ANY action type policy P_action and ANY path policy P_path,
+  // stricter(P_action, P_path) >= P_path. This is the algebraic
+  // guarantee that IF the path-check code runs for an action type,
+  // the sensitive path's policy is never weakened by the action type's
+  // own policy. Combined with the meta-property test (which verifies
+  // the path-check code IS reached for all file-operating types),
+  // this gives full coverage.
+  {
+    const ctx = new Context("D9");
+    const { Solver, Int } = ctx;
+    const solver = new Solver();
+
+    const actionPolicy = Int.const("actionPolicy");
+    const pathPolicy = Int.const("pathPolicy");
+    solver.add(validDecision(ctx, actionPolicy));
+    solver.add(validDecision(ctx, pathPolicy));
+
+    const combined = stricter(ctx, actionPolicy, pathPolicy);
+
+    // Try to find: combined < pathPolicy
+    solver.add(combined.lt(pathPolicy));
+    report("D9", await solver.check());
+  }
 }
+
+main().then(() => process.exit(0));
 
 main().then(() => process.exit(0));
 
