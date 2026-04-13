@@ -648,3 +648,33 @@ describe("BG property: find -delete on hook path -> at least ask", () => {
     ), { numRuns: 50 });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Network exfiltration path-guard properties
+// ---------------------------------------------------------------------------
+
+describe("BG property: scp sensitive path never allows", () => {
+  test("scp <sensitive-block-path> host: -> not allow", () => {
+    const cmds = sensBlockPaths.map(p => `scp ${p} user@host:`);
+    fc.assert(fc.property(
+      fc.constantFrom(...cmds),
+      (cmd) => {
+        const result = classifyCommand(cmd, 0);
+        return result.finalDecision !== "allow";
+      },
+    ), { numRuns: 50 });
+  });
+});
+
+describe("BG property: rsync sensitive path never allows", () => {
+  test("rsync <sensitive-block-path> host: -> not allow", () => {
+    const cmds = sensBlockPaths.map(p => `rsync ${p} user@host:`);
+    fc.assert(fc.property(
+      fc.constantFrom(...cmds),
+      (cmd) => {
+        const result = classifyCommand(cmd, 0);
+        return result.finalDecision !== "allow";
+      },
+    ), { numRuns: 50 });
+  });
+});

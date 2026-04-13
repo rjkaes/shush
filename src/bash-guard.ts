@@ -4,7 +4,7 @@
 // extractStages -> classify each stage -> check composition -> aggregate.
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
-import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
+import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, NETWORK_OUTBOUND, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
 import { checkFlagRules } from "./flag-rules.js";
 import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec, extractFindRoots } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
@@ -422,11 +422,13 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     // File-reading/writing/deleting commands: check positional arguments
     // against sensitive paths. Without this, "cat ~/.ssh/id_rsa" gets allow
     // because the default policy for filesystem_read is allow and bash-guard
-    // doesn't otherwise inspect file arguments.
-    if (actionType === FILESYSTEM_READ || actionType === FILESYSTEM_WRITE || actionType === FILESYSTEM_DELETE) {
-      // Use matching tool name: Read for filesystem_read, Write for writes
-      // and deletes. This ensures hook paths get the same treatment as the
-      // equivalent file tool (Read allows hooks, Write blocks hooks).
+    // doesn't otherwise inspect file arguments. Network commands (rsync, scp)
+    // also operate on file paths and need the same treatment.
+    if (actionType === FILESYSTEM_READ || actionType === FILESYSTEM_WRITE || actionType === FILESYSTEM_DELETE || actionType === NETWORK_OUTBOUND) {
+      // Use matching tool name: Read for filesystem_read, Write for writes,
+      // deletes, and network commands. Network commands that touch files
+      // (scp, rsync) can both read and exfiltrate, so "Write" proxy is
+      // conservative — blocks hook-path exfiltration.
       const proxyTool = actionType === FILESYSTEM_READ ? "Read" : "Write";
 
       // find is special: search roots come before predicate flags, and

@@ -164,6 +164,30 @@ async function main() {
     solver.add(findDeleteDecision.lt(writeDecision));
     report("D5", await solver.check());
   }
+
+  // D6: network_outbound on sensitive path >= Read on same path
+  // Network commands (scp, rsync) that access file paths get
+  // stricter(network_outbound_policy, pathPolicy). Read tool gets
+  // pathPolicy directly. Since stricter(x, P) = max(x, P) >= P,
+  // network commands are always at least as strict as Read.
+  {
+    const ctx = new Context("D6");
+    const { Solver, Int } = ctx;
+    const solver = new Solver();
+
+    const pathPolicy = Int.const("pathPolicy");
+    const networkPolicy = Int.val(POLICIES["network_outbound"]);
+    solver.add(validDecision(ctx, pathPolicy));
+
+    const readDecision = pathPolicy;
+    const networkDecision = stricter(ctx, networkPolicy, pathPolicy);
+
+    // Try to find: network decision < Read decision on same path
+    solver.add(networkDecision.lt(readDecision));
+    report("D6", await solver.check());
+  }
 }
+
+main().then(() => process.exit(0));
 
 main().then(() => process.exit(0));

@@ -19,4 +19,7 @@ describe("z3 dippy-gap proofs", () => {
   test("D5: find -delete sensitive root >= Write sensitive root", () => {
     expect(results.find((r) => r.name === "D5")?.result).toBe("unsat");
   });
+  test("D6: network_outbound sensitive path >= Read sensitive path", () => {
+    expect(results.find((r) => r.name === "D6")?.result).toBe("unsat");
+  });
 });
