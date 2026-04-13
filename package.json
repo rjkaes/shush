@@ -16,6 +16,7 @@
     "@opencode-ai/plugin": "^1.2.27",
     "@types/bun": "latest",
     "fast-check": "^4.6.0",
-    "typescript": "^5.7"
+    "typescript": "^5.7",
+    "z3-solver": "^4.16.0"
   }
 }
