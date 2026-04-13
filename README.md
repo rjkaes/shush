@@ -195,7 +195,6 @@ Read, Write, Edit, Glob, and Grep are checked for:
 - **Project boundary** -- flags writes outside the working directory
 - **Content scanning** -- destructive patterns, exfiltration, credential access, obfuscation, embedded secrets
 
-
 ### Formal verification
 
 Security invariants are verified by [Z3](https://github.com/Z3Prover/z3)
@@ -382,6 +381,7 @@ directory.
 (same restriction as `allow_tools`). Allowed paths bypass the project
 boundary check only; sensitive-path detection and content scanning
 still apply.
+
 ### Supply-chain safety
 
 Per-project `.shush.yaml` can add classifications and tighten policies,
@@ -397,6 +397,25 @@ bun test              # run all tests (includes Z3 proofs)
 bun run typecheck     # type-check without emitting
 bun run build         # rebuild trie + bundle hook
 ```
+
+## Comparison
+
+| Feature | shush | nah | Dippy |
+|---|---|---|---|
+| **Parsing** | AST via unbash (shell grammar) | Custom Python parser (shlex + tokenization) | Hand-written Parable parser (pure Python) |
+| **Classification** | Prefix trie over 22 action types | Taxonomy of ~40 action types | Allowlist with ~40 handler tools |
+| **Shell unwrapping** | `bash -c`, `sh -c` recursive (3 levels) + `xargs` | `bash -c`, `sh -c`, `python -c` (5 levels) | `time`, `timeout`, `command` wrappers |
+| **Composition detection** | Exfil, RCE, obfuscation patterns across pipes | Pipe and operator decomposition | Pipe/semicolon/subshell decomposition |
+| **File tool guards** | Read, Write, Edit, Glob, Grep with path + content inspection | Read, Write, Edit with sensitive path detection | File redirects with path patterns |
+| **Content scanning** | Secrets, exfil payloads, destructive patterns in Write/Edit | No | No |
+| **MCP tool policy** | `allow_tools` / `deny_tools` with pattern matching | Generic `mcp__*` classification | `allow-mcp` / `deny-mcp` directives |
+| **Decision model** | 4-tier: allow / context / ask / block | 4-tier: allow / context / ask / block | 3-tier: allow / ask / deny |
+| **Unknown commands** | Classified by trie; unmatched → ask | Classified by taxonomy | Default → ask |
+| **Configuration** | YAML (global + project), stricter-wins merge | YAML with action type overrides | Config with prefix/wildcard matching |
+| **Custom messages** | `messages` + `after_messages` directives | No | Deny/ask rules support guidance messages |
+| **Formal verification** | Z3 SMT proofs of security invariants | No | No |
+| **Property-based tests** | fast-check with randomized inputs | No | No |
+| **Runtime** | Bun (JavaScript) | Python | Python (no external deps) |
 
 ## Acknowledgements
 
