@@ -21,12 +21,12 @@ async function main() {
 
   // Tool categories
   const T_WRITE = 0; // Write, Edit, MultiEdit, NotebookEdit
-  const T_READ = 1; // Read
+  const T_READ = 1;
   const T_SEARCH = 2; // Glob, Grep
 
   // Decision values from D
   const ALLOW = D.allow; // 0
-  const CONTEXT = D.context; // 1
+  const CONTEXT = D.context;
   const ASK = D.ask; // 2
   const BLOCK = D.block; // 3
 
@@ -42,7 +42,7 @@ async function main() {
   //   6. Default: Allow
   // =====================================================================
   function buildPipeline(ctx: any, pathCat: any, toolCat: any, hasDangerousContent: any) {
-    const { Int, If, And, Or } = ctx;
+    const { Int, If, And } = ctx;
     const isWrite = toolCat.eq(T_WRITE);
 
     // Build from bottom up (default first, then wrap in if-then-else)
