@@ -31,4 +31,13 @@ describe("z3 dippy-gap proofs", () => {
   test("D9: universal path-check guarantee (stricter never weakens path policy)", () => {
     expect(results.find((r) => r.name === "D9")?.result).toBe("unsat");
   });
+  test("M1: shell unwrapping never downgrades a decision", () => {
+    expect(results.find((r) => r.name === "M1")?.result).toBe("unsat");
+  });
+  test("M2: config overrides can't loosen sensitive-path decisions", () => {
+    expect(results.find((r) => r.name === "M2")?.result).toBe("unsat");
+  });
+  test("M4: hook self-protection (stricter(any, block) = block)", () => {
+    expect(results.find((r) => r.name === "M4")?.result).toBe("unsat");
+  });
 });

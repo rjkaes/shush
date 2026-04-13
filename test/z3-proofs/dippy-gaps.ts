@@ -255,12 +255,80 @@ async function main() {
     solver.add(combined.lt(pathPolicy));
     report("D9", await solver.check());
   }
+
+  // M1: Shell unwrapping never downgrades a decision
+  // If inner command has decision D_inner and wrapper has decision D_wrapper,
+  // then final = stricter(D_wrapper, D_inner) >= D_inner.
+  // This is a direct consequence of stricter(a, b) >= max(a, b) >= b.
+  {
+    const ctx = new Context("M1");
+    const { Solver, Int } = ctx;
+    const solver = new Solver();
+
+    const D_inner = Int.const("D_inner");
+    const D_wrapper = Int.const("D_wrapper");
+    solver.add(validDecision(ctx, D_inner));
+    solver.add(validDecision(ctx, D_wrapper));
+
+    const combined = stricter(ctx, D_wrapper, D_inner);
+
+    // Try to find: combined < D_inner (would mean wrapping downgraded)
+    solver.add(combined.lt(D_inner));
+    report("M1", await solver.check());
+  }
+
+  // M2: Config overrides can't loosen sensitive-path decisions
+  // For any path with built-in policy P_path >= ask, and any
+  // config-overridden action policy P_config (even allow), the final
+  // decision = stricter(P_config, P_path) >= P_path >= ask.
+  // Config can only tighten, never loosen, sensitive path protections.
+  {
+    const ctx = new Context("M2");
+    const { Solver, Int } = ctx;
+    const solver = new Solver();
+
+    const pathPolicy = Int.const("pathPolicy");
+    const configPolicy = Int.const("configPolicy");
+    solver.add(validDecision(ctx, pathPolicy));
+    solver.add(validDecision(ctx, configPolicy));
+
+    // Built-in sensitive paths have policy >= ask (severity 2)
+    solver.add(pathPolicy.ge(Int.val(D.ask)));
+
+    // Config can set action policy to anything, even allow (0)
+    // Final decision = stricter(configPolicy, pathPolicy)
+    const finalDecision = stricter(ctx, configPolicy, pathPolicy);
+
+    // Try to find: final decision < ask (would mean config loosened protection)
+    solver.add(finalDecision.lt(Int.val(D.ask)));
+    report("M2", await solver.check());
+  }
+
+  // M4: Hook self-protection across all tools + bash
+  // For hook paths (pathPolicy = block = 3), write tools always get block.
+  // For bash commands, stricter(any_action_policy, block) = block.
+  // This is the highest-severity invariant: hooks can never be weakened.
+  {
+    const ctx = new Context("M4");
+    const { Solver, Int } = ctx;
+    const solver = new Solver();
+
+    // Hook paths have pathPolicy = block (3)
+    const hookPathPolicy = Int.val(D.block);
+
+    // Any action policy from the taxonomy
+    const actionPolicy = Int.const("actionPolicy");
+    solver.add(validDecision(ctx, actionPolicy));
+
+    // For write tools: decision = pathPolicy directly = block.
+    // For bash: decision = stricter(actionPolicy, hookPathPolicy).
+    // In both cases, result must be block.
+    const bashDecision = stricter(ctx, actionPolicy, hookPathPolicy);
+
+    // Try to find: bash decision < block (would mean hook protection weakened)
+    solver.add(bashDecision.lt(Int.val(D.block)));
+    report("M4", await solver.check());
+  }
 }
-
-main().then(() => process.exit(0));
-
-main().then(() => process.exit(0));
-
-main().then(() => process.exit(0));
 
 main().then(() => process.exit(0));
