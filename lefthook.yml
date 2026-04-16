@@ -9,6 +9,8 @@ pre-commit:
       run: bun run build && git add data/classifier-trie.json hooks/pretooluse.js
     typecheck:
       run: bun run typecheck
+    verify-extract:
+      run: bun run verify:extract
     test:
       run: bun test
 
