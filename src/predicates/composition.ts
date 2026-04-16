@@ -6,6 +6,7 @@ import type { PipelineOperator, StageResult } from "../types.js";
 import { cmdBasename } from "../types.js";
 import { isExecSink, DECODE_COMMANDS } from "../taxonomy.js";
 import { readdirSync, readFileSync } from "node:fs";
+import PRECOMPUTED_WRITE_EMITTERS from "../../data/write-emitters.json";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -95,10 +96,15 @@ const WRITE_ACTIONS = new Set(["filesystem_write", "filesystem_delete", "disk_de
  */
 export function writeEmittersFromData(dataDir?: string): Map<string, Set<string>> {
   if (!dataDir && cachedWriteEmitters) return cachedWriteEmitters;
-  const dir = dataDir ?? path.resolve(
-    fileURLToPath(new URL("../..", import.meta.url)),
-    "data", "classify_full",
-  );
+  if (!dataDir) {
+    const out = new Map<string, Set<string>>();
+    for (const [cmd, actions] of Object.entries(PRECOMPUTED_WRITE_EMITTERS)) {
+      out.set(cmd, new Set(actions as string[]));
+    }
+    cachedWriteEmitters = out;
+    return out;
+  }
+  const dir = dataDir;
   const out = new Map<string, Set<string>>();
   for (const file of readdirSync(dir)) {
     if (!file.endsWith(".json")) continue;
@@ -110,6 +116,5 @@ export function writeEmittersFromData(dataDir?: string): Map<string, Set<string>
     }
     if (actions.size > 0) out.set(cmd, actions);
   }
-  if (!dataDir) cachedWriteEmitters = out;
   return out;
 }

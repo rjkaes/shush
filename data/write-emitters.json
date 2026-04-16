@@ -1,0 +1,131 @@
+{
+  "bunzip2": [
+    "filesystem_write"
+  ],
+  "bzip2": [
+    "filesystem_write"
+  ],
+  "cfdisk": [
+    "disk_destructive"
+  ],
+  "chgrp": [
+    "filesystem_write"
+  ],
+  "chmod": [
+    "filesystem_write"
+  ],
+  "chown": [
+    "filesystem_write"
+  ],
+  "cmake": [
+    "filesystem_write"
+  ],
+  "cp": [
+    "filesystem_write"
+  ],
+  "dd": [
+    "disk_destructive"
+  ],
+  "dotnet": [
+    "filesystem_write"
+  ],
+  "fdisk": [
+    "disk_destructive"
+  ],
+  "gh": [
+    "filesystem_write"
+  ],
+  "gmake": [
+    "filesystem_write"
+  ],
+  "gpg": [
+    "filesystem_write"
+  ],
+  "gunzip": [
+    "filesystem_write"
+  ],
+  "gzip": [
+    "filesystem_write"
+  ],
+  "install": [
+    "filesystem_write"
+  ],
+  "ln": [
+    "filesystem_write"
+  ],
+  "make": [
+    "filesystem_write"
+  ],
+  "mkdir": [
+    "filesystem_write"
+  ],
+  "mkfifo": [
+    "filesystem_write"
+  ],
+  "mkfs.btrfs": [
+    "disk_destructive"
+  ],
+  "mkfs.ext4": [
+    "disk_destructive"
+  ],
+  "mkfs": [
+    "disk_destructive"
+  ],
+  "mkfs.xfs": [
+    "disk_destructive"
+  ],
+  "mktemp": [
+    "filesystem_write"
+  ],
+  "mount": [
+    "disk_destructive"
+  ],
+  "mv": [
+    "filesystem_write"
+  ],
+  "mysqldump": [
+    "filesystem_write"
+  ],
+  "patch": [
+    "filesystem_write"
+  ],
+  "pg_dump": [
+    "filesystem_write"
+  ],
+  "pg_dumpall": [
+    "filesystem_write"
+  ],
+  "rm": [
+    "filesystem_delete"
+  ],
+  "rmdir": [
+    "filesystem_delete"
+  ],
+  "shred": [
+    "filesystem_delete"
+  ],
+  "tee": [
+    "filesystem_write"
+  ],
+  "touch": [
+    "filesystem_write"
+  ],
+  "truncate": [
+    "filesystem_delete"
+  ],
+  "umount": [
+    "disk_destructive"
+  ],
+  "unlink": [
+    "filesystem_delete"
+  ],
+  "unzip": [
+    "filesystem_write"
+  ],
+  "xz": [
+    "filesystem_write"
+  ],
+  "zip": [
+    "filesystem_write"
+  ]
+}
