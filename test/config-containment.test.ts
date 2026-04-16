@@ -1,6 +1,7 @@
 // test/config-containment.test.ts
 import { describe, test, expect } from "bun:test";
 import { parseConfigYaml, mergeConfigs } from "../src/config.js";
+import { evaluate } from "../src/evaluate.js";
 import { EMPTY_CONFIG } from "../src/types.js";
 
 describe("G7 config containment", () => {
@@ -44,5 +45,20 @@ actions:
     // is verified via evaluate() in the Z3 / property tests.
     // Here: direct merge with empty base returns the user value.
     void merged;
+  });
+
+  test("custom classify with path arg still triggers checkPath on sensitive target", () => {
+    const userYaml = `
+classify:
+  db_read:
+    - "mywriter"
+`;
+    const config = parseConfigYaml(userYaml);
+    const merged = mergeConfigs(EMPTY_CONFIG, config);
+    const out = evaluate(
+      { toolName: "Bash", toolInput: { command: "mywriter ~/.ssh/id_rsa" }, cwd: null },
+      merged,
+    );
+    expect(["ask", "block"]).toContain(out.decision);
   });
 });

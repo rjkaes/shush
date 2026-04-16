@@ -521,7 +521,22 @@ export function classifyCommand(
     // sensitive/hook path protection as the Write tool. Membership is
     // data-driven via writeEmittersFromData().
     const isWriteEmitter = tokens.length > 0 && WRITE_EMITTERS.has(tokens[0]);
-    if (PATH_CHECKED_TYPES.has(actionType) || isWriteEmitter) {
+    // G7.4: stages classified via a user-supplied classify entry carry no
+    // shush metadata about which positional arguments are path-like. Force
+    // the path-check loop to run so sensitive-path arguments cannot bypass
+    // protection through custom classifications (e.g. classifying `mywriter`
+    // as `db_read` would otherwise let `mywriter ~/.ssh/id_rsa` through as
+    // `allow`).
+    const baseCmd = tokens.length > 0 ? cmdBasename(tokens[0]) : "";
+    const isUserClassified = baseCmd !== "" && config !== undefined && Object
+      .values(config.classify)
+      .some((patterns) => patterns.some((p) => {
+        // Patterns are first-token-prefix strings ("git clone", "mywriter");
+        // a leading-token match is sufficient to flag the stage as user-routed.
+        const firstTok = p.split(/\s+/)[0];
+        return firstTok === baseCmd;
+      }));
+    if (PATH_CHECKED_TYPES.has(actionType) || isWriteEmitter || isUserClassified) {
       // Use matching tool name: Read for filesystem_read, Write for writes,
       // deletes, and network commands. Network commands that touch files
       // (scp, rsync) can both read and exfiltrate, so "Write" proxy is
