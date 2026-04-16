@@ -19,7 +19,7 @@ async function main() {
   for (const cmd of WRITE_EMITTERS.keys()) {
     for (const { resolved } of SENSITIVE_DIRS) {
       const out = evaluate(
-        { toolName: "Bash", toolInput: { command: `${cmd} ${resolved}` }, cwd: null },
+        { toolName: "Bash", toolInput: { command: `${cmd} '${resolved}'` }, cwd: null },
         EMPTY_CONFIG,
       );
       if (STRICTNESS[out.decision] < STRICTNESS.ask) {

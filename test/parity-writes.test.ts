@@ -16,22 +16,22 @@ function evalBash(cmd: string) {
 
 describe("G1 bash/file write parity (unit regressions)", () => {
   test("dd of=~/.ssh/config is at least ask", () => {
-    const out = evalBash(`dd of=${path.join(HOME, ".ssh", "config")}`);
+    const out = evalBash(`dd of='${path.join(HOME, ".ssh", "config")}'`);
     expect(["ask", "block"]).toContain(out.decision);
   });
 
   test("tee -a ~/.aws/credentials is at least ask", () => {
-    const out = evalBash(`cat x | tee -a ${path.join(HOME, ".aws", "credentials")}`);
+    const out = evalBash(`cat x | tee -a '${path.join(HOME, ".aws", "credentials")}'`);
     expect(["ask", "block"]).toContain(out.decision);
   });
 
   test("ln -sf /etc/passwd ~/x is at least ask", () => {
-    const out = evalBash(`ln -sf /etc/passwd ${path.join(HOME, "x")}`);
+    const out = evalBash(`ln -sf /etc/passwd '${path.join(HOME, "x")}'`);
     expect(["ask", "block"]).toContain(out.decision);
   });
 
   test("install -m 644 src ~/.ssh/authorized_keys is at least ask", () => {
-    const out = evalBash(`install -m 644 src ${path.join(HOME, ".ssh", "authorized_keys")}`);
+    const out = evalBash(`install -m 644 src '${path.join(HOME, ".ssh", "authorized_keys")}'`);
     expect(["ask", "block"]).toContain(out.decision);
   });
 });

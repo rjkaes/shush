@@ -22,7 +22,7 @@ describe("G1 bash/file write parity (property)", () => {
         fc.constantFrom(...SENSITIVE_PATHS),
         fc.subarray(["-f", "-r", "-a", "-p", "--", ""], { maxLength: 2 }),
         (cmd, sensPath, flags) => {
-          const tokens = [cmd, ...flags.filter(Boolean), sensPath].join(" ");
+          const tokens = [cmd, ...flags.filter(Boolean), `'${sensPath}'`].join(" ");
           const out = evalBash(tokens);
           if (!["ask", "block"].includes(out.decision)) {
             throw new Error(`parity break: ${tokens} -> ${out.decision} (${out.reason}); expected ask or block`);
