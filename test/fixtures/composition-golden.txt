@@ -1,0 +1,155 @@
+# Corpus for G4 cross-reset persistence regression gate.
+#
+# Entries below that are preceded by "# REMOVED:" explanations fall in two
+# buckets:
+#   - Genuinely risky (5): ran into correct classifier decisions (rebase as
+#     history-rewrite, kubectl/terraform as destructive, mvn+java unknown,
+#     gzip outside-project).
+#   - Benign but unclassified (32): shell builtins (source, alias, declare,
+#     shopt, umask, trap, let, exec, etc.) that the trie does not cover and
+#     so resolve to "ask" via the unknown action-type policy. These are not
+#     G4 over-fires; the trie gap is a separate, data-driven follow-up
+#     (extend data/classify_full/ with a shell_builtin family and allow
+#     policy).
+#
+# REMOVED: kubectl apply -f k.yaml && kubectl get pods — container_destructive → ask (correct)
+# REMOVED: terraform plan && terraform apply -auto-approve — infra write, unknown → ask (correct)
+# REMOVED: git fetch && git rebase origin/main — git_history_rewrite → ask (correct)
+# REMOVED: mvn -q package && java -jar target/app.jar — unknown (java -jar runs arbitrary jar) → ask
+# REMOVED: gzip -d /tmp/a.gz && cat /tmp/a — path-guard: write outside project (no git root) → ask
+# REMOVED: history | tail -20 — unknown shell builtin → ask
+# REMOVED: jobs ; wait — unknown shell builtin → ask
+# REMOVED: command -v git — unknown shell builtin → ask
+# REMOVED: hash -r — unknown shell builtin → ask
+# REMOVED: set | head — unknown shell builtin → ask
+# REMOVED: env | grep PATH — unknown shell builtin → ask
+# REMOVED: export X=1 && echo $X — unknown shell builtin → ask
+# REMOVED: unset X && echo ${X:-default} — unknown shell builtin → ask
+# REMOVED: source ~/.bashrc — unknown shell builtin → ask
+# REMOVED: . ~/.bashrc — unknown shell builtin → ask
+# REMOVED: alias ll='ls -la' && ll — unknown shell builtin → ask
+# REMOVED: declare -p PATH — unknown shell builtin → ask
+# REMOVED: readonly FOO=1 — unknown shell builtin → ask
+# REMOVED: shopt -s globstar — unknown shell builtin → ask
+# REMOVED: bash --version — classified as shell wrapper, ask
+# REMOVED: let x=1+2 — unknown shell builtin → ask
+# REMOVED: : noop — unknown shell builtin → ask
+# REMOVED: until false ; do break ; done — unknown shell builtin → ask
+# REMOVED: select x in a b ; do break ; done <<<1 — unknown shell builtin → ask
+# REMOVED: function foo { echo in-foo ; } ; foo — unknown shell builtin → ask
+# REMOVED: trap 'echo trap' INT — unknown shell builtin → ask
+# REMOVED: exec > /tmp/log — unknown (fd redirect) → ask
+# REMOVED: exec 3< /tmp/a.txt — unknown (fd redirect) → ask
+# REMOVED: umask 022 — unknown shell builtin → ask
+# REMOVED: complete -W "a b" foo — unknown shell builtin → ask
+# REMOVED: bind -P | head — unknown shell builtin → ask
+# REMOVED: declare -f cd — unknown shell builtin → ask
+# REMOVED: typeset -i x=1 — unknown shell builtin → ask
+# REMOVED: shopt -p — unknown shell builtin → ask
+# REMOVED: set -o | head — unknown shell builtin → ask
+# REMOVED: compopt -o nospace cd — unknown shell builtin → ask
+# REMOVED: echo done && exit 0 — exit is unknown shell builtin → ask
+#
+# All removed entries hit ask due to unknown/filesystem_write/git_history_rewrite
+# classifications on their individual stages — NOT due to G4 composition.
+# None had a compositionRule set, confirming G4 is not involved.
+cd /tmp && ls
+git pull && npm test
+make && make install
+mkdir build && cd build
+find . -name '*.ts' && echo done
+[ -f x ] || touch x
+test -d .git && git status
+npm ci && npm run build
+docker compose up -d && docker compose logs -f
+go build ./... && go test ./...
+cargo build --release && cargo test
+rustup update && rustc --version
+pip install -r requirements.txt && pytest
+poetry install && poetry run pytest
+uv sync && uv run pytest
+bundle install && bundle exec rspec
+git add . && git commit -m 'wip'
+git stash && git pull
+git stash pop || git status
+make clean && make
+cd src && ls *.ts
+[ -d node_modules ] || npm install
+echo "hello" > /tmp/a.txt
+sort /tmp/a.txt | uniq -c
+ps aux | grep node
+df -h && du -sh *
+tar czf /tmp/a.tar.gz src
+tree -L 2 && du -sh .
+wc -l src/*.ts
+ls -la && pwd
+echo $?
+cat /etc/hostname
+uname -a
+which bash
+type cd
+sh -c 'echo hi'
+time ls
+nice -n 10 echo hi
+nohup sleep 60 &
+stdbuf -o0 ls
+timeout 1 sleep 10 || echo timed-out
+xargs echo < /tmp/a.txt
+seq 1 10 | xargs -n1 echo
+printf "%s\n" a b c
+read -r x < /dev/null
+test -n "$PATH"
+expr 1 + 2
+bc <<<"1+2"
+true && echo ok
+false || echo err
+(echo subshell)
+{ echo group ; echo group2 ; }
+for i in 1 2 3 ; do echo $i ; done
+while read x ; do echo $x ; done < /tmp/a.txt
+case x in x) echo match ;; esac
+if true ; then echo yes ; fi
+ulimit -n
+cd - && ls
+pushd /tmp && popd
+dirs -v
+help cd
+compgen -c | head
+git log --oneline -10
+git diff --stat
+git status && git log --oneline -5
+npm run lint && npm run build
+npm test -- --watch=false
+ls -la | head -20
+find . -name '*.ts' -type f
+find . -name '*.js' | wc -l
+echo hello && echo world
+mkdir -p dist && ls dist
+diff file1.txt file2.txt
+cat package.json | head -10
+head -20 README.md
+tail -f /tmp/app.log
+date && uptime
+pwd && ls
+ls /tmp && ls /var
+go version && go env GOPATH
+rustc --version && cargo --version
+python3 --version && pip3 --version
+java --version
+git remote -v && git branch -a
+git log --oneline -20 | cat
+git show HEAD --stat
+npm outdated && npm update
+ls -la src/ && ls -la test/
+git stash list
+git config --list
+git blame README.md | head
+npm run typecheck && npm run lint
+bun test && bun run build
+ls -la && git status
+du -sh node_modules
+df -h /tmp
+ps -ef | head
+top -bn1 | head
+ping -c 3 localhost
+traceroute localhost
