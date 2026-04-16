@@ -1643,7 +1643,10 @@
     "_": "filesystem_read"
   },
   "cp": {
-    "_": "filesystem_write"
+    "_": "filesystem_write",
+    "_p": [
+      -1
+    ]
   },
   "cpack": {
     "_": "package_install"
@@ -4141,7 +4144,10 @@
     "_": "filesystem_read"
   },
   "install": {
-    "_": "filesystem_write"
+    "_": "filesystem_write",
+    "_p": [
+      -1
+    ]
   },
   "iostat": {
     "_": "filesystem_read"
@@ -4343,7 +4349,10 @@
     "_": "filesystem_read"
   },
   "ln": {
-    "_": "filesystem_write"
+    "_": "filesystem_write",
+    "_p": [
+      -1
+    ]
   },
   "locale": {
     "_": "filesystem_read"
@@ -4566,7 +4575,10 @@
     "_": "network_diagnostic"
   },
   "mv": {
-    "_": "filesystem_write"
+    "_": "filesystem_write",
+    "_p": [
+      -1
+    ]
   },
   "mvn": {
     "--help": {
@@ -6281,7 +6293,10 @@
     "_": "package_run"
   },
   "tee": {
-    "_": "filesystem_write"
+    "_": "filesystem_write",
+    "_p": [
+      1
+    ]
   },
   "telnet": {
     "_": "network_write"

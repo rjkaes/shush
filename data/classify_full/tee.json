@@ -1,7 +1,12 @@
 {
   "filesystem_write": [
-    [
-      "tee"
-    ]
+    {
+      "prefix": [
+        "tee"
+      ],
+      "pathArgs": [
+        1
+      ]
+    }
   ]
 }

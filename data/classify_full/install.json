@@ -1,7 +1,12 @@
 {
   "filesystem_write": [
-    [
-      "install"
-    ]
+    {
+      "prefix": [
+        "install"
+      ],
+      "pathArgs": [
+        -1
+      ]
+    }
   ]
 }

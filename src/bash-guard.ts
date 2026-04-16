@@ -4,7 +4,7 @@
 // extractStages -> classify each stage -> check composition -> aggregate.
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
-import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, DISK_DESTRUCTIVE, NETWORK_OUTBOUND, GIT_SAFE, GIT_WRITE, GIT_DISCARD, GIT_HISTORY_REWRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
+import { classifyTokens, classifyTokensFull, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, DISK_DESTRUCTIVE, NETWORK_OUTBOUND, GIT_SAFE, GIT_WRITE, GIT_DISCARD, GIT_HISTORY_REWRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
 import { checkFlagRules } from "./flag-rules.js";
 import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec, extractFindRoots } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
@@ -117,8 +117,9 @@ const EXEC_SINK_ENV_VARS = new Set([
   "LD_LIBRARY_PATH",
 ]);
 /**
- * Classify a single stage's tokens, returning an action type and decision.
- * Pipeline: flag rules -> procedural classifiers -> trie -> script-exec fallback.
+ * Classify a single stage's tokens, returning an action type, decision, and
+ * any trie-declared pathArgs positions. Pipeline: flag rules -> procedural
+ * classifiers -> trie -> script-exec fallback.
  */
 /** Docker exec/run flags that consume the next token as a value. */
 const DOCKER_VALUE_FLAGS = new Set([
@@ -224,12 +225,15 @@ function extractDockerMountPaths(tokens: string[]): string[] {
   return paths;
 }
 
-function classifyStage(tokens: string[], config?: ShushConfig): { actionType: string; decision: Decision } {
+function classifyStage(
+  tokens: string[],
+  config?: ShushConfig,
+): { actionType: string; decision: Decision; triePathArgs: readonly number[] } {
   // Bare assignments (e.g., `FOO=bar`) produce empty tokens. The assignment
   // itself is harmless; any command substitution in the value is extracted
   // and classified separately by bash-guard's cmdSubs handling.
   if (tokens.length === 0) {
-    return { actionType: FILESYSTEM_READ, decision: "allow" };
+    return { actionType: FILESYSTEM_READ, decision: "allow", triePathArgs: [] };
   }
 
   // Git: check dangerous -c config keys (must run on pre-strip tokens)
@@ -237,7 +241,7 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
     const dangerousConfig = checkDangerousGitConfig(tokens);
     if (dangerousConfig) {
       const policy = getPolicy(dangerousConfig, config);
-      return { actionType: dangerousConfig, decision: policy };
+      return { actionType: dangerousConfig, decision: policy, triePathArgs: [] };
     }
   }
 
@@ -248,18 +252,20 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
   const flagResult = checkFlagRules(forLookup[0], forLookup);
   if (flagResult) {
     const policy = getPolicy(flagResult, config);
-    return { actionType: flagResult, decision: policy };
+    return { actionType: flagResult, decision: policy, triePathArgs: [] };
   }
 
   // 2. Procedural classifiers (registry)
   const classifierResult = lookup(forLookup[0], forLookup);
   if (classifierResult) {
     const policy = getPolicy(classifierResult, config);
-    return { actionType: classifierResult, decision: policy };
+    return { actionType: classifierResult, decision: policy, triePathArgs: [] };
   }
 
-  // 3. Trie prefix match (existing)
-  let actionType = classifyTokens(forLookup, config);
+  // 3. Trie prefix match: use full lookup to capture pathArgs annotations.
+  const trieResult = classifyTokensFull(forLookup, config);
+  let actionType = trieResult.actionType;
+  const triePathArgs = trieResult.pathArgs;
 
   // 4. Script exec fallback (when trie has no match)
   if (actionType === UNKNOWN) {
@@ -267,7 +273,24 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
   }
 
   const decision = getPolicy(actionType, config);
-  return { actionType, decision };
+  return { actionType, decision, triePathArgs };
+}
+
+/**
+ * Resolve a token at position `index` in `tokens`, extracting the path value.
+ * Supports negative indices (Python-style: -1 = last token).
+ * Recognizes `KEY=VALUE` form and returns the VALUE portion as the path.
+ * Returns null when the index is out of range or the resolved path is empty.
+ */
+function resolvePathArgToken(tokens: string[], index: number): string | null {
+  const len = tokens.length;
+  const resolved = index < 0 ? len + index : index;
+  if (resolved < 0 || resolved >= len) return null;
+  const tok = tokens[resolved];
+  // KEY=VALUE form (e.g., dd's of=/path): extract everything after '='.
+  const eqIdx = /^[a-zA-Z_]+=/.exec(tok);
+  const path = eqIdx ? tok.slice(eqIdx[0].length) : tok;
+  return path.length > 0 ? path : null;
 }
 
 /**
@@ -398,7 +421,7 @@ export function classifyCommand(
       }
     }
 
-    let { actionType, decision } = classifyStage(tokens, config);
+    let { actionType, decision, triePathArgs } = classifyStage(tokens, config);
     let reason = decision !== "allow" ? `${tokens[0]}: ${actionType}` : "";
 
     // Env var assignments that target exec sinks (PAGER, EDITOR, etc.)
@@ -542,6 +565,37 @@ export function classifyCommand(
         }
       }
     }
+
+    // Trie-declared pathArgs (I3): route annotated token positions through
+    // checkPath. This catches destination paths for commands like cp, mv,
+    // tee, install, ln, and dd's of=PATH form that the heuristic loop above
+    // may miss (e.g., KEY=VALUE tokens skipped by the startsWith("-") filter).
+    if (triePathArgs.length > 0) {
+      const isActualWrite =
+        actionType === FILESYSTEM_WRITE ||
+        actionType === FILESYSTEM_DELETE ||
+        actionType === DISK_DESTRUCTIVE;
+      const proxyTool = isActualWrite ? "Write" : "Read";
+      for (const idx of triePathArgs) {
+        const pathStr = resolvePathArgToken(tokens, idx);
+        if (pathStr === null) continue;
+        const pathResult = checkPath(proxyTool, pathStr, config);
+        if (pathResult) {
+          decision = stricter(decision, pathResult.decision);
+          reason = pathResult.reason;
+        }
+        if (isActualWrite) {
+          const boundaryResult = checkProjectBoundary(
+            proxyTool, pathStr, projectRoot, config?.allowedPaths,
+          );
+          if (boundaryResult) {
+            decision = stricter(decision, boundaryResult.decision);
+            reason = boundaryResult.reason;
+          }
+        }
+      }
+    }
+
     return {
       tokens,
       actionType,

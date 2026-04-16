@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join, basename } from "node:path";
 import { classifyTokens } from "../src/taxonomy";
+import { entryPrefix } from "./classify-entry-helpers";
 
 const dataDir = join(import.meta.dir, "..", "data");
 const classifyDir = join(dataDir, "classify_full");
@@ -23,6 +24,7 @@ const dataFiles = readdirSync(classifyDir)
       unknown
     >,
   }));
+
 
 describe("data-consistency", () => {
   // ── 1. Every action type in classify_full data files exists in policies.json ──
@@ -107,7 +109,8 @@ describe("data-consistency", () => {
         if (actionType === "flag_rules") continue;
         if (!Array.isArray(prefixes)) continue;
 
-        for (const prefix of prefixes) {
+        for (const rawEntry of prefixes) {
+          const prefix = entryPrefix(rawEntry);
           const key = JSON.stringify(prefix);
           const existing = seen.get(key);
           if (existing) {
@@ -134,7 +137,8 @@ describe("data-consistency", () => {
         if (actionType === "flag_rules") continue;
         if (!Array.isArray(prefixes)) continue;
 
-        for (const prefix of prefixes as string[][]) {
+        for (const rawEntry of prefixes as unknown[]) {
+          const prefix = entryPrefix(rawEntry);
           const result = classifyTokens(prefix);
           if (result !== actionType) {
             errors.push(

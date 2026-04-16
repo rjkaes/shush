@@ -5,15 +5,19 @@
 // to be reconstructed on every CLI invocation.
 //
 // Each command file is a JSON object keyed by action type, where each value
-// is an array of string-array prefixes. The special key "flag_rules" is
-// reserved for flag-rule data (handled by build-flag-rules.ts) and is
-// skipped by the trie builder. Action types are validated against
-// data/types.json.
+// is an array of entries. Each entry is either:
+//   - a string array:            ["cmd", "sub"]
+//   - an object with pathArgs:   { prefix: ["cmd", "sub"], pathArgs: [-1] }
+//
+// The special key "flag_rules" is reserved for flag-rule data (handled by
+// build-flag-rules.ts) and is skipped by the trie builder. Action types are
+// validated against data/types.json.
 //
 // Usage: bun run scripts/build-trie.ts
 
 import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { parseClassifyEntry } from "../src/taxonomy.js";
 
 const ROOT = resolve(import.meta.dir, "..");
 const INPUT_DIR = resolve(ROOT, "data", "classify_full");
@@ -21,8 +25,9 @@ const TYPES_FILE = resolve(ROOT, "data", "types.json");
 const OUTPUT_FILE = resolve(ROOT, "data", "classifier-trie.json");
 
 interface TrieNode {
-  [key: string]: TrieNode | string | undefined;
-  _?: string; // action type, present only on terminal nodes
+  [key: string]: TrieNode | string | number[] | undefined;
+  _?: string;   // action type, present only on terminal nodes
+  _p?: number[]; // pathArgs indices, present only when non-empty
 }
 
 /** Compare two string arrays element-by-element (lexicographic). */
@@ -35,17 +40,32 @@ function compareEntries(a: string[], b: string[]): number {
   return a.length - b.length;
 }
 
+/** Extract the prefix array from a raw entry (array or object form). */
+function rawPrefix(entry: unknown): string[] {
+  if (Array.isArray(entry)) return entry as string[];
+  if (entry !== null && typeof entry === "object") {
+    const obj = entry as { prefix?: unknown };
+    if (Array.isArray(obj.prefix)) return obj.prefix as string[];
+  }
+  return [];
+}
+
 /**
  * Normalize a parsed command file: sort action-type keys alphabetically,
  * and sort prefix arrays within each action type lexicographically.
  * Returns the sorted object (new reference).
+ *
+ * Entries may be bare string arrays or {prefix, pathArgs} objects.
+ * Sorting is by prefix for consistency.
  */
 function normalizeCommandFile(
-  raw: Record<string, string[][]>,
-): Record<string, string[][]> {
-  const sorted: Record<string, string[][]> = {};
+  raw: Record<string, unknown[]>,
+): Record<string, unknown[]> {
+  const sorted: Record<string, unknown[]> = {};
   for (const key of Object.keys(raw).sort()) {
-    sorted[key] = [...raw[key]].sort(compareEntries);
+    sorted[key] = [...raw[key]].sort((a, b) =>
+      compareEntries(rawPrefix(a), rawPrefix(b)),
+    );
   }
   return sorted;
 }
@@ -85,30 +105,45 @@ async function main(): Promise<void> {
         );
       }
 
-      // Validate prefix arrays
-      if (
-        !Array.isArray(prefixes) ||
-        !prefixes.every(
-          (arr: unknown) =>
-            Array.isArray(arr) &&
-            arr.length > 0 &&
-            arr.every((s: unknown) => typeof s === "string"),
-        )
-      ) {
+      // Validate and iterate entries (array-of-entries)
+      if (!Array.isArray(prefixes)) {
         throw new Error(
-          `${cmdFile}.${actionType}: expected non-empty array of string arrays`,
+          `${cmdFile}.${actionType}: expected array of entries`,
         );
       }
 
-      for (const prefix of prefixes as string[][]) {
+      for (const rawEntry of prefixes as unknown[]) {
+        // Delegate parsing and validation to parseClassifyEntry.
+        // This accepts both bare string arrays and {prefix, pathArgs} objects.
+        let entry;
+        try {
+          entry = parseClassifyEntry(rawEntry);
+        } catch (err) {
+          throw new Error(
+            `${cmdFile}.${actionType}: ${(err as Error).message}`,
+          );
+        }
+
+        if (entry.prefix.length === 0) {
+          throw new Error(
+            `${cmdFile}.${actionType}: prefix must be non-empty`,
+          );
+        }
+
         let node = root;
-        for (const token of prefix) {
-          if (!(token in node) || typeof node[token] === "string") {
+        for (const token of entry.prefix) {
+          if (!(token in node) || typeof node[token] === "string" || Array.isArray(node[token])) {
             node[token] = {};
           }
           node = node[token] as TrieNode;
         }
         node._ = actionType;
+        // Only store _p when pathArgs is non-empty to keep the trie compact.
+        if (entry.pathArgs.length > 0) {
+          node._p = entry.pathArgs as number[];
+        } else {
+          delete node._p;
+        }
       }
 
       actionTypesSeen.add(actionType);
@@ -119,7 +154,7 @@ async function main(): Promise<void> {
     // Separate flag_rules (opaque to the trie builder) from prefix entries.
     const { flag_rules, ...prefixEntries } = raw as Record<string, unknown>;
     const normalized: Record<string, unknown> = normalizeCommandFile(
-      prefixEntries as Record<string, string[][]>,
+      prefixEntries as Record<string, unknown[]>,
     );
     if (flag_rules !== undefined) {
       normalized.flag_rules = flag_rules;

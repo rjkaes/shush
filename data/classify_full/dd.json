@@ -1,7 +1,10 @@
 {
   "disk_destructive": [
-    [
-      "dd"
-    ]
+    {
+      "prefix": [
+        "dd"
+      ],
+      "pathArgs": []
+    }
   ]
 }

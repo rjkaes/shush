@@ -1,5 +1,5 @@
 import {
-  type ActionType, type Decision, type ShushConfig,
+  type ActionType, type Decision, type ShushConfig, type ClassifyEntry,
   isActionType, cmdBasename, normalizeVersionedCmd,
 } from "./types.js";
 import ACTION_TYPES from "../data/types.json";
@@ -46,10 +46,12 @@ export interface PrefixEntry {
   actionType: ActionType;
 }
 
-// Trie node shape matches the JSON: keys are tokens, "_" holds the action type.
+// Trie node shape matches the JSON: keys are tokens, "_" holds the action type,
+// "_p" holds the pathArgs indices (omitted when empty).
 interface TrieNode {
-  [key: string]: TrieNode | string | undefined;
+  [key: string]: TrieNode | string | number[] | undefined;
   _?: string;
+  _p?: number[];
 }
 
 /** Walk the trie, returning the deepest (longest-prefix) action found. */
@@ -57,12 +59,32 @@ function trieLookup(root: TrieNode, tokens: string[]): ActionType {
   let node = root;
   let bestAction: ActionType = UNKNOWN;
   for (const token of tokens) {
-    const child: TrieNode[string] = node[token];
-    if (!child || typeof child === "string") break;
+    const child = node[token];
+    if (!child || typeof child === "string" || Array.isArray(child)) break;
     if (child._ !== undefined) bestAction = child._ as ActionType;
     node = child;
   }
   return bestAction;
+}
+
+/** Walk the trie, returning action type and pathArgs for the deepest match. */
+function trieLookupFull(
+  root: TrieNode,
+  tokens: string[],
+): { actionType: ActionType; pathArgs: readonly number[] } {
+  let node = root;
+  let bestAction: ActionType = UNKNOWN;
+  let bestPathArgs: readonly number[] = [];
+  for (const token of tokens) {
+    const child = node[token];
+    if (!child || typeof child === "string" || Array.isArray(child)) break;
+    if (child._ !== undefined) {
+      bestAction = child._ as ActionType;
+      bestPathArgs = Array.isArray(child._p) ? child._p : [];
+    }
+    node = child;
+  }
+  return { actionType: bestAction, pathArgs: bestPathArgs };
 }
 
 const classifyTrie: TrieNode = classifyTrieJSON as unknown as TrieNode;
@@ -169,4 +191,77 @@ export function classifyTokens(tokens: string[], config?: ShushConfig): string {
   }
 
   return prefixMatch(normalized);
+}
+
+/** Like classifyTokens but also returns pathArgs from the trie terminal.
+ *  Config classify entries carry no pathArgs (returns []). */
+export function classifyTokensFull(
+  tokens: string[],
+  config?: ShushConfig,
+): { actionType: string; pathArgs: readonly number[] } {
+  if (tokens.length === 0) return { actionType: UNKNOWN, pathArgs: [] };
+
+  const base = cmdBasename(tokens[0]);
+  const normalized = base !== tokens[0] ? [base, ...tokens.slice(1)] : tokens;
+
+  // Config entries take priority but carry no pathArgs annotation.
+  if (config) {
+    for (const [actionType, patterns] of Object.entries(config.classify)) {
+      for (const pattern of patterns) {
+        const prefixTokens = classifySplitCache(pattern);
+        if (normalized.length >= prefixTokens.length) {
+          let match = true;
+          for (let i = 0; i < prefixTokens.length; i++) {
+            if (normalized[i] !== prefixTokens[i]) { match = false; break; }
+          }
+          if (match) return { actionType, pathArgs: [] };
+        }
+      }
+    }
+  }
+
+  return trieLookupFull(classifyTrie, normalized);
+}
+
+// ==============================================================================
+// parseClassifyEntry: validates the authoring format for classify JSON files
+// ==============================================================================
+
+/**
+ * Parse and validate a raw classify entry from a command JSON file.
+ * Accepts either:
+ *   - bare array form: `["cmd", "sub"]`  (pathArgs defaults to [])
+ *   - object form:     `{ prefix: ["cmd", "sub"], pathArgs: [2] }`
+ */
+export function parseClassifyEntry(raw: unknown): ClassifyEntry {
+  if (Array.isArray(raw)) {
+    if (!raw.every((t) => typeof t === "string")) {
+      throw new Error(`classify entry: prefix tokens must be strings`);
+    }
+    return { prefix: raw as string[], pathArgs: [] };
+  }
+  if (raw === null || typeof raw !== "object") {
+    throw new Error(`classify entry: must be array or object, got ${typeof raw}`);
+  }
+  const allowed = new Set(["prefix", "pathArgs"]);
+  for (const k of Object.keys(raw as object)) {
+    if (!allowed.has(k)) throw new Error(`classify entry: unknown field "${k}"`);
+  }
+  const obj = raw as { prefix?: unknown; pathArgs?: unknown };
+  if (!Array.isArray(obj.prefix) || !obj.prefix.every((t) => typeof t === "string")) {
+    throw new Error(`classify entry: prefix must be array of strings`);
+  }
+  const args = obj.pathArgs ?? [];
+  if (!Array.isArray(args)) throw new Error(`classify entry: pathArgs must be array`);
+  for (const n of args as unknown[]) {
+    if (typeof n !== "number" || !Number.isInteger(n)) {
+      throw new Error(`classify entry: pathArgs must contain integer indices`);
+    }
+  }
+  const seen = new Set<number>();
+  for (const n of args as number[]) {
+    if (seen.has(n)) throw new Error(`classify entry: duplicate pathArgs index ${n}`);
+    seen.add(n);
+  }
+  return { prefix: obj.prefix as string[], pathArgs: args as number[] };
 }
