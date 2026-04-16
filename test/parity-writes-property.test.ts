@@ -2,6 +2,7 @@
 // Property-based test for G1: every write-emitter command applied to any
 // sensitive path must produce a decision of at least "ask".
 import { describe, test } from "bun:test";
+import "./fast-check-setup";
 import fc from "fast-check";
 import { evaluate } from "../src/evaluate.js";
 import { EMPTY_CONFIG } from "../src/types.js";
