@@ -552,7 +552,7 @@ export function classifyCommand(
             if (tok.startsWith("-")) return false;
             // Skip URLs (git clone https://..., git remote add origin ...)
             if (/^[a-z+]+:\/\//i.test(tok)) return false;
-            if (!tok.includes("/") && !tok.startsWith("~") && !tok.startsWith("$")) return false;
+            if (!tok.includes("/") && !tok.includes("\\") && !tok.startsWith("~") && !tok.startsWith("$")) return false;
             return true;
           });
 
