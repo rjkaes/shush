@@ -31,9 +31,18 @@ export function checkComposition(
 ): [Decision | "", string, string] {
   if (stageResults.length < 2) return ["", "", ""];
 
-  // Track data-flow properties across the entire pipe chain.
-  // Non-pipe operators (&&, ;, ||) break the chain since they don't
-  // carry data between stages.
+  // Track data-flow properties across the entire command chain.
+  //
+  // Pipe operators (|) carry stdin from left to right: literal data flow.
+  // Non-pipe operators (&&, ||, ;, newline) do not carry stdin, but the
+  // attacker can still smuggle data via filesystem side-effects (a file
+  // downloaded by curl, env vars, argv). We therefore *persist* these
+  // flags across non-pipe operators and downgrade the resulting decision
+  // from `block` to `ask` for indirect flow.
+  //
+  // The `sensitive_read | network` exfiltration rule is the exception:
+  // leaking data does not require stdin, so it stays `block` for any
+  // operator.
   let seenSensitiveRead = false;
   let seenNetworkSource = false;
   let seenDecode = false;
@@ -41,16 +50,7 @@ export function checkComposition(
 
   for (let i = 0; i < stageResults.length - 1; i++) {
     const left = stageResults[i];
-
-    // Only check pipe compositions (not && or ||)
-    if (i < stages.length && stages[i].operator !== "|") {
-      // Non-pipe operator: reset pipeline tracking
-      seenSensitiveRead = false;
-      seenNetworkSource = false;
-      seenDecode = false;
-      seenAnyRead = false;
-      continue;
-    }
+    const isPipe = i < stages.length && stages[i].operator === "|";
 
     // Accumulate properties from the left stage
     if (isSensitiveRead(left, config)) seenSensitiveRead = true;
@@ -73,33 +73,50 @@ export function checkComposition(
       ];
     }
 
-    // network | exec -> block (remote code execution)
-    // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenNetworkSource && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
+    // network | exec  -> block (literal stdin: remote code execution)
+    // network ; exec  -> ask   (indirect: file/env smuggle)
+    // For pipes, skip when exec has inline code flag: stdin is data, not
+    // code. For non-pipe operators there is no stdin, so the exclusion
+    // does not apply: the threat is the file the exec sink reads next.
+    if (
+      seenNetworkSource &&
+      isExecSinkStage(right) &&
+      (!isPipe || !execSinkIgnoresStdin(right))
+    ) {
       return [
-        "block",
-        `remote code execution: ${right.tokens[0]} receives network input`,
-        "network | exec",
+        isPipe ? "block" : "ask",
+        `remote code execution: ${right.tokens[0]} follows network source`,
+        isPipe ? "network | exec" : "network ; exec",
       ];
     }
 
-    // decode | exec -> block (obfuscation)
-    // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenDecode && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
+    // decode | exec -> block (obfuscation via stdin)
+    // decode ; exec -> ask   (indirect obfuscation via filesystem/env)
+    // Same rationale as above: only check execSinkIgnoresStdin for pipes.
+    if (
+      seenDecode &&
+      isExecSinkStage(right) &&
+      (!isPipe || !execSinkIgnoresStdin(right))
+    ) {
       return [
-        "block",
-        `obfuscated execution: ${right.tokens[0]} receives decoded input`,
-        "decode | exec",
+        isPipe ? "block" : "ask",
+        `obfuscated execution: ${right.tokens[0]} follows decode`,
+        isPipe ? "decode | exec" : "decode ; exec",
       ];
     }
 
-    // any_read | exec -> ask
-    // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenAnyRead && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
+    // any_read | exec -> ask (local code execution)
+    // any_read ; exec -> ask (same severity; persisted across operators)
+    // Same rationale as above: only check execSinkIgnoresStdin for pipes.
+    if (
+      seenAnyRead &&
+      isExecSinkStage(right) &&
+      (!isPipe || !execSinkIgnoresStdin(right))
+    ) {
       return [
         "ask",
-        `local code execution: ${right.tokens[0]} receives file input`,
-        "read | exec",
+        `local code execution: ${right.tokens[0]} follows file read`,
+        isPipe ? "read | exec" : "read ; exec",
       ];
     }
   }
