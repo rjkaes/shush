@@ -10,6 +10,7 @@ import path from "node:path";
 import { parseSimpleYaml } from "./mini-yaml.js";
 import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter, isActionType } from "./types.js";
 import { DEFAULT_POLICIES, prefixMatch } from "./taxonomy.js";
+import { mergeStricter } from "./predicates/config.js";
 
 const VALID_DECISIONS = new Set<string>(Object.keys(STRICTNESS));
 
@@ -172,16 +173,6 @@ export function parseConfigYaml(text: string): ShushConfig {
  * Callers are responsible for pre-filtering untrusted classify entries
  * via filterClassifyTightenOnly() before passing them here.
  */
-function mergeStricter(
-  base: Record<string, Decision>,
-  overlay: Record<string, Decision>,
-): Record<string, Decision> {
-  const result = { ...base };
-  for (const [key, overlayVal] of Object.entries(overlay)) {
-    result[key] = result[key] ? stricter(result[key], overlayVal) : overlayVal;
-  }
-  return result;
-}
 
 export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConfig {
   const actions = mergeStricter(base.actions, overlay.actions);
