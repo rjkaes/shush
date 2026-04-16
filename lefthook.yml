@@ -6,7 +6,7 @@ pre-commit:
   piped: true
   commands:
     build:
-      run: bun run build && git add data/classifier-trie.json hooks/pretooluse.js
+      run: bun run build && git add data/classifier-trie.json data/flag-rules-compiled.json data/write-emitters.json hooks/pretooluse.js hooks/posttooluse.js
     typecheck:
       run: bun run typecheck
     verify-extract:
