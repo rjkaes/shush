@@ -85,7 +85,8 @@ itself; behavior changes are listed separately below.
 `test/z3-proofs/extract.ts` reads and exports, at proof-build time:
 
 - `WRITE_EMITTERS` from `data/classify_full/*.json` filtered by
-  action types in `{file_write, file_delete, file_overwrite}`.
+  action types in `{filesystem_write, filesystem_delete,
+  disk_destructive}`.
 - `SENSITIVE_DIRS`, `SENSITIVE_BASENAMES`, `COMMAND_WRAPPERS` re-exported
   from Layer 1.
 - `RESET_OPERATORS`, `PIPE_OPERATORS` re-exported from Layer 1.
