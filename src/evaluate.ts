@@ -88,7 +88,7 @@ export function evaluate(
   switch (toolName) {
     case "Bash": {
       const command = (toolInput.command as string) ?? "";
-      const result = classifyCommand(command, 0, config);
+      const result = classifyCommand(command, 0, config, projectRoot);
       decision = result.finalDecision;
       actionType = result.actionType;
       reason = result.reason;

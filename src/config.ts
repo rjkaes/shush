@@ -10,6 +10,8 @@ import path from "node:path";
 import { parseSimpleYaml } from "./mini-yaml.js";
 import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter, isActionType } from "./types.js";
 import { DEFAULT_POLICIES, prefixMatch } from "./taxonomy.js";
+import { mergeStricter, filterAllowedPaths } from "./predicates/config.js";
+import { SENSITIVE_DIRS } from "./predicates/path.js";
 
 const VALID_DECISIONS = new Set<string>(Object.keys(STRICTNESS));
 
@@ -172,16 +174,6 @@ export function parseConfigYaml(text: string): ShushConfig {
  * Callers are responsible for pre-filtering untrusted classify entries
  * via filterClassifyTightenOnly() before passing them here.
  */
-function mergeStricter(
-  base: Record<string, Decision>,
-  overlay: Record<string, Decision>,
-): Record<string, Decision> {
-  const result = { ...base };
-  for (const [key, overlayVal] of Object.entries(overlay)) {
-    result[key] = result[key] ? stricter(result[key], overlayVal) : overlayVal;
-  }
-  return result;
-}
 
 export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConfig {
   const actions = mergeStricter(base.actions, overlay.actions);
@@ -260,17 +252,19 @@ export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConf
   // Merge afterMessages: additive.
   const afterMessages = { ...(base.afterMessages ?? {}), ...(overlay.afterMessages ?? {}) };
 
-  // Merge allowedPaths: union, deduplicated.
+  // Merge allowedPaths: union, deduplicated, then drop entries overlapping sensitive dirs.
   const basePaths = base.allowedPaths ?? [];
   const overlayPaths = overlay.allowedPaths ?? [];
   const seenPaths = new Set(basePaths);
-  const allowedPaths = [...basePaths];
+  const unionPaths = [...basePaths];
   for (const p of overlayPaths) {
     if (!seenPaths.has(p)) {
-      allowedPaths.push(p);
+      unionPaths.push(p);
       seenPaths.add(p);
     }
   }
+  const sensitiveResolved = SENSITIVE_DIRS.map((e) => e.resolved);
+  const allowedPaths = filterAllowedPaths(unionPaths, sensitiveResolved);
 
   return {
     actions, sensitivePaths, classify, allowTools, mcpPathParams,

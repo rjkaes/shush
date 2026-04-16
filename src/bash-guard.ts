@@ -4,16 +4,25 @@
 // extractStages -> classify each stage -> check composition -> aggregate.
 
 import { extractProcessSubs, extractStages } from "./ast-walk.js";
-import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, NETWORK_OUTBOUND, GIT_SAFE, GIT_WRITE, GIT_DISCARD, GIT_HISTORY_REWRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
+import { classifyTokens, isShellWrapper, isExecSink, getPolicy, FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, DISK_DESTRUCTIVE, NETWORK_OUTBOUND, GIT_SAFE, GIT_WRITE, GIT_DISCARD, GIT_HISTORY_REWRITE, LANG_EXEC, UNKNOWN } from "./taxonomy.js";
 import { checkFlagRules } from "./flag-rules.js";
 import { lookup, checkDangerousGitConfig, stripGitGlobalFlags, extractGitDirPaths, classifyScriptExec, extractFindRoots } from "./classifiers/index.js";
 import { checkComposition } from "./composition.js";
+import { writeEmittersFromData } from "./predicates/composition.js";
 import { globMatch } from "./types.js";
-import { checkPath } from "./path-guard.js";
+import { checkPath, checkProjectBoundary } from "./path-guard.js";
 import type { ClassifyResult, StageResult, Decision, ShushConfig } from "./types.js";
 import { stricter, asFinal, cmdBasename } from "./types.js";
 
 const MAX_UNWRAP_DEPTH = 3;
+
+// Commands classified as a write action (filesystem_write, filesystem_delete,
+// disk_destructive) for at least one subcommand variant. Data-driven from
+// data/classify_full/*.json via writeEmittersFromData(). Used to force the
+// sensitive/hook path check on positional args even when the resolved action
+// type is a non-write variant (e.g. bare `make <path>` resolves to package_run
+// but `make install <path>` is filesystem_write; both must enforce parity).
+const WRITE_EMITTERS = writeEmittersFromData();
 
 // ==============================================================================
 // Command Wrapper Unwrapping
@@ -308,7 +317,12 @@ function classifyStage(tokens: string[], config?: ShushConfig): { actionType: st
  * checks composition rules, and returns the most restrictive decision.
  * Handles shell unwrapping (bash -c, sh -c) with depth limit.
  */
-export function classifyCommand(command: string, depth = 0, config?: ShushConfig): ClassifyResult {
+export function classifyCommand(
+  command: string,
+  depth = 0,
+  config?: ShushConfig,
+  projectRoot: string | null = null,
+): ClassifyResult {
   if (!command.trim()) {
     return {
       command,
@@ -340,7 +354,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
     const cIdx = toks.indexOf("-c");
     if (cIdx >= 1 && cIdx + 1 < toks.length) {
       const innerCommand = toks.slice(cIdx + 1).join(" ");
-      return classifyCommand(innerCommand, depth + 1, config);
+      return classifyCommand(innerCommand, depth + 1, config, projectRoot);
     }
   }
 
@@ -357,7 +371,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       const cIdx = tokens.indexOf("-c");
       if (cIdx >= 1 && cIdx + 1 < tokens.length) {
         const innerCommand = tokens.slice(cIdx + 1).join(" ");
-        const innerResult = classifyCommand(innerCommand, depth + 1, config);
+        const innerResult = classifyCommand(innerCommand, depth + 1, config, projectRoot);
         return {
           tokens,
           actionType: innerResult.stages[0]?.actionType ?? LANG_EXEC,
@@ -386,7 +400,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       const cIdx = tokens.indexOf("-c");
       if (cIdx >= 1 && cIdx + 1 < tokens.length) {
         const innerCommand = tokens.slice(cIdx + 1).join(" ");
-        const innerResult = classifyCommand(innerCommand, depth + 1, config);
+        const innerResult = classifyCommand(innerCommand, depth + 1, config, projectRoot);
         return {
           tokens,
           actionType: innerResult.stages[0]?.actionType ?? LANG_EXEC,
@@ -402,7 +416,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
         (tokens[1] === "exec" || tokens[1] === "run")) {
       const innerTokens = extractDockerInnerCommand(tokens);
       if (innerTokens && innerTokens.length > 0) {
-        const innerResult = classifyCommand(innerTokens.join(" "), depth + 1, config);
+        const innerResult = classifyCommand(innerTokens.join(" "), depth + 1, config, projectRoot);
         let dockerDecision = innerResult.finalDecision;
         let dockerReason = innerResult.reason || `docker ${tokens[1]}: ${innerTokens.join(" ")}`;
 
@@ -499,7 +513,30 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
       FILESYSTEM_READ, FILESYSTEM_WRITE, FILESYSTEM_DELETE, NETWORK_OUTBOUND,
       GIT_SAFE, GIT_WRITE, GIT_DISCARD, GIT_HISTORY_REWRITE,
     ]);
-    if (PATH_CHECKED_TYPES.has(actionType)) {
+    // Write-emitter parity (G1): commands that are classified as
+    // filesystem_write/delete/disk_destructive for ANY subcommand variant
+    // must path-check positional args regardless of the resolved action
+    // type. Example: `make install <path>` is filesystem_write, but bare
+    // `make <path>` resolves to package_run. Both must enforce the same
+    // sensitive/hook path protection as the Write tool. Membership is
+    // data-driven via writeEmittersFromData().
+    const isWriteEmitter = tokens.length > 0 && WRITE_EMITTERS.has(tokens[0]);
+    // G7.4: stages classified via a user-supplied classify entry carry no
+    // shush metadata about which positional arguments are path-like. Force
+    // the path-check loop to run so sensitive-path arguments cannot bypass
+    // protection through custom classifications (e.g. classifying `mywriter`
+    // as `db_read` would otherwise let `mywriter ~/.ssh/id_rsa` through as
+    // `allow`).
+    const baseCmd = tokens.length > 0 ? cmdBasename(tokens[0]) : "";
+    const isUserClassified = baseCmd !== "" && config !== undefined && Object
+      .values(config.classify)
+      .some((patterns) => patterns.some((p) => {
+        // Patterns are first-token-prefix strings ("git clone", "mywriter");
+        // a leading-token match is sufficient to flag the stage as user-routed.
+        const firstTok = p.split(/\s+/)[0];
+        return firstTok === baseCmd;
+      }));
+    if (PATH_CHECKED_TYPES.has(actionType) || isWriteEmitter || isUserClassified) {
       // Use matching tool name: Read for filesystem_read, Write for writes,
       // deletes, and network commands. Network commands that touch files
       // (scp, rsync) can both read and exfiltrate, so "Write" proxy is
@@ -515,7 +552,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
             if (tok.startsWith("-")) return false;
             // Skip URLs (git clone https://..., git remote add origin ...)
             if (/^[a-z+]+:\/\//i.test(tok)) return false;
-            if (!tok.includes("/") && !tok.startsWith("~") && !tok.startsWith("$")) return false;
+            if (!tok.includes("/") && !tok.includes("\\") && !tok.startsWith("~") && !tok.startsWith("$")) return false;
             return true;
           });
 
@@ -524,6 +561,26 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
         if (pathResult) {
           decision = stricter(decision, pathResult.decision);
           reason = pathResult.reason;
+        }
+        // Write-emitter parity (G1): Bash writes must also respect the
+        // project-boundary check that Write/Edit enforce, so `ln -sf src
+        // /Users/rjk/x` outside the project tree asks just like `Write`.
+        // Only enforce boundary when the resolved action is itself a write;
+        // commands like `gh api /repos/...` route through git_write but the
+        // argument is a URL path, not a filesystem path. Boundary applies to
+        // true disk writes: filesystem_write, filesystem_delete, disk_destructive.
+        const isActualWrite =
+          actionType === FILESYSTEM_WRITE ||
+          actionType === FILESYSTEM_DELETE ||
+          actionType === DISK_DESTRUCTIVE;
+        if (isWriteEmitter && isActualWrite) {
+          const boundaryResult = checkProjectBoundary(
+            proxyTool, pathArg, projectRoot, config?.allowedPaths,
+          );
+          if (boundaryResult) {
+            decision = stricter(decision, boundaryResult.decision);
+            reason = boundaryResult.reason;
+          }
         }
       }
     }
@@ -565,7 +622,7 @@ export function classifyCommand(command: string, depth = 0, config?: ShushConfig
   if (depth < MAX_UNWRAP_DEPTH) {
     for (const subList of [subs, cmdSubs]) {
       for (const sub of subList) {
-        const subResult = classifyCommand(sub, depth + 1, config);
+        const subResult = classifyCommand(sub, depth + 1, config, projectRoot);
         if (subResult.finalDecision !== "allow") {
           finalDecision = stricter(finalDecision, subResult.finalDecision);
           actionType = subResult.actionType;

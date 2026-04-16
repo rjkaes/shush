@@ -311,16 +311,16 @@ describe("mergeConfigs", () => {
       actions: {},
       sensitivePaths: {},
       classify: {},
-      allowedPaths: ["~/.claude/"],
+      allowedPaths: ["~/work/"],
     };
     const overlay: ShushConfig = {
       actions: {},
       sensitivePaths: {},
       classify: {},
-      allowedPaths: ["~/.claude/", "~/Documents/shared/"],
+      allowedPaths: ["~/work/", "~/Documents/shared/"],
     };
     const merged = mergeConfigs(base, overlay);
-    expect(merged.allowedPaths).toEqual(["~/.claude/", "~/Documents/shared/"]);
+    expect(merged.allowedPaths).toEqual(["~/work/", "~/Documents/shared/"]);
   });
 });
 describe("filterClassifyTightenOnly", () => {
@@ -485,12 +485,12 @@ describe("loadConfig", () => {
   test("project config cannot add allowed_paths (global-only)", () => {
     const dir = mkdtempSync(join(tmpdir(), "shush-test-"));
     const globalPath = join(dir, "global.yaml");
-    writeFileSync(globalPath, 'allowed_paths:\n  - "~/.claude/"\n');
+    writeFileSync(globalPath, 'allowed_paths:\n  - "~/work/"\n');
     writeFileSync(join(dir, ".shush.yaml"), 'allowed_paths:\n  - "/etc/secrets/"\n');
     try {
       const result = loadConfig(dir, globalPath);
       // Global allowed_paths preserved, project ones stripped
-      expect(result.allowedPaths).toEqual(["~/.claude/"]);
+      expect(result.allowedPaths).toEqual(["~/work/"]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

