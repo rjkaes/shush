@@ -19,7 +19,6 @@ function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
   }
   return false;
 }
-
 /**
  * Check pipe composition rules.
  * Returns [decision, reason, rule] where decision is "" if no rule triggered.
