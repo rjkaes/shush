@@ -44,6 +44,10 @@ function stripComment(raw: string): string {
  *     sub_key:
  *       - item              -> { top_key: { sub_key: ["item"] } }
  *
+ * Top-level scalars (e.g. `key: value` with no nested keys) are stored
+ * under a synthetic `_scalar` sub-key: `{ key: { _scalar: "value" } }`.
+ * Callers must check `doc.key?._scalar` for scalar values.
+ *
  * Returns undefined for empty/comment-only documents. Throws on
  * unrecoverable syntax errors.
  */
@@ -66,13 +70,22 @@ export function parseSimpleYaml(text: string): Record<string, Record<string, str
       if (arrayKey && array && section) section[arrayKey] = array;
       arrayKey = null;
       array = null;
-      // New top-level section
-      if (!content.endsWith(":")) {
+      // Top-level key: value scalar (e.g., `allowOverlapWarn: true`)
+      const colonIdx0 = content.indexOf(":");
+      if (colonIdx0 > 0 && content.slice(colonIdx0 + 1).trim() !== "") {
+        const k = content.slice(0, colonIdx0).trim();
+        const v = unquote(content.slice(colonIdx0 + 1).trim());
+        // Store as a synthetic section so callers can read doc[key]
+        result[k] = { _scalar: v };
+        sectionKey = null;
+        section = null;
+      } else if (!content.endsWith(":")) {
         throw new Error(`expected top-level key, got: ${content}`);
+      } else {
+        sectionKey = content.slice(0, -1).trim();
+        section = {};
+        result[sectionKey] = section;
       }
-      sectionKey = content.slice(0, -1).trim();
-      section = {};
-      result[sectionKey] = section;
     } else if (content.startsWith("- ")) {
       // Array item: could be under a sub-key or directly under a section.
       if (!array) array = [];

@@ -2,6 +2,7 @@
 // Property-based test for G4: a network-fetch command followed by any reset
 // operator and an exec sink must produce a decision of at least "ask".
 import { describe, test } from "bun:test";
+import "./fast-check-setup";
 import fc from "fast-check";
 import { evaluate } from "../src/evaluate.js";
 import { EMPTY_CONFIG } from "../src/types.js";

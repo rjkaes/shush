@@ -1,17 +1,17 @@
 // test/config-containment.test.ts
 import { describe, test, expect } from "bun:test";
-import { parseConfigYaml, mergeConfigs } from "../src/config.js";
+import { parseConfigYaml, mergeConfigs, loadConfigFromString } from "../src/config.js";
 import { evaluate } from "../src/evaluate.js";
 import { EMPTY_CONFIG } from "../src/types.js";
 
 describe("G7 config containment", () => {
-  test("allowed_paths entry that overlaps ~/.ssh is dropped", () => {
-    const user = parseConfigYaml(`
+  test("allowed_paths entry that overlaps ~/.ssh is rejected by loader", () => {
+    const r = loadConfigFromString(`
 allowed_paths:
   - "~/.ssh"
 `);
-    const merged = mergeConfigs(EMPTY_CONFIG, user);
-    expect(merged.allowedPaths).not.toContain("~/.ssh");
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason).toMatch(/overlaps sensitive/i);
   });
 
   test("allowed_paths entry that does not overlap is kept", () => {

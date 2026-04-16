@@ -10,7 +10,7 @@ import path from "node:path";
 import { parseSimpleYaml } from "./mini-yaml.js";
 import { type Decision, type ShushConfig, EMPTY_CONFIG, STRICTNESS, stricter, isActionType } from "./types.js";
 import { DEFAULT_POLICIES, prefixMatch } from "./taxonomy.js";
-import { mergeStricter, filterAllowedPaths } from "./predicates/config.js";
+import { mergeStricter, filterAllowedPaths, allowedPathOverlapsSensitive } from "./predicates/config.js";
 import { SENSITIVE_DIRS } from "./predicates/path.js";
 
 const VALID_DECISIONS = new Set<string>(Object.keys(STRICTNESS));
@@ -252,7 +252,7 @@ export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConf
   // Merge afterMessages: additive.
   const afterMessages = { ...(base.afterMessages ?? {}), ...(overlay.afterMessages ?? {}) };
 
-  // Merge allowedPaths: union, deduplicated, then drop entries overlapping sensitive dirs.
+  // Merge allowedPaths: union, deduplicated.
   const basePaths = base.allowedPaths ?? [];
   const overlayPaths = overlay.allowedPaths ?? [];
   const seenPaths = new Set(basePaths);
@@ -263,8 +263,7 @@ export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConf
       seenPaths.add(p);
     }
   }
-  const sensitiveResolved = SENSITIVE_DIRS.map((e) => e.resolved);
-  const allowedPaths = filterAllowedPaths(unionPaths, sensitiveResolved);
+  const allowedPaths = unionPaths;
 
   return {
     actions, sensitivePaths, classify, allowTools, mcpPathParams,
@@ -272,11 +271,75 @@ export function mergeConfigs(base: ShushConfig, overlay: ShushConfig): ShushConf
   };
 }
 
+/**
+ * Discriminated union returned by `loadConfigFromString`.
+ * On `ok: false` the whole config is rejected (fail-closed).
+ * On `ok: true`, `warnings` carries non-fatal notices (e.g. deprecated opt-in).
+ */
+export type LoadResult =
+  | { ok: true; config: ShushConfig; warnings: string[] }
+  | { ok: false; reason: string };
+
+/**
+ * Parse and validate a YAML string, enforcing fail-closed overlap policy.
+ *
+ * Rejects the entire config when `allowed_paths` contains an entry that
+ * overlaps a sensitive directory, unless the caller has set
+ * `allowOverlapWarn: true` (one-release deprecated soft mode).
+ */
+export function loadConfigFromString(text: string): LoadResult {
+  const config = parseConfigYaml(text);
+
+  // Read allowOverlapWarn directly from the raw YAML so we don't need to
+  // thread it through ShushConfig (it's not a runtime-relevant field).
+  let allowOverlapWarn = false;
+  try {
+    const doc = parseSimpleYaml(text);
+    allowOverlapWarn = doc?.allowOverlapWarn?._scalar === "true";
+  } catch {
+    // If parsing fails here, parseConfigYaml above already returned EMPTY_CONFIG.
+  }
+
+  const sensitiveResolved = SENSITIVE_DIRS.map((e) => e.resolved);
+  const requested = config.allowedPaths ?? [];
+  const overlapping = requested.filter(
+    (p) => allowedPathOverlapsSensitive(p, sensitiveResolved) !== null,
+  );
+
+  if (overlapping.length > 0 && !allowOverlapWarn) {
+    return {
+      ok: false,
+      reason:
+        `allowed_paths overlaps sensitive dirs: ${overlapping.join(", ")}. ` +
+        `Remove the entries, or set allowOverlapWarn: true (deprecated, removed next release).`,
+    };
+  }
+
+  const warnings: string[] = [];
+  if (allowOverlapWarn && overlapping.length > 0) {
+    warnings.push(
+      `allowOverlapWarn is deprecated and will be removed in the next release. ` +
+        `Dropped overlapping allowed_paths: ${overlapping.join(", ")}`,
+    );
+  }
+
+  const allowedPaths = filterAllowedPaths(requested, sensitiveResolved);
+  return { ok: true, config: { ...config, allowedPaths }, warnings };
+}
+
 /** Load and parse a single config file. Returns null if file doesn't exist. */
 export function loadConfigFile(filePath: string): ShushConfig | null {
   try {
     const text = readFileSync(filePath, "utf-8");
-    return parseConfigYaml(text);
+    const result = loadConfigFromString(text);
+    if (!result.ok) {
+      process.stderr.write(`shush: config ${filePath} rejected: ${result.reason}\n`);
+      return EMPTY_CONFIG;
+    }
+    for (const w of result.warnings) {
+      process.stderr.write(`shush: config ${filePath}: ${w}\n`);
+    }
+    return result.config;
   } catch (err: unknown) {
     if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
     process.stderr.write(`shush: error reading config ${filePath}: ${err}\n`);

@@ -33,21 +33,12 @@ export function allowedPathOverlapsSensitive(
   return null;
 }
 
-/** Returns filtered allowedPaths list with overlapping entries removed; warns to stderr. */
+/** Returns filtered allowedPaths list with overlapping entries silently removed. */
 export function filterAllowedPaths(
   allowedPaths: string[],
   sensitiveResolved: string[],
 ): string[] {
-  const kept: string[] = [];
-  for (const raw of allowedPaths) {
-    const overlap = allowedPathOverlapsSensitive(raw, sensitiveResolved);
-    if (overlap) {
-      process.stderr.write(
-        `shush: config: dropping allowed_paths entry "${raw}" (overlaps sensitive path ${overlap})\n`,
-      );
-      continue;
-    }
-    kept.push(raw);
-  }
-  return kept;
+  return allowedPaths.filter(
+    (raw) => allowedPathOverlapsSensitive(raw, sensitiveResolved) === null,
+  );
 }

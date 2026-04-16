@@ -1,7 +1,12 @@
 {
   "filesystem_write": [
-    [
-      "ln"
-    ]
+    {
+      "prefix": [
+        "ln"
+      ],
+      "pathArgs": [
+        -1
+      ]
+    }
   ]
 }

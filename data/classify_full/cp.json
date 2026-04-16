@@ -1,7 +1,12 @@
 {
   "filesystem_write": [
-    [
-      "cp"
-    ]
+    {
+      "prefix": [
+        "cp"
+      ],
+      "pathArgs": [
+        -1
+      ]
+    }
   ]
 }

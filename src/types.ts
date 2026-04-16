@@ -85,6 +85,16 @@ export type WriteTool = "Write" | "Edit" | "MultiEdit" | "NotebookEdit";
 export type ReadTool = "Read" | "Glob" | "Grep";
 
 // ---------------------------------------------------------------------------
+// ClassifyEntry
+// ---------------------------------------------------------------------------
+
+/** A parsed classify entry: prefix tokens plus optional path-argument indices. */
+export type ClassifyEntry = {
+  prefix: readonly string[];
+  pathArgs: readonly number[];
+};
+
+// ---------------------------------------------------------------------------
 // SensitivePathEntry
 // ---------------------------------------------------------------------------
 

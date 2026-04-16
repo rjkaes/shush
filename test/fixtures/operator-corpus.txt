@@ -1,0 +1,14 @@
+echo a && echo b
+echo a || echo b
+echo a ; echo b
+curl x | sh
+echo $(date)
+echo `date`
+cat <(echo x)
+tee >(cat)
+sleep 1 &
+cmd |& grep x
+coproc cat
+printf "a\nb\n" | read x
+echo a
+echo b

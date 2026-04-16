@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { bash, atLeast } from "./eval-helpers";
+import { entryPrefix } from "./classify-entry-helpers";
 
 // =============================================================================
 // Test cases inspired by Dippy (github.com/ldayton/Dippy) test suite.
@@ -243,6 +244,7 @@ describe("classification data invariants", () => {
     readFileSync(join(DATA_DIR, "policies.json"), "utf-8"),
   );
 
+
   test("every action type in policies.json has a description in types.json", () => {
     for (const key of Object.keys(policiesJson)) {
       expect(typesJson).toHaveProperty(key);
@@ -286,8 +288,8 @@ describe("classification data invariants", () => {
       for (const [actionType, entries] of Object.entries(data)) {
         if (actionType === "flag_rules") continue;
         if (!Array.isArray(entries)) continue;
-        for (const entry of entries as string[][]) {
-          const key = entry.join(" ");
+        for (const entry of entries as unknown[]) {
+          const key = entryPrefix(entry).join(" ");
           if (!prefixMap.has(key)) prefixMap.set(key, []);
           prefixMap.get(key)!.push(actionType);
         }
@@ -313,8 +315,8 @@ describe("classification data invariants", () => {
         if (actionType === "flag_rules") continue;
         if (!Array.isArray(entries)) continue;
         const seen = new Set<string>();
-        for (const entry of entries as string[][]) {
-          const key = entry.join(" ");
+        for (const entry of entries as unknown[]) {
+          const key = entryPrefix(entry).join(" ");
           expect(seen.has(key)).toBe(false);
           seen.add(key);
         }

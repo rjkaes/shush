@@ -8,6 +8,7 @@
 // If a property fails, fast-check prints the minimal counterexample
 // showing exactly which input breaks the invariant.
 
+import "./fast-check-setup";
 import { describe, expect, test } from "bun:test";
 import { homedir } from "node:os";
 import fc from "fast-check";

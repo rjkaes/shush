@@ -2,6 +2,7 @@
 // Property-based test for G7: no user config (actions, sensitive_paths,
 // allowed_paths) can produce a sensitive-path Write decision below "ask".
 import { describe, test } from "bun:test";
+import "./fast-check-setup";
 import fc from "fast-check";
 import { parseConfigYaml, mergeConfigs } from "../src/config.js";
 import { EMPTY_CONFIG, STRICTNESS } from "../src/types.js";

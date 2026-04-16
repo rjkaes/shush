@@ -118,3 +118,52 @@ export function writeEmittersFromData(dataDir?: string): Map<string, Set<string>
   }
   return out;
 }
+
+// ==============================================================================
+// Command Wrapper Specifications
+// ==============================================================================
+
+// Commands that wrap another command. We strip them and their flags to classify
+// the inner command. Each entry maps the wrapper name to a set of flags that
+// consume a following argument (value flags).
+export interface WrapperSpec {
+  valueFlags: Set<string>;
+  /** Skip tokens matching VAR=value (used by `env`). */
+  skipAssignments?: boolean;
+  /** Skip the first non-flag positional (used by `timeout` for the duration arg). */
+  skipFirstPositional?: RegExp;
+  /** Fallback tokens when the wrapper has no inner command (used by `xargs` → echo). */
+  defaultInner?: string[];
+}
+
+// PowerShell value flags: flags that take a separate argument.
+// -Command/-c, -File/-f, and -EncodedCommand/-e/-ec are intentionally excluded
+// so the next positional token (the script, command string, or opaque payload)
+// becomes the classified inner command.
+const PWSH_VALUE_FLAGS = new Set([
+  "-ExecutionPolicy", "-ep",
+  "-ConfigurationName",
+  "-CustomPipeName",
+  "-InputFormat", "-if",
+  "-OutputFormat", "-of",
+  "-SettingsFile",
+  "-WorkingDirectory", "-wd",
+]);
+
+export const COMMAND_WRAPPERS: Record<string, WrapperSpec> = {
+  xargs:   { valueFlags: new Set(["-I", "-L", "-n", "-P", "-s", "-R", "-S", "-E"]), defaultInner: ["echo"] },
+  nice:    { valueFlags: new Set(["-n", "--adjustment"]) },
+  nohup:   { valueFlags: new Set([]) },
+  timeout: { valueFlags: new Set(["-k", "--kill-after", "-s", "--signal"]), skipFirstPositional: /^[\d.]+[smhd]?$/ },
+  stdbuf:  { valueFlags: new Set(["-i", "--input", "-o", "--output", "-e", "--error"]) },
+  ionice:  { valueFlags: new Set(["-c", "--class", "-n", "--classdata", "-t"]) },
+  env:     { valueFlags: new Set(["-u", "--unset", "-C", "--chdir", "-S", "--split-string"]), skipAssignments: true },
+  command: { valueFlags: new Set([]) },
+  sudo:    { valueFlags: new Set(["-u", "--user", "-g", "--group", "-C", "--close-from", "-D", "--chdir", "-r", "--role", "-t", "--type", "--host", "--other-user"]), skipAssignments: true },
+  doas:    { valueFlags: new Set(["-u", "-C"]) },
+  busybox: { valueFlags: new Set([]) },
+  entr:    { valueFlags: new Set([]) },
+  watchexec: { valueFlags: new Set(["-w", "--watch", "-e", "--exts", "-i", "--ignore", "-f", "--filter", "-d", "--debounce", "-s", "--signal", "--shell", "--project-origin", "--workdir", "--emit-events-to", "--color", "--completions"]) },
+  pwsh:       { valueFlags: PWSH_VALUE_FLAGS },
+  powershell: { valueFlags: PWSH_VALUE_FLAGS },
+};

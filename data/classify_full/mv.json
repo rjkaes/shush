@@ -1,7 +1,12 @@
 {
   "filesystem_write": [
-    [
-      "mv"
-    ]
+    {
+      "prefix": [
+        "mv"
+      ],
+      "pathArgs": [
+        -1
+      ]
+    }
   ]
 }
