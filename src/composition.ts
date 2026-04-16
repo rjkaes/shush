@@ -1,30 +1,12 @@
 // src/composition.ts
 
 import type { Decision, Stage, StageResult, ShushConfig } from "./types.js";
-import { cmdBasename } from "./types.js";
-import { isExecSink, DECODE_COMMANDS } from "./taxonomy.js";
 import { isHookPath, isSensitive, resolvePath } from "./path-guard.js";
-
-// Exec sinks and the flags that make them run inline code (from the
-// argument) rather than reading code from stdin. When an exec sink has
-// one of these flags, piped input is just data, not code to execute.
-const INLINE_CODE_FLAGS: Record<string, Set<string>> = {
-  bash: new Set(["-c"]),
-  sh: new Set(["-c"]),
-  dash: new Set(["-c"]),
-  zsh: new Set(["-c"]),
-  fish: new Set(["-c"]),
-  python: new Set(["-c"]),
-  python3: new Set(["-c"]),
-  node: new Set(["-e", "--eval"]),
-  bun: new Set(["-e", "--eval"]),
-  deno: new Set(["eval"]),
-  ruby: new Set(["-e"]),
-  perl: new Set(["-e", "-E"]),
-  php: new Set(["-r"]),
-  pwsh: new Set(["-Command", "-c"]),
-  powershell: new Set(["-Command", "-c"]),
-};
+import {
+  isExecSinkStage,
+  execSinkIgnoresStdin,
+  isDecodeStage,
+} from "./predicates/composition.js";
 
 /** Check if a stage reads from a sensitive path. */
 function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
@@ -35,48 +17,6 @@ function isSensitiveRead(sr: StageResult, config?: ShushConfig): boolean {
     if (isHookPath(resolved)) return true;
     if (isSensitive(resolved, config).matched) return true;
   }
-  return false;
-}
-
-/** Check if a stage is an exec sink (bash, python, etc.). */
-function isExecSinkStage(sr: StageResult): boolean {
-  if (sr.tokens.length === 0) return false;
-  const cmd = cmdBasename(sr.tokens[0]);
-  return isExecSink(cmd);
-}
-
-/**
- * Check if an exec sink already knows what code to run, meaning piped
- * input is data, not executable code. True when the interpreter has:
- * - an inline code flag (-e, -c, --eval), or
- * - a script file argument (classified as script_exec)
- */
-function execSinkIgnoresStdin(sr: StageResult): boolean {
-  if (sr.actionType === "script_exec") return true;
-  const cmd = cmdBasename(sr.tokens[0]);
-  const flags = INLINE_CODE_FLAGS[cmd];
-  if (!flags) return false;
-  // Only ignore stdin when the inline code flag has an actual code argument.
-  // bash -c 'code' ignores stdin; bash -c (no arg, from xargs) does not.
-  for (let i = 0; i < sr.tokens.length; i++) {
-    if (flags.has(sr.tokens[i]) && i + 1 < sr.tokens.length) return true;
-  }
-  return false;
-}
-
-/** Check if tokens represent a decode command (base64 -d, xxd -r, etc.). */
-function isDecodeStage(tokens: string[]): boolean {
-  if (tokens.length === 0) return false;
-  const cmd = tokens[0];
-  for (const [decodeCmd, flag] of DECODE_COMMANDS) {
-    if (cmd !== decodeCmd) continue;
-    if (flag === null) return true;
-    if (tokens.includes(flag)) return true;
-  }
-  // openssl enc -d is a decode command (equivalent to base64 -d)
-  if (cmd === "openssl" && tokens.includes("enc") && tokens.includes("-d")) return true;
-  // perl with MIME::Base64 decode
-  if (cmd === "perl" && tokens.some(t => t.includes("decode_base64") || t.includes("MIME::Base64"))) return true;
   return false;
 }
 
