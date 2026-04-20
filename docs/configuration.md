@@ -23,6 +23,8 @@ actions:
 <details>
 <summary>All 22 action types and their defaults</summary>
 
+See also: `DESIGN.md — Classification model` for groupings and policy rationale.
+
 | Action type | Default | Description |
 |-------------|---------|-------------|
 | `filesystem_read` | allow | Read files or list directories |
@@ -76,6 +78,12 @@ classify:
     - "psql -c DROP"
     - "mysql -e DROP"
 ```
+
+**Project config can only tighten.** A `.shush.yaml` `classify` entry
+that would reclassify a command to a less-strict action type than the
+built-in default is silently dropped (with a stderr warning). This is
+enforced by `filterClassifyTightenOnly()` at `src/config.ts:360`.
+See `DESIGN.md — Configuration model` (M2 invariant) for details.
 
 ## `allow_tools` -- allowlist MCP tools
 
@@ -173,8 +181,17 @@ still apply.
 
 ## Supply-chain safety
 
-Per-project `.shush.yaml` can add classifications and tighten policies,
-but **can never relax them**. A malicious repo cannot use `.shush.yaml`
-to allowlist dangerous commands or MCP tools. Only your global config
-has that power. Loosening-only settings (`allow_tools`, `allow_redirects`,
+See `DESIGN.md — Configuration model` for the full enforcement
+mechanism. In short: per-project `.shush.yaml` can never loosen a
+policy, and loosening-only settings (`allow_tools`, `allow_redirects`,
 `allowed_paths`) are restricted to the global config.
+
+## Malformed config
+
+A YAML parse error in either config file logs a warning to stderr
+(`shush: malformed config YAML, ignoring: <reason>`) and falls
+through to defaults for that file, as if the file were absent.
+Invalid entries within a valid file (unknown action type, bad decision
+value) are skipped individually with a per-entry warning; the rest of
+the file is still applied. This means a syntax error never silently
+disables shush entirely.

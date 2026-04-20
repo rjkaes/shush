@@ -1,145 +1,270 @@
 # Data Flow: PreToolUse Hook
 
-How a Claude Code tool call flows through shush's classification
-pipeline, from stdin JSON to the final allow/deny decision.
+This document traces the code path executed for each tool call,
+with `file:function:line` references. For architecture, invariants,
+decision lattice algebra, and composition semantics, see `DESIGN.md`.
 
-## Entry Point: `hooks/pretooluse.ts`
+---
 
-Claude Code invokes the hook with JSON on stdin. The hook reads it
-into a `HookInput { tool_name, tool_input, session_id?, cwd? }`,
-loads config from `~/.config/shush/config.yaml` + `.shush.yaml`
-(merged with stricter-wins), then calls `evaluate()`.
-
-On the way out: `allow`/`context` exit silently (exit 0, no stdout).
-`ask`/`block` write a `HookOutput` with `permissionDecision: "ask"`
-or `"deny"`. Crashes always emit `"deny"` (fail closed).
-
-## Dispatch: `src/evaluate.ts`
-
-A `switch(toolName)` routes to the right guard:
-
-| Tool | Guard |
-|------|-------|
-| `Bash` | `classifyCommand()` (bash-guard) |
-| `Read` | `checkPath()` |
-| `Write`, `Edit` | `checkPath()` + `checkProjectBoundary()` + `scanContent()` |
-| `Glob` | `checkPath()` + `checkProjectBoundary()` on path and pattern |
-| `Grep` | `checkPath()` + `checkProjectBoundary()` + `isCredentialSearch()` |
-| anything else | no-op (allow) |
-
-## Bash Classification Pipeline: `src/bash-guard.ts`
-
-This is the complex path. `classifyCommand(command, depth, config)`
-orchestrates everything:
-
-### 1. Process Substitution Extraction
-
-`ast-walk.ts: extractProcessSubs` scans for `>(cmd)` / `<(cmd)`,
-replaces them with placeholders, and collects inner commands as
-`subs[]`.
-
-### 2. Stage Extraction
-
-`ast-walk.ts: extractStages`:
-
-- First extracts `$()` and backtick command substitutions, replacing
-  with `$__SHUSH_CMD_n` placeholders, collecting into `cmdSubs[]`.
-- Parses with `unbash` into a shell AST (falls back to quote-aware
-  splitting on parse error).
-- Walks the AST to produce `Stage[]`, where each stage has `tokens[]`,
-  `operator`, `redirectTarget?`, `envAssignments?`.
-
-### 3. Shell Unwrapping
-
-Recursive, depth-limited to `MAX_UNWRAP_DEPTH` (3). If the whole
-command is `bash -c '...'` (single stage, first token in
-`SHELL_WRAPPERS`), recurse into the inner command string.
-
-### 4. Per-Stage Classification
-
-For each stage, before calling `classifyStage`:
-
-- **Command wrapper unwrapping**: iteratively strips `sudo`, `env`,
-  `nice`, `nohup`, `timeout`, `xargs`, `doas`, `busybox`, `pwsh`,
-  etc. and their flags to expose the actual command.
-- **Basename normalization**: `/usr/bin/curl` -> `curl` via
-  `cmdBasename()`.
-- **Shell -c re-check**: catches `sudo bash -c '...'` patterns
-  revealed by unwrapping.
-
-Then `classifyStage(tokens, config)` runs a priority pipeline,
-returning the first match:
+## Entry trace
 
 ```
-1. checkDangerousGitConfig()  -- git -c core.hookspath=... etc.
-2. stripGitGlobalFlags()      -- clean tokens for downstream matching
-3. checkFlagRules()           -- data-driven flag rules (flag_rules key in classify_full/*.json)
-4. lookup()                   -- procedural classifier registry (git, curl, wget, etc.)
-5. classifyTokens()           -- trie prefix match (data/classifier-trie.json)
-6. classifyScriptExec()       -- fallback: ./script.sh patterns
+stdin (JSON)
+  -> hooks/pretooluse.ts:6  readStdin()       Buffer accumulation
+  -> hooks/pretooluse.ts:15 JSON.parse()      -> HookInput
+  -> hooks/pretooluse.ts:18 loadConfig()      src/config.ts:408
+  -> hooks/pretooluse.ts:20 evaluate()        src/evaluate.ts:78
+  -> hooks/pretooluse.ts:37 toPermissionDecision()
+  -> hooks/pretooluse.ts:26 exit 0            (allow or context: silent)
+     or
+  -> hooks/pretooluse.ts:47 stdout JSON       (ask or block)
 ```
 
-Each returns an action type string. `getPolicy(actionType, config)`
-resolves it to a `Decision` (checking user config overrides first,
-then `data/policies.json` defaults).
+`allow` and `context` both exit 0 with no stdout. `ask` emits
+`permissionDecision: "ask"`. `block` emits `permissionDecision: "deny"`.
 
-**Post-classification augmentations** per stage:
+See `DESIGN.md — Failure modes and failsafe behavior` for crash
+handling (`hooks/pretooluse.ts:51`).
 
-- **Exec-sink env vars**: `PAGER=malicious git log` escalates to
-  `lang_exec` policy.
-- **Redirect targets**: `cmd > file` applies `filesystem_write` +
-  `checkPath` on the target.
-- **Git dir paths**: `git -C /path` runs `checkPath` on the directory
-  argument.
+---
 
-### 5. Composition Check
+## Dispatch table
 
-`src/composition.ts: checkComposition` scans the stage sequence,
-tracking data-flow state through pipe chains:
+`evaluate()` at `src/evaluate.ts:78` dispatches on `toolName`:
 
-| Pattern | Rule | Decision |
-|---------|------|----------|
-| sensitive_read \| ... \| network | data exfiltration | `block` |
-| network \| exec_sink | remote code execution | `block` |
-| decode \| exec_sink | obfuscated execution | `block` |
-| any_read \| exec_sink | local code execution | `ask` |
+| Tool | Entry point | Lines |
+|------|-------------|-------|
+| `Bash` | `classifyCommand()` | `src/evaluate.ts:89` |
+| `Read` | `checkPath()` | `src/evaluate.ts:97` |
+| `Write` | `checkFileWrite()` | `src/evaluate.ts:106` |
+| `Edit` | `checkFileWrite()` | `src/evaluate.ts:118` |
+| `MultiEdit` | `checkFileWrite()` | `src/evaluate.ts:130` |
+| `NotebookEdit` | `checkFileWrite()` | `src/evaluate.ts:140` |
+| `Glob` | `checkPath()` + `checkProjectBoundary()` | `src/evaluate.ts:148` |
+| `Grep` | `checkPath()` + `checkProjectBoundary()` + `isCredentialSearch()` | `src/evaluate.ts:171` |
+| `mcp__*` | deny_tools / allow_tools / mcp_path_params | `src/evaluate.ts:195` |
+| everything else | no-op (allow) | `src/evaluate.ts:195` default |
 
-Non-pipe operators (`&&`, `||`, `;`) reset the chain. Exec sinks
-with inline code flags (`-c`, `-e`) are exempt since stdin is data,
-not code.
+`checkFileWrite()` at `src/evaluate.ts:30` sequences
+`checkPath()` -> `checkProjectBoundary()` -> `scanContent()`.
+
+See `DESIGN.md — Architecture at a glance` for the full flow diagram.
+
+---
+
+## Bash trace
+
+`classifyCommand(command, depth=0, config, projectRoot)`
+at `src/bash-guard.ts:301`.
+
+### 1. Process-substitution extraction (`src/bash-guard.ts:320`)
+
+```
+command.includes(">(" ) || command.includes("<(")
+  -> extractProcessSubs()   src/ast-walk.ts
+     returns { cleaned, subs[] }
+```
+
+Inner commands in `subs[]` are classified after the main pipeline
+and can escalate the final decision.
+
+### 2. Stage extraction (`src/bash-guard.ts:324`)
+
+```
+extractStages(cleaned)   src/ast-walk.ts
+  returns { stages: Stage[], cmdSubs: string[] }
+```
+
+`extractStages` extracts `$()` / backtick substitutions as
+`cmdSubs[]`, parses with `unbash`, walks the AST to produce
+`Stage[]`. Falls back to `fallbackSplit` on parse error.
+
+See `DESIGN.md — Bash pipeline semantics` for fallback details.
+
+### 3. Shell unwrap loop (`src/bash-guard.ts:328`)
+
+```
+if depth < MAX_UNWRAP_DEPTH (src/bash-guard.ts:17)
+&& stages.length === 1
+&& isShellWrapper(stages[0].tokens[0])  src/taxonomy.ts:137
+  -> classifyCommand(innerCommand, depth+1, ...)  recursive
+```
+
+Shell wrappers: `bash`, `sh`, `dash`, `zsh`, `pwsh`, `powershell`
+(`src/taxonomy.ts:128`).
+
+### 4. Per-stage classification (`src/bash-guard.ts:342`)
+
+For each stage in `stages.map(...)`:
+
+```
+a. shell -c unwrap        src/bash-guard.ts:351
+b. command wrapper strip  src/bash-guard.ts:367  (COMMAND_WRAPPERS loop)
+c. post-unwrap shell -c   src/bash-guard.ts:380
+d. docker delegation      src/bash-guard.ts:396
+e. basename normalize     src/bash-guard.ts:374
+f. classifyStage()        src/bash-guard.ts:228
+     1. checkDangerousGitConfig()   src/classifiers/git.ts
+     2. checkFlagRules()            src/flag-rules.ts
+     3. lookup()                    src/classifiers/index.ts
+     4. classifyTokensFull()        src/taxonomy.ts  (trie)
+        + classifyScriptExec()      src/classifiers/script-exec.ts
+```
+
+`getPolicy(actionType, config)` at `src/taxonomy.ts:122` resolves
+the action type to a Decision (config override first, then
+`DEFAULT_POLICIES` from `data/policies.json`).
+
+See `DESIGN.md — Bash pipeline semantics` for post-classification
+augmentations (redirect targets, exec-sink env vars, git -C paths).
+
+### 5. Composition check (`src/bash-guard.ts:404+`)
+
+```
+checkComposition(stageResults, stages, config)   src/composition.ts:26
+  returns [Decision | "", reason, ruleName]
+```
+
+See `DESIGN.md — Composition rules` for the five rules.
 
 ### 6. Aggregation
 
-All stage decisions are reduced with `stricter()` (`allow < context <
-ask < block`). Composition can escalate further. Then process subs
-and command subs are recursively classified (depth-limited) and can
-escalate the final decision.
+```
+stricter() over all stage decisions   src/types.ts:47
+stricter() with composition decision
+classify each sub in cmdSubs[] and subs[] (depth+1, recursive)
+stricter() with sub decisions
+-> ClassifyResult.finalDecision
+```
 
-Returns `ClassifyResult { command, stages, finalDecision, actionType,
-reason, compositionRule? }`.
+---
 
-## Non-Bash Guards
+## File-tool trace
 
-### `src/path-guard.ts`
+Shared path for `Write`, `Edit`, `MultiEdit`, `NotebookEdit`
+via `checkFileWrite()` at `src/evaluate.ts:30`:
 
-Resolves `~`, strips null bytes, then checks against:
+```
+checkPath(toolName, filePath, config)         src/path-guard.ts:13
+  -> resolvePath()                            src/predicates/path.ts
+  -> isHookPath()
+  -> isSensitive()
+  -> returns { decision, reason } | null
 
-- Hardcoded `SENSITIVE_DIRS` (`~/.ssh` -> block, `~/.aws` -> ask,
-  etc.)
-- `SENSITIVE_BASENAMES` (`.env`, `.npmrc`, etc.)
-- User-configured `sensitivePaths`
-- Hook-path self-protection (`~/.claude/hooks/`)
-- Project boundary enforcement
+if decision == "allow":
+  checkProjectBoundary(toolName, filePath,    src/path-guard.ts:69
+    projectRoot, config.allowedPaths)
+    -> resolveReal()  (symlink resolution)
+    -> returns { decision, reason } | null
 
-### `src/content-guard.ts`
+if decision == "allow":
+  scanContent(content)                        src/content-guard.ts:74
+    -> CONTENT_PATTERNS regexes (capped at    src/content-guard.ts:68
+       MAX_SCAN_BYTES=256KB for
+       EXPENSIVE_CATEGORIES)
+    -> returns ContentMatch[]
 
-Regex scans Write/Edit content for destructive patterns, exfiltration
-payloads, credential access, obfuscation, and embedded secrets
-(private keys, AWS keys, GitHub tokens, JWTs). Hits escalate to
-`ask`.
+  if matches.length > 0:
+    decision = "ask"
+```
 
-## The Invariant
+`Read` runs only `checkPath()` (`src/evaluate.ts:97`); no boundary
+or content check.
 
-At every aggregation point (stages, composition, subs, path+content),
-`stricter()` ensures the most restrictive decision wins. No layer can
-loosen a decision made by a previous layer.
+`Glob` and `Grep` run `checkPath` + `checkProjectBoundary` but not
+`scanContent`. `Grep` additionally calls `isCredentialSearch(pattern)`
+at `src/evaluate.ts:189`.
+
+See `DESIGN.md — Non-Bash tools` for path-guard and content-guard
+details.
+
+---
+
+## MCP tool trace
+
+Default branch at `src/evaluate.ts:195`:
+
+```
+toolName.startsWith("mcp__")
+  -> check config.denyTools patterns (globMatch)   src/evaluate.ts:200
+     decision = "block" on first match
+  -> if not denied: check config.allowTools        src/evaluate.ts:209
+     if not in list: decision = "ask"
+  -> config.mcpPathParams: for each matching glob  src/evaluate.ts:215
+     extract path params from toolInput
+     run checkPath() + checkProjectBoundary() on each
+     stricter() with current decision
+```
+
+`denyTools` is checked before `allowTools`: a deny pattern wins even
+if the tool also matches an allow pattern.
+
+---
+
+## Config load trace
+
+`loadConfig(projectRoot, globalPath)` at `src/config.ts:408`:
+
+```
+loadConfigFile(globalPath)           src/config.ts:331
+  -> readFileSync()
+  -> loadConfigFromString()          src/config.ts:290
+       parseConfigYaml()             src/config.ts:19
+         parseSimpleYaml()           src/mini-yaml.ts
+         catch -> EMPTY_CONFIG + stderr warning
+       filterAllowedPaths()
+  -> returns ShushConfig | EMPTY_CONFIG | null
+
+loadConfigFile(projectPath)          src/config.ts:331
+
+filterClassifyTightenOnly(           src/config.ts:360
+  projectConfig.classify,
+  globalConfig.classify,
+  baseActions)
+  drops entries that would loosen; stderr warning per drop
+
+mergeConfigs(effectiveBase,          src/config.ts:178
+  filteredProject)
+  mergeStricter() on actions + sensitivePaths
+  additive union on classify, allowTools, mcpPathParams
+  -> ShushConfig
+```
+
+Global path defaults to `~/.config/shush/config.yaml`. Project path
+is `<projectRoot>/.shush.yaml`. Both are optional; missing file
+returns null (treated as `EMPTY_CONFIG`).
+
+See `DESIGN.md — Configuration model` for tighten-only enforcement.
+
+---
+
+## Build trace
+
+`scripts/build-trie.ts` reads every JSON file under
+`data/classify_full/`, skips the `flag_rules` key, validates action
+types against `data/types.json`, and writes a nested prefix trie to
+`data/classifier-trie.json`. Each terminal trie node carries `_`
+(action type) and optionally `_p` (pathArgs indices).
+
+Flag rules (`flag_rules` key in `classify_full/` files) are compiled
+by `scripts/build-flag-rules.ts` into `data/flag-rules.json`, loaded
+at runtime by `src/flag-rules.ts`.
+
+---
+
+## Failsafe trace
+
+Any unhandled rejection in `main()` (`hooks/pretooluse.ts:51`):
+
+```
+main().catch((err) => {
+  process.stderr.write(`shush: ${err}\n`)
+  emit HookOutput { permissionDecision: "deny" }
+  process.exit(0)
+})
+```
+
+Exit code is always 0. A crash produces `"deny"`, never a missing
+response that could be interpreted as allow.
+
+See `DESIGN.md — Failure modes and failsafe behavior`.
